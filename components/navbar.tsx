@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
+import React from "react";
 
-export default function NavBar() {
+const NavBar: React.FC = () => {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -44,7 +45,6 @@ export default function NavBar() {
           font-weight: bold;
           transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
-
         .nav-button:hover {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
@@ -52,4 +52,6 @@ export default function NavBar() {
       `}</style>
     </nav>
   );
-}
+};
+
+export default NavBar;

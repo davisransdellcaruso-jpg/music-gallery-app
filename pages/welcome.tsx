@@ -1,7 +1,7 @@
 // pages/welcome.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export default function Welcome() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function Welcome() {
           await supabase.auth.signOut();
         }
       } else if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -87,7 +87,7 @@ export default function Welcome() {
         overflow: "hidden",
       }}
     >
-      {/* Clouds & mist for dream effect */}
+      {/* Clouds & mist */}
       <div className="clouds"></div>
       <div className="mist"></div>
 
@@ -212,7 +212,7 @@ export default function Welcome() {
         </button>
       </form>
 
-      {/* Dreamy background + glow styles */}
+      {/* Background styles */}
       <style jsx>{`
         .dreamy-button {
           background-color: #aeb8fe;
@@ -225,12 +225,10 @@ export default function Welcome() {
           font-weight: bold;
           transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
-
         .dreamy-button:hover {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
         }
-
         .clouds {
           position: absolute;
           top: 0;
@@ -242,7 +240,6 @@ export default function Welcome() {
           opacity: 0.25;
           animation: drift 60s linear infinite;
         }
-
         .mist {
           position: absolute;
           top: 0;
@@ -256,7 +253,6 @@ export default function Welcome() {
           );
           pointer-events: none;
         }
-
         @keyframes drift {
           0% {
             transform: translateX(0);

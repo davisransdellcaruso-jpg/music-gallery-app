@@ -1,8 +1,9 @@
+// pages/album/[id].tsx
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
-import { supabase } from "../../lib/supabase";
-import withAuth from "../../components/withAuth"; // ⬅️ import wrapper
-import NavBar from "../../components/NavBar"; // ✅ new import
+import { supabase } from "@/lib/supabase";
+import withAuth from "@/components/withAuth"; // ⬅️ wrapper
+import NavBar from "@/components/NavBar";   // ⬅️ new consistent nav
 
 type Album = {
   id: string;
@@ -145,7 +146,7 @@ function AlbumPage() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* ✅ Use shared NavBar */}
+      {/* NavBar */}
       <NavBar />
 
       {/* Album title */}
@@ -471,5 +472,4 @@ function AlbumPage() {
   );
 }
 
-// ⬅️ wrap withAuth to protect the page
 export default withAuth(AlbumPage);
