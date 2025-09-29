@@ -61,7 +61,8 @@ export default function Lessons() {
       {/* Header */}
       <h1
         style={{
-          fontSize: "2rem",
+          fontSize: "3rem", // ⬅ bigger
+          fontWeight: "bold",
           fontFamily: "Bodoni, serif",
           marginBottom: "1.5rem",
         }}
@@ -71,8 +72,8 @@ export default function Lessons() {
 
       {/* Content */}
       <h2 style={{ fontSize: "1.5rem" }}>Learn with Davis 🎥</h2>
-      <p style={{ marginTop: "1rem", maxWidth: "600px", textAlign: "center" }}>
-        Video lessons and tutorials will appear here soon. Stay tuned!
+      <p style={{ marginTop: "1rem", textAlign: "center", maxWidth: "600px" }}>
+        This is where video lessons will go. For now, it’s a placeholder page.
       </p>
     </div>
   );

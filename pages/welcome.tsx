@@ -1,7 +1,7 @@
 // pages/welcome.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export default function Welcome() {
   const router = useRouter();
@@ -83,30 +83,39 @@ export default function Welcome() {
         justifyContent: "center",
         alignItems: "center",
         padding: "2rem",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {/* Clouds & mist for dream effect */}
+      <div className="clouds"></div>
+      <div className="mist"></div>
+
       <form
         style={{
           width: "100%",
           maxWidth: "400px",
-          backgroundColor: "white",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
           borderRadius: "8px",
           padding: "2rem",
+          position: "relative",
+          zIndex: 2,
         }}
       >
         {/* Header */}
         <h1
           style={{
             textAlign: "center",
-            marginBottom: "1.5rem",
+            marginBottom: "2rem",
             color: "#4b2a6f",
             fontFamily: "Bodoni, serif",
+            fontSize: "3rem",
+            fontWeight: "bold",
           }}
         >
           dav.wav gallery
         </h1>
 
-        {/* Email */}
         <input
           type="email"
           placeholder="Email"
@@ -119,10 +128,10 @@ export default function Welcome() {
             marginBottom: "1rem",
             borderRadius: "6px",
             border: "1px solid #ccc",
+            backgroundColor: "khaki",
           }}
         />
 
-        {/* Password */}
         <input
           type="password"
           placeholder="Password"
@@ -135,10 +144,10 @@ export default function Welcome() {
             marginBottom: "1rem",
             borderRadius: "6px",
             border: "1px solid #ccc",
+            backgroundColor: "khaki",
           }}
         />
 
-        {/* Stay logged in */}
         <label
           style={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
         >
@@ -151,88 +160,109 @@ export default function Welcome() {
           Keep me logged in
         </label>
 
-        {/* Error/Message */}
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
-        {message && <p style={{ color: "green", marginBottom: "1rem" }}>{message}</p>}
+        {message && (
+          <p style={{ color: "green", marginBottom: "1rem" }}>{message}</p>
+        )}
 
-        {/* Resend confirmation */}
         {unconfirmedEmail && (
           <button
             type="button"
             onClick={handleResend}
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              marginBottom: "1rem",
-              backgroundColor: "#ccc",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-            }}
+            className="dreamy-button"
+            style={{ marginBottom: "1rem", width: "100%" }}
           >
             Resend Confirmation Email
           </button>
         )}
 
-        {/* Music */}
+        {/* Music button */}
         <button
           type="submit"
           disabled={!credentialsFilled || loading}
           onClick={(e) => handleAuth(e, "gallery")}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            backgroundColor: credentialsFilled ? "#6B4F82" : "#aaa",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "1rem",
-            cursor: credentialsFilled ? "pointer" : "not-allowed",
-            marginBottom: "1rem",
-          }}
+          className="dreamy-button"
+          style={{ width: "100%", marginBottom: "1rem" }}
         >
           {loading ? "Loading..." : "Music"}
         </button>
 
-        {/* Learn */}
+        {/* Learn button */}
         <button
           type="submit"
           disabled={!credentialsFilled || loading}
           onClick={(e) => handleAuth(e, "lessons")}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            backgroundColor: credentialsFilled ? "#6B4F82" : "#aaa",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "1rem",
-            cursor: credentialsFilled ? "pointer" : "not-allowed",
-            marginBottom: "1rem",
-          }}
+          className="dreamy-button"
+          style={{ width: "100%", marginBottom: "1rem" }}
         >
           {loading ? "Loading..." : "Learn"}
         </button>
 
-        {/* Store */}
+        {/* Store button */}
         <button
           type="button"
           onClick={() => window.open("/store", "_blank")}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            backgroundColor: "#6B4F82",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "1rem",
-            cursor: "pointer",
-          }}
+          className="dreamy-button"
+          style={{ width: "100%" }}
         >
           Store
         </button>
       </form>
+
+      {/* Dreamy background + glow styles */}
+      <style jsx>{`
+        .dreamy-button {
+          background-color: #aeb8fe;
+          color: #2a004f;
+          border: none;
+          border-radius: 6px;
+          padding: 0.75rem 1.25rem;
+          cursor: pointer;
+          font-size: 1rem;
+          font-weight: bold;
+          transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dreamy-button:hover {
+          background-color: #8f9efc;
+          box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
+        }
+
+        .clouds {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 200%;
+          height: 100%;
+          background: url("/clouds.png") repeat-x;
+          background-size: cover;
+          opacity: 0.25;
+          animation: drift 60s linear infinite;
+        }
+
+        .mist {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0) 70%
+          );
+          pointer-events: none;
+        }
+
+        @keyframes drift {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 // pages/gallery.tsx
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
+import withAuth from "../components/withAuth"; // ⬅️ import wrapper
 
 type Album = {
   id: string;
@@ -10,14 +11,17 @@ type Album = {
   cover_url: string;
 };
 
-export default function Gallery() {
+function Gallery() {
   const router = useRouter();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAlbums = async () => {
-      const { data, error } = await supabase.from("albums").select("*");
+      const { data, error } = await supabase
+        .from("albums")
+        .select("*")
+        .order("year", { ascending: true }); // ✅ oldest → newest
       if (error) console.error(error);
       else setAlbums(data || []);
       setLoading(false);
@@ -32,6 +36,8 @@ export default function Gallery() {
       style={{
         minHeight: "100vh",
         width: "100%",
+        position: "relative",
+        overflow: "hidden",
         backgroundColor: "#4b2a6f",
         display: "flex",
         flexDirection: "column",
@@ -39,6 +45,10 @@ export default function Gallery() {
         padding: "2rem",
       }}
     >
+      {/* Animated clouds */}
+      <div className="clouds"></div>
+      <div className="mist"></div>
+
       {/* Top navigation bar */}
       <div
         style={{
@@ -47,35 +57,15 @@ export default function Gallery() {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: "2rem",
+          position: "relative",
+          zIndex: 2,
         }}
       >
-        <button
-          onClick={() => router.push("/welcome")}
-          style={{
-            backgroundColor: "#6B4F82",
-            color: "white",
-            padding: "0.5rem 1rem",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
+        <button onClick={() => router.push("/welcome")} className="dreamy-button">
           ← Back to Welcome
         </button>
 
-        <button
-          onClick={() => window.open("/store", "_blank")}
-          style={{
-            backgroundColor: "#6B4F82",
-            color: "white",
-            padding: "0.5rem 1rem",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
+        <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
           Store 🛒
         </button>
       </div>
@@ -86,6 +76,10 @@ export default function Gallery() {
           color: "white",
           fontFamily: "Bodoni, serif",
           marginBottom: "2rem",
+          fontSize: "3rem",
+          fontWeight: "bold",
+          position: "relative",
+          zIndex: 2,
         }}
       >
         dav.wav gallery
@@ -98,6 +92,8 @@ export default function Gallery() {
           justifyContent: "center",
           flexWrap: "wrap",
           gap: "3rem",
+          position: "relative",
+          zIndex: 2,
         }}
       >
         {albums.map((album) => (
@@ -108,14 +104,19 @@ export default function Gallery() {
               cursor: "pointer",
               textAlign: "center",
               transform: "translateY(-10px)",
-              transition: "transform 0.3s",
+              transition: "transform 0.3s, box-shadow 0.3s",
+              borderRadius: "12px",
+              padding: "0.5rem",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "translateY(-20px)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.transform = "translateY(-10px)")
-            }
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-20px)";
+              e.currentTarget.style.boxShadow =
+                "0 0 20px rgba(175, 184, 254, 0.7)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(-10px)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
             <img
               src={album.cover_url}
@@ -137,10 +138,67 @@ export default function Gallery() {
             >
               {album.title}
             </h2>
-            <p style={{ color: "white", margin: "0.25rem 0" }}>{album.year}</p>
+            <p style={{ color: "white", margin: "0.25rem 0" }}>({album.year})</p>
           </div>
         ))}
       </div>
+
+      {/* Styles */}
+      <style jsx>{`
+        .dreamy-button {
+          background-color: #aeb8fe;
+          color: #2a004f;
+          border: none;
+          border-radius: 6px;
+          padding: 0.5rem 1rem;
+          cursor: pointer;
+          font-size: 1rem;
+          font-weight: bold;
+          transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dreamy-button:hover {
+          background-color: #8f9efc;
+          box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
+        }
+
+        .clouds {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 200%;
+          height: 100%;
+          background: url("/clouds.png") repeat-x;
+          background-size: cover;
+          opacity: 0.25;
+          animation: drift 60s linear infinite;
+        }
+
+        .mist {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0) 70%
+          );
+          pointer-events: none;
+        }
+
+        @keyframes drift {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </div>
   );
 }
+
+export default withAuth(Gallery);
