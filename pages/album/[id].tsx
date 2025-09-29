@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import withAuth from "../../components/withAuth"; // ⬅️ import wrapper
+import NavBar from "../../components/NavBar"; // ✅ new import
 
 type Album = {
   id: string;
@@ -144,15 +145,8 @@ function AlbumPage() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* Top navigation */}
-      <div className="nav-bar">
-        <button onClick={() => router.push("/gallery")} className="dreamy-button">
-          ← Back to Gallery
-        </button>
-        <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
-          Store 🛒
-        </button>
-      </div>
+      {/* ✅ Use shared NavBar */}
+      <NavBar />
 
       {/* Album title */}
       <h1 className="album-title">
@@ -327,15 +321,6 @@ function AlbumPage() {
           pointer-events: none;
         }
 
-        .nav-bar {
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: relative;
-          z-index: 2;
-        }
-
         .dreamy-button {
           background-color: #aeb8fe;
           color: #2a004f;
@@ -461,7 +446,6 @@ function AlbumPage() {
           overflow-y: auto;
           margin-bottom: 1rem;
         }
-        /* Only change: make comment text closer to track size (2rem) */
         .comment-text {
           font-size: 2rem;
           line-height: 1.3;
@@ -471,7 +455,7 @@ function AlbumPage() {
           border-radius: 6px;
           padding: 0.5rem;
           margin-bottom: 0.5rem;
-          font-size: 1.25rem; /* slightly larger input for balance */
+          font-size: 1.25rem;
         }
 
         @keyframes drift {

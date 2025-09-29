@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
-import withAuth from "../components/withAuth"; // ⬅️ import wrapper
+import withAuth from "../components/withAuth";
+import NavBar from "../components/NavBar"; // ⬅️ import the NavBar
 
 type Album = {
   id: string;
@@ -21,7 +22,7 @@ function Gallery() {
       const { data, error } = await supabase
         .from("albums")
         .select("*")
-        .order("year", { ascending: true }); // ✅ oldest → newest
+        .order("year", { ascending: true });
       if (error) console.error(error);
       else setAlbums(data || []);
       setLoading(false);
@@ -50,25 +51,7 @@ function Gallery() {
       <div className="mist"></div>
 
       {/* Top navigation bar */}
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <button onClick={() => router.push("/welcome")} className="dreamy-button">
-          ← Back to Welcome
-        </button>
-
-        <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
-          Store 🛒
-        </button>
-      </div>
+      <NavBar />
 
       {/* Header */}
       <h1
@@ -145,23 +128,6 @@ function Gallery() {
 
       {/* Styles */}
       <style jsx>{`
-        .dreamy-button {
-          background-color: #aeb8fe;
-          color: #2a004f;
-          border: none;
-          border-radius: 6px;
-          padding: 0.5rem 1rem;
-          cursor: pointer;
-          font-size: 1rem;
-          font-weight: bold;
-          transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .dreamy-button:hover {
-          background-color: #8f9efc;
-          box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
-        }
-
         .clouds {
           position: absolute;
           top: 0;

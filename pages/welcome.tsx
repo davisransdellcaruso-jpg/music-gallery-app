@@ -13,46 +13,46 @@ export default function Welcome() {
   const [message, setMessage] = useState<string | null>(null);
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
 
-  const handleAuth = async (
-    e: React.FormEvent,
-    destination: "gallery" | "lessons"
-  ) => {
+  const handleAuth = async (e: React.FormEvent, mode: "login" | "signup") => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
     try {
-      let { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      if (mode === "login") {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
 
-      if (error && error.message.includes("Invalid login credentials")) {
-        const signupRes = await supabase.auth.signUp({ email, password });
-        if (signupRes.error) throw signupRes.error;
+        if (data.user?.email_confirmed_at) {
+          if (!stayLoggedIn && data.session) {
+            localStorage.removeItem("supabase.auth.token");
+            sessionStorage.setItem(
+              "supabase.auth.token",
+              JSON.stringify(data.session)
+            );
+          }
+          router.push("/gallery");
+        } else {
+          setMessage("Please confirm your email before logging in.");
+          setUnconfirmedEmail(email);
+          await supabase.auth.signOut();
+        }
+      } else if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: "https://www.daviscaruso.com/welcome",
+          },
+        });
+        if (error) throw error;
 
         setMessage("Please check your email to confirm your account.");
         setUnconfirmedEmail(email);
-        setLoading(false);
-        return;
-      }
-
-      if (error) throw error;
-
-      if (data.user?.email_confirmed_at) {
-        if (!stayLoggedIn && data.session) {
-          localStorage.removeItem("supabase.auth.token");
-          sessionStorage.setItem(
-            "supabase.auth.token",
-            JSON.stringify(data.session)
-          );
-        }
-        router.push(`/${destination}`);
-      } else {
-        setMessage("Please confirm your email before accessing the gallery.");
-        setUnconfirmedEmail(email);
-        await supabase.auth.signOut();
       }
     } catch (err: any) {
       setError(err.message);
@@ -116,7 +116,6 @@ export default function Welcome() {
           dav.wav gallery
         </h1>
 
-        {/* Clarifying line */}
         <p
           style={{
             textAlign: "center",
@@ -190,36 +189,26 @@ export default function Welcome() {
           </button>
         )}
 
-        {/* Music button */}
+        {/* Login */}
         <button
           type="submit"
           disabled={!credentialsFilled || loading}
-          onClick={(e) => handleAuth(e, "gallery")}
+          onClick={(e) => handleAuth(e, "login")}
           className="dreamy-button"
           style={{ width: "100%", marginBottom: "1rem" }}
         >
-          {loading ? "Loading..." : "Music"}
+          {loading ? "Loading..." : "Login"}
         </button>
 
-        {/* Learn button */}
+        {/* Sign up */}
         <button
           type="submit"
           disabled={!credentialsFilled || loading}
-          onClick={(e) => handleAuth(e, "lessons")}
-          className="dreamy-button"
-          style={{ width: "100%", marginBottom: "1rem" }}
-        >
-          {loading ? "Loading..." : "Learn"}
-        </button>
-
-        {/* Store button */}
-        <button
-          type="button"
-          onClick={() => window.open("/store", "_blank")}
+          onClick={(e) => handleAuth(e, "signup")}
           className="dreamy-button"
           style={{ width: "100%" }}
         >
-          Store
+          {loading ? "Loading..." : "Sign Up"}
         </button>
       </form>
 
