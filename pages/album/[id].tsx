@@ -1,9 +1,9 @@
 // pages/album/[id].tsx
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import withAuth from "@/components/withAuth"; // ⬅️ wrapper
-import NavBar from "@/components/NavBar";   // ⬅️ new consistent nav
+import { supabase } from "../../lib/supabase";
+import withAuth from "../../components/withAuth"; // ⬅️ wrapper
+import NavBar from "../../components/NavBar";    // ✅ relative path import
 
 type Album = {
   id: string;
@@ -146,8 +146,8 @@ function AlbumPage() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* NavBar */}
-      <NavBar />
+      {/* Top navigation bar */}
+      <NavBar router={router} />
 
       {/* Album title */}
       <h1 className="album-title">
@@ -239,7 +239,13 @@ function AlbumPage() {
                   </p>
                 ))
               ) : (
-                <p style={{ whiteSpace: "pre-wrap", color: "#ddd", fontSize: "1.5rem" }}>
+                <p
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    color: "#ddd",
+                    fontSize: "1.5rem",
+                  }}
+                >
                   {currentTrack.lyrics}
                 </p>
               )}
@@ -264,7 +270,11 @@ function AlbumPage() {
             <p>No comments yet.</p>
           ) : (
             comments.map((c) => (
-              <p key={c.id} className="comment-text" style={{ marginBottom: "0.5rem" }}>
+              <p
+                key={c.id}
+                className="comment-text"
+                style={{ marginBottom: "0.5rem" }}
+              >
                 {c.content}
               </p>
             ))
