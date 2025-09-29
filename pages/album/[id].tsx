@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import withAuth from "../../components/withAuth"; // ⬅️ wrapper
-import NavBar from "../../components/NavBar";    // ✅ relative path import
 
 type Album = {
   id: string;
@@ -146,8 +145,30 @@ function AlbumPage() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* Top navigation bar */}
-      <NavBar router={router} />
+      {/* Top navigation buttons */}
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "2rem",
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        <button onClick={() => router.push("/gallery")} className="dreamy-button">
+          ← Back to Gallery
+        </button>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
+            Store 🛒
+          </button>
+          <button onClick={() => window.open("/learn", "_blank")} className="dreamy-button">
+            Learn 📖
+          </button>
+        </div>
+      </div>
 
       {/* Album title */}
       <h1 className="album-title">

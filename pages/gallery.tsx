@@ -1,9 +1,8 @@
 // pages/gallery.tsx
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@/lib/supabase";
-import withAuth from "@/components/withAuth";
-import NavBar from "@/components/NavBar";
+import { supabase } from "../lib/supabase";
+import withAuth from "../components/withAuth"; // ⬅️ wrapper
 
 type Album = {
   id: string;
@@ -22,7 +21,7 @@ function Gallery() {
       const { data, error } = await supabase
         .from("albums")
         .select("*")
-        .order("year", { ascending: true }); // ✅ oldest → newest
+        .order("year", { ascending: true }); // oldest → newest
       if (error) console.error(error);
       else setAlbums(data || []);
       setLoading(false);
@@ -50,8 +49,30 @@ function Gallery() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* Top navigation bar */}
-      <NavBar />
+      {/* Top navigation buttons */}
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "2rem",
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        <button onClick={() => router.push("/welcome")} className="dreamy-button">
+          ← Back to Welcome
+        </button>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
+            Store 🛒
+          </button>
+          <button onClick={() => window.open("/learn", "_blank")} className="dreamy-button">
+            Learn 📖
+          </button>
+        </div>
+      </div>
 
       {/* Header */}
       <h1
