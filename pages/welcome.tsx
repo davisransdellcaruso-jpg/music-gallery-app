@@ -106,7 +106,7 @@ export default function Welcome() {
         <h1
           style={{
             textAlign: "center",
-            marginBottom: "2rem",
+            marginBottom: "0.25rem",
             color: "#4b2a6f",
             fontFamily: "Bodoni, serif",
             fontSize: "3rem",
@@ -115,6 +115,20 @@ export default function Welcome() {
         >
           dav.wav gallery
         </h1>
+
+        {/* Clarifying line */}
+        <p
+          style={{
+            textAlign: "center",
+            marginBottom: "2rem",
+            fontSize: "1.25rem",
+            fontWeight: "bold",
+            color: "#6b46c1",
+            fontFamily: "Bodoni, serif",
+          }}
+        >
+          (Sign up / Login)
+        </p>
 
         <input
           type="email"
