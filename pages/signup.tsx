@@ -1,51 +1,39 @@
-// pages/welcome.tsx
+// pages/signup.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabase";
 
-export default function Welcome() {
+export default function Signup() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [stayLoggedIn, setStayLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: "https://www.daviscaruso.com/welcome",
+      },
+    });
 
-      if (data.user?.email_confirmed_at) {
-        if (!stayLoggedIn && data.session) {
-          localStorage.removeItem("supabase.auth.token");
-          sessionStorage.setItem(
-            "supabase.auth.token",
-            JSON.stringify(data.session)
-          );
-        }
-        router.push("/gallery");
-      } else {
-        setMessage("Please confirm your email before logging in.");
-        await supabase.auth.signOut();
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setMessage("Please check your email to confirm your account.");
+      setTimeout(() => router.push("/welcome"), 3000);
     }
-  };
 
-  const credentialsFilled = email.trim() !== "" && password.trim() !== "";
+    setLoading(false);
+  };
 
   return (
     <div
@@ -66,7 +54,7 @@ export default function Welcome() {
       <div className="mist"></div>
 
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleSignup}
         style={{
           width: "100%",
           maxWidth: "400px",
@@ -80,28 +68,15 @@ export default function Welcome() {
         <h1
           style={{
             textAlign: "center",
-            marginBottom: "0.25rem",
+            marginBottom: "1rem",
             color: "#4b2a6f",
             fontFamily: "Bodoni, serif",
-            fontSize: "3rem",
+            fontSize: "2.5rem",
             fontWeight: "bold",
           }}
         >
-          dav.wav gallery
+          Create Account
         </h1>
-
-        <p
-          style={{
-            textAlign: "center",
-            marginBottom: "2rem",
-            fontSize: "1.25rem",
-            fontWeight: "bold",
-            color: "#6b46c1",
-            fontFamily: "Bodoni, serif",
-          }}
-        >
-          Login
-        </p>
 
         <input
           type="email"
@@ -135,45 +110,31 @@ export default function Welcome() {
           }}
         />
 
-        <label
-          style={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
-        >
-          <input
-            type="checkbox"
-            checked={stayLoggedIn}
-            onChange={(e) => setStayLoggedIn(e.target.checked)}
-            style={{ marginRight: "0.5rem" }}
-          />
-          Keep me logged in
-        </label>
-
-        {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
-        {message && (
-          <p style={{ color: "green", marginBottom: "1rem" }}>{message}</p>
-        )}
-
         <button
           type="submit"
-          disabled={!credentialsFilled || loading}
+          disabled={loading}
           className="dreamy-button"
-          style={{ width: "100%", marginBottom: "1rem" }}
+          style={{ width: "100%" }}
         >
-          {loading ? "Loading..." : "Login"}
+          {loading ? "Creating..." : "Sign Up"}
         </button>
 
-        <p style={{ textAlign: "center", marginTop: "1rem" }}>
+        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
+        {message && <p style={{ color: "green", marginTop: "1rem" }}>{message}</p>}
+
+        <p
+          style={{
+            marginTop: "1.5rem",
+            textAlign: "center",
+            fontSize: "0.9rem",
+          }}
+        >
+          Already have an account?{" "}
           <a
-            href="/signup"
+            href="/welcome"
             style={{ color: "#4b2a6f", textDecoration: "underline" }}
           >
-            Create a new account
-          </a>
-          {" | "}
-          <a
-            href="/reset-password"
-            style={{ color: "#4b2a6f", textDecoration: "underline" }}
-          >
-            Forgot password?
+            Log in
           </a>
         </p>
       </form>
