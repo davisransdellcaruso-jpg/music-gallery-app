@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
-import withAuth from "../components/withAuth"; // ⬅️ wrapper
+import withAuth from "../components/withAuth";
+import Image from "next/image";
 
 type Album = {
   id: string;
@@ -21,9 +22,12 @@ function Gallery() {
       const { data, error } = await supabase
         .from("albums")
         .select("*")
-        .order("year", { ascending: true }); // oldest → newest
-      if (error) console.error(error);
-      else setAlbums(data || []);
+        .order("year", { ascending: true });
+      if (error) {
+        console.error(error);
+      } else {
+        setAlbums((data as Album[]) || []);
+      }
       setLoading(false);
     };
     fetchAlbums();
@@ -32,173 +36,188 @@ function Gallery() {
   if (loading) return <div style={{ color: "white" }}>Loading albums…</div>;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        position: "relative",
-        overflow: "hidden",
-        backgroundColor: "#4b2a6f",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "2rem",
-      }}
-    >
-      {/* Animated clouds */}
-      <div className="clouds"></div>
-      <div className="mist"></div>
-
-      {/* Top navigation buttons */}
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <button onClick={() => router.push("/welcome")} className="dreamy-button">
+    <div className="gallery-page">
+      {/* Top navigation */}
+      <div className="nav-bar">
+        <button onClick={() => router.push("/welcome")} className="nav-button">
           ← Back to Welcome
         </button>
         <div style={{ display: "flex", gap: "1rem" }}>
-          <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
+          <button onClick={() => router.push("/store")} className="nav-button">
             Store 🛒
           </button>
-          <button onClick={() => window.open("/learn", "_blank")} className="dreamy-button">
+          <button onClick={() => router.push("/learn")} className="nav-button">
             Learn 📖
           </button>
         </div>
       </div>
 
-      {/* Header */}
-      <h1
-        style={{
-          color: "white",
-          fontFamily: "Bodoni, serif",
-          marginBottom: "2rem",
-          fontSize: "3rem",
-          fontWeight: "bold",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        dav.wav gallery
-      </h1>
+      {/* Title block */}
+      <div className="title-block">
+        <div className="glow-behind"></div>
+        <h1 className="brand-title">wavis</h1>
+        <div className="underline"></div>
+        <p className="tagline">art &amp; story</p>
+      </div>
 
       {/* Album grid */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          flexWrap: "wrap",
-          gap: "3rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
+      <div className="album-grid">
         {albums.map((album) => (
           <div
             key={album.id}
             onClick={() => router.push(`/album/${album.id}`)}
-            style={{
-              cursor: "pointer",
-              textAlign: "center",
-              transform: "translateY(-10px)",
-              transition: "transform 0.3s, box-shadow 0.3s",
-              borderRadius: "12px",
-              padding: "0.5rem",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-20px)";
-              e.currentTarget.style.boxShadow =
-                "0 0 20px rgba(175, 184, 254, 0.7)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(-10px)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
+            className="album-card"
           >
-            <img
+            <Image
               src={album.cover_url}
               alt={album.title}
-              style={{
-                width: "250px",
-                height: "250px",
-                objectFit: "cover",
-                borderRadius: "12px",
-                boxShadow: "0 10px 20px rgba(0,0,0,0.5)",
-              }}
+              width={250}
+              height={250}
+              className="album-image"
             />
-            <h2
-              style={{
-                color: "white",
-                fontFamily: "Bodoni, serif",
-                margin: "0.5rem 0 0 0",
-              }}
-            >
-              {album.title}
-            </h2>
-            <p style={{ color: "white", margin: "0.25rem 0" }}>({album.year})</p>
+            <h2 className="album-title">{album.title}</h2>
+            <p className="album-year">({album.year})</p>
           </div>
         ))}
       </div>
 
-      {/* Styles */}
       <style jsx>{`
-        .dreamy-button {
-          background-color: #aeb8fe;
-          color: #2a004f;
-          border: none;
+        .gallery-page {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2rem;
+          background: linear-gradient(135deg, #2a004f, #4b2a6f 50%, #2e1a47 100%);
+          position: relative;
+        }
+
+        .nav-bar {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
+        }
+
+        .nav-button {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.3);
           border-radius: 6px;
           padding: 0.5rem 1rem;
-          cursor: pointer;
-          font-size: 1rem;
+          color: #fff;
           font-weight: bold;
-          transition: background-color 0.3s ease, box-shadow 0.3s ease;
+          cursor: pointer;
+          transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .nav-button:hover {
+          background: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
         }
 
-        .dreamy-button:hover {
-          background-color: #8f9efc;
-          box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
+        .title-block {
+          text-align: center;
+          margin-bottom: 3rem;
+          position: relative;
         }
 
-        .clouds {
+        .glow-behind {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 200%;
-          height: 100%;
-          background: url("/clouds.png") repeat-x;
-          background-size: cover;
-          opacity: 0.25;
-          animation: drift 60s linear infinite;
-        }
-
-        .mist {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -65%);
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
           background: radial-gradient(
-            ellipse at center,
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0) 70%
+            circle,
+            rgba(255, 180, 120, 0.6) 0%,
+            rgba(255, 140, 100, 0.3) 40%,
+            transparent 70%
           );
-          pointer-events: none;
+          filter: blur(60px);
+          z-index: 0;
+          animation: pulse 8s ease-in-out infinite alternate;
         }
 
-        @keyframes drift {
-          0% {
-            transform: translateX(0);
+        @keyframes pulse {
+          from {
+            transform: translate(-50%, -65%) scale(1);
+            opacity: 0.7;
           }
-          100% {
-            transform: translateX(-50%);
+          to {
+            transform: translate(-50%, -65%) scale(1.15);
+            opacity: 1;
           }
+        }
+
+        .brand-title {
+          font-size: 3.5rem;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          font-family: "Eurostile", "Futura", "Helvetica Neue", sans-serif;
+          position: relative;
+          z-index: 1;
+        }
+
+        .underline {
+          width: 120px;
+          height: 3px;
+          margin: 0.5rem auto 1rem;
+          background: linear-gradient(to right, #ff6b4a, #ffb347);
+          border-radius: 2px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .tagline {
+          font-style: italic;
+          font-size: 1.2rem;
+          color: #ddd;
+          font-family: "Didot", "Bodoni MT", serif;
+          position: relative;
+          z-index: 1;
+        }
+
+        .album-grid {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 3rem;
+          position: relative;
+          z-index: 1;
+          max-width: 1200px;
+          width: 100%;
+        }
+
+        .album-card {
+          cursor: pointer;
+          text-align: center;
+          transition: transform 0.3s, box-shadow 0.3s;
+          border-radius: 12px;
+          padding: 0.5rem;
+        }
+        .album-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 0 20px rgba(175, 184, 254, 0.7);
+        }
+
+        .album-image {
+          border-radius: 12px;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+          object-fit: cover;
+        }
+
+        .album-title {
+          color: white;
+          font-family: "Bodoni, serif";
+          margin: 0.5rem 0 0 0;
+        }
+        .album-year {
+          color: white;
+          margin: 0.25rem 0;
         }
       `}</style>
     </div>

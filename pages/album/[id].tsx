@@ -2,7 +2,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { supabase } from "../../lib/supabase";
-import withAuth from "../../components/withAuth"; // ⬅️ wrapper
+import withAuth from "../../components/withAuth";
 
 type Album = {
   id: string;
@@ -27,21 +27,12 @@ type Track = {
   credits?: string;
 };
 
-type Comment = {
-  id: string;
-  album_id: string;
-  content: string;
-  created_at: string;
-};
-
 function AlbumPage() {
   const router = useRouter();
   const { id } = router.query;
 
   const [album, setAlbum] = useState<Album | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -52,7 +43,7 @@ function AlbumPage() {
   const lineRefs = useRef<HTMLParagraphElement[]>([]);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || typeof id !== "string") return;
 
     const fetchData = async () => {
       const { data: albumData } = await supabase
@@ -68,13 +59,6 @@ function AlbumPage() {
         .eq("album_id", id)
         .order("track_number", { ascending: true });
       if (trackData) setTracks(trackData as Track[]);
-
-      const { data: commentData } = await supabase
-        .from("comments")
-        .select("*")
-        .eq("album_id", id)
-        .order("created_at", { ascending: true });
-      if (commentData) setComments(commentData as Comment[]);
 
       setLoading(false);
     };
@@ -99,14 +83,13 @@ function AlbumPage() {
 
   const currentTrack = tracks[currentIndex];
 
-  const currentLyricIndex = currentTrack?.timed_lyrics
-    ? currentTrack.timed_lyrics.findIndex(
-        (l, i) =>
-          l.time <= currentTime &&
-          (i === currentTrack.timed_lyrics!.length - 1 ||
-            currentTrack.timed_lyrics![i + 1].time > currentTime)
-      )
-    : -1;
+  const currentLyricIndex =
+    currentTrack?.timed_lyrics?.findIndex(
+      (l, i) =>
+        l.time <= currentTime &&
+        (i === currentTrack.timed_lyrics!.length - 1 ||
+          currentTrack.timed_lyrics![i + 1].time > currentTime)
+    ) ?? -1;
 
   useLayoutEffect(() => {
     if (
@@ -122,63 +105,41 @@ function AlbumPage() {
     }
   }, [currentLyricIndex]);
 
-  const handleAddComment = async () => {
-    if (!newComment.trim() || !id) return;
-    const { data, error } = await supabase
-      .from("comments")
-      .insert([{ album_id: id, content: newComment }])
-      .select()
-      .single();
-    if (!error && data) {
-      setComments((prev) => [...prev, data as Comment]);
-      setNewComment("");
-    }
-  };
-
   if (loading) return <div style={{ color: "white" }}>Loading album…</div>;
   if (!album || tracks.length === 0)
     return <div style={{ color: "white" }}>Album not found</div>;
 
   return (
     <div className="album-page">
-      {/* Background layers */}
+      {/* glow layers */}
+      <div className="glow glow1" />
+      <div className="glow glow2" />
+
+      {/* clouds + mist */}
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* Top navigation buttons */}
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
+      {/* Top navigation */}
+      <div className="nav-bar">
         <button onClick={() => router.push("/gallery")} className="dreamy-button">
           ← Back to Gallery
         </button>
         <div style={{ display: "flex", gap: "1rem" }}>
-          <button onClick={() => window.open("/store", "_blank")} className="dreamy-button">
+          <button onClick={() => router.push("/store")} className="dreamy-button">
             Store 🛒
           </button>
-          <button onClick={() => window.open("/learn", "_blank")} className="dreamy-button">
+          <button onClick={() => router.push("/learn")} className="dreamy-button">
             Learn 📖
           </button>
         </div>
       </div>
 
-      {/* Album title */}
       <h1 className="album-title">
         {album.title} <span className="album-year">({album.year})</span>
       </h1>
 
-      {/* Album cover */}
       <img src={album.cover_url} alt={album.title} className="album-cover" />
 
-      {/* Track list */}
       <div className="track-list">
         {tracks.map((track, i) => (
           <div
@@ -195,7 +156,6 @@ function AlbumPage() {
         ))}
       </div>
 
-      {/* Audio player */}
       {currentTrack && (
         <>
           <h3>
@@ -213,7 +173,6 @@ function AlbumPage() {
         </>
       )}
 
-      {/* Tabs for Lyrics / Credits */}
       {(currentTrack?.lyrics || currentTrack?.credits) && (
         <div className="tab-container">
           <div className="tab-buttons">
@@ -283,40 +242,9 @@ function AlbumPage() {
         </div>
       )}
 
-      {/* Comments */}
-      <div className="comments">
-        <h3>Comments</h3>
-        <div className="comments-list">
-          {comments.length === 0 ? (
-            <p>No comments yet.</p>
-          ) : (
-            comments.map((c) => (
-              <p
-                key={c.id}
-                className="comment-text"
-                style={{ marginBottom: "0.5rem" }}
-              >
-                {c.content}
-              </p>
-            ))
-          )}
-        </div>
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Write a comment..."
-          className="comment-input"
-        />
-        <button onClick={handleAddComment} className="dreamy-button">
-          Post Comment
-        </button>
-      </div>
-
-      {/* Styles */}
       <style jsx>{`
         .album-page {
           min-height: 100vh;
-          background-color: #4b2a6f;
           padding: 2rem;
           color: white;
           display: flex;
@@ -325,6 +253,40 @@ function AlbumPage() {
           gap: 2rem;
           position: relative;
           overflow: hidden;
+          background: linear-gradient(135deg, #2a004f 0%, #4b2a6f 50%, #2e1a47 100%);
+        }
+
+        .glow {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(150px);
+          opacity: 0.5;
+          animation: pulse 12s ease-in-out infinite alternate;
+        }
+        .glow1 {
+          width: 600px;
+          height: 600px;
+          top: -200px;
+          left: -200px;
+          background: rgba(168, 85, 247, 0.6);
+        }
+        .glow2 {
+          width: 500px;
+          height: 500px;
+          bottom: -150px;
+          right: -150px;
+          background: rgba(99, 102, 241, 0.6);
+          animation-delay: 6s;
+        }
+        @keyframes pulse {
+          from {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          to {
+            transform: scale(1.2);
+            opacity: 0.7;
+          }
         }
 
         .clouds {
@@ -338,7 +300,6 @@ function AlbumPage() {
           opacity: 0.25;
           animation: drift 60s linear infinite;
         }
-
         .mist {
           position: absolute;
           top: 0;
@@ -351,6 +312,14 @@ function AlbumPage() {
             rgba(255, 255, 255, 0) 70%
           );
           pointer-events: none;
+        }
+        @keyframes drift {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
 
         .dreamy-button {
@@ -370,6 +339,16 @@ function AlbumPage() {
         }
         .active-tab {
           background-color: #8f9efc;
+        }
+
+        .nav-bar {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
+          position: relative;
+          z-index: 2;
         }
 
         .album-title {
@@ -456,47 +435,6 @@ function AlbumPage() {
           color: #fff;
           font-weight: bold;
           font-size: 1.8rem;
-        }
-
-        .credits-box {
-          font-size: 1.5rem;
-          line-height: 1.6;
-        }
-
-        .comments {
-          margin-top: 2rem;
-          width: 100%;
-          max-width: 500px;
-          position: relative;
-          z-index: 2;
-        }
-        .comments-list {
-          background: rgba(0, 0, 0, 0.3);
-          padding: 1rem;
-          border-radius: 8px;
-          max-height: 200px;
-          overflow-y: auto;
-          margin-bottom: 1rem;
-        }
-        .comment-text {
-          font-size: 2rem;
-          line-height: 1.3;
-        }
-        .comment-input {
-          width: 100%;
-          border-radius: 6px;
-          padding: 0.5rem;
-          margin-bottom: 0.5rem;
-          font-size: 1.25rem;
-        }
-
-        @keyframes drift {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
         }
       `}</style>
     </div>

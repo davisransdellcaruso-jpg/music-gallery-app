@@ -1,82 +1,73 @@
-// pages/signup.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export default function Signup() {
   const router = useRouter();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
-    setMessage(null);
 
-    const { error } = await supabase.auth.signUp({
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: "https://www.daviscaruso.com/welcome",
-      },
     });
+    setLoading(false);
 
     if (error) {
       setError(error.message);
-    } else {
-      setMessage("Please check your email to confirm your account.");
-      setTimeout(() => router.push("/welcome"), 3000);
+      return;
     }
 
-    setLoading(false);
+    const user = data.user;
+    if (user) {
+      // Insert into profiles with full name
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert([{ id: user.id, full_name: fullName }]);
+
+      if (profileError) {
+        console.error("Error saving profile:", profileError.message);
+      }
+    }
+
+    router.push("/welcome");
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        backgroundColor: "#4b2a6f",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "2rem",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Clouds & mist */}
+    <div className="signup-page">
+      {/* glow layers */}
+      <div className="glow glow1" />
+      <div className="glow glow2" />
+
+      {/* clouds + mist */}
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      <form
-        onSubmit={handleSignup}
-        style={{
-          width: "100%",
-          maxWidth: "400px",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          borderRadius: "8px",
-          padding: "2rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <h1
-          style={{
-            textAlign: "center",
-            marginBottom: "1rem",
-            color: "#4b2a6f",
-            fontFamily: "Bodoni, serif",
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-          }}
-        >
-          Create Account
-        </h1>
+      <form onSubmit={handleSignup} className="signup-form">
+        <h1 className="signup-title">Create Account</h1>
+
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+          className="signup-input"
+        />
 
         <input
           type="email"
@@ -84,14 +75,7 @@ export default function Signup() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "1rem",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            backgroundColor: "khaki",
-          }}
+          className="signup-input"
         />
 
         <input
@@ -100,46 +84,77 @@ export default function Signup() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "1rem",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            backgroundColor: "khaki",
-          }}
+          className="signup-input"
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="dreamy-button"
-          style={{ width: "100%" }}
-        >
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          className="signup-input"
+        />
+
+        {error && <p className="error">{error}</p>}
+
+        <button type="submit" disabled={loading} className="dreamy-button">
           {loading ? "Creating..." : "Sign Up"}
         </button>
-
-        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
-        {message && <p style={{ color: "green", marginTop: "1rem" }}>{message}</p>}
-
-        <p
-          style={{
-            marginTop: "1.5rem",
-            textAlign: "center",
-            fontSize: "0.9rem",
-          }}
-        >
-          Already have an account?{" "}
-          <a
-            href="/welcome"
-            style={{ color: "#4b2a6f", textDecoration: "underline" }}
-          >
-            Log in
-          </a>
-        </p>
       </form>
 
       <style jsx>{`
+        .signup-page {
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 2rem;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(
+            135deg,
+            #2a004f 0%,
+            #4b2a6f 50%,
+            #2e1a47 100%
+          );
+        }
+
+        .signup-form {
+          width: 100%;
+          max-width: 400px;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          padding: 2rem;
+          position: relative;
+          z-index: 2;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .signup-title {
+          text-align: center;
+          margin-bottom: 2rem;
+          color: #4b2a6f;
+          font-family: Bodoni, serif;
+          font-size: 2rem;
+          font-weight: bold;
+        }
+
+        .signup-input {
+          width: 100%;
+          padding: 0.75rem;
+          margin-bottom: 1rem;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+          background-color: khaki;
+        }
+
+        .error {
+          color: red;
+          margin-bottom: 1rem;
+          text-align: center;
+        }
+
         .dreamy-button {
           background-color: #aeb8fe;
           color: #2a004f;
@@ -149,12 +164,49 @@ export default function Signup() {
           cursor: pointer;
           font-size: 1rem;
           font-weight: bold;
+          width: 100%;
           transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         .dreamy-button:hover {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
         }
+
+        /* glow */
+        .glow {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(150px);
+          opacity: 0.5;
+          animation: pulse 12s ease-in-out infinite alternate;
+        }
+        .glow1 {
+          width: 600px;
+          height: 600px;
+          top: -200px;
+          left: -200px;
+          background: rgba(168, 85, 247, 0.6);
+        }
+        .glow2 {
+          width: 500px;
+          height: 500px;
+          bottom: -150px;
+          right: -150px;
+          background: rgba(99, 102, 241, 0.6);
+          animation-delay: 6s;
+        }
+        @keyframes pulse {
+          from {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          to {
+            transform: scale(1.2);
+            opacity: 0.7;
+          }
+        }
+
+        /* clouds + mist */
         .clouds {
           position: absolute;
           top: 0;
