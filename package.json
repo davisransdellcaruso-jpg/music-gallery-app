@@ -14,6 +14,7 @@
     "next": "15.5.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "sib-api-v3-typescript": "^2.2.2",
     "stripe": "^18.5.0"
   },
   "devDependencies": {
