@@ -1,15 +1,12 @@
 // lib/brevo.ts
-import { TransactionalEmailsApi, ApiClient } from "sib-api-v3-typescript";
+import { TransactionalEmailsApi, TransactionalEmailsApiApiKeys } from "sib-api-v3-typescript";
 
-// Create a new API client instance
-const client = new ApiClient();
+// Create the transactional email API instance
+const brevo = new TransactionalEmailsApi();
 
-// Set API key
+// Configure API key using the enum
 if (process.env.BREVO_API_KEY) {
-  client.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+  brevo.setApiKey(TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 }
-
-// Create a transactional email API instance using the configured client
-const brevo = new TransactionalEmailsApi(client);
 
 export default brevo;
