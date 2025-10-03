@@ -34,21 +34,23 @@ export default function Signup() {
 
       const user = data?.user;
       if (user) {
-        // Insert into profiles with full name + email
-        const { error: profileError } = await supabase.from("profiles").insert([
+        // Use upsert so we fill in full_name even if row already exists
+        const { error: profileError } = await supabase.from("profiles").upsert(
           {
             id: user.id,
             full_name: fullName,
             email: email,
+            subscription: "free", // default plan
           },
-        ]);
+          { onConflict: "id" } // 👈 ensures update if the row already exists
+        );
 
         if (profileError) {
-          console.error("Error saving profile:", profileError.message);
+          console.error("Error saving profile:", profileError);
         }
       }
 
-      // If confirmation email is required, no session is returned yet
+      // If email confirmation is required, no session is returned yet
       if (!data.session) {
         setMessage(
           "Check your email to confirm your account before logging in."
