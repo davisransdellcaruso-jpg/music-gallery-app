@@ -70,7 +70,7 @@ export default function Welcome() {
 
         <div className="links">
           <Link href="/signup">Create an account</Link>
-          <Link href="/forgot-password">Forgot password?</Link>
+          <Link href="/reset-password">Forgot password?</Link>
         </div>
 
         {error && <p className="error">{error}</p>}
