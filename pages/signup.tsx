@@ -29,7 +29,7 @@ export default function Signup() {
 
       if (signUpError) throw signUpError;
 
-      const user = data.user;
+      const user = data?.user;  // safer TypeScript check
       if (user) {
         // Insert into profiles with full name + email
         const { error: profileError } = await supabase.from("profiles").insert([
@@ -52,20 +52,6 @@ export default function Signup() {
     } finally {
       setLoading(false);
     }
-
-    const user = data.user;
-    if (user) {
-      // Insert into profiles with full name
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert([{ id: user.id, full_name: fullName }]);
-
-      if (profileError) {
-        console.error("Error saving profile:", profileError.message);
-      }
-    }
-
-    router.push("/welcome");
   };
 
   return (
