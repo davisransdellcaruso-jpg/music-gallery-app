@@ -13,11 +13,16 @@ export default function ResetPassword() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Pull base site URL from env (different in dev vs prod)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
   // Detect recovery mode from Supabase email link
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setMode("reset");
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash.includes("type=recovery")) {
+        setMode("reset");
+      }
     }
   }, []);
 
@@ -28,14 +33,13 @@ export default function ResetPassword() {
     setMessage(null);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://www.daviscaruso.com/reset-password",
+      redirectTo: `${siteUrl}/reset-password`,
     });
 
     if (error) {
       setError(error.message);
     } else {
       setMessage("Check your email for the password reset link.");
-      // redirect back to welcome after 3 seconds
       setTimeout(() => router.push("/welcome"), 3000);
     }
 
@@ -86,7 +90,6 @@ export default function ResetPassword() {
         overflow: "hidden",
       }}
     >
-      {/* Clouds & mist */}
       <div className="clouds"></div>
       <div className="mist"></div>
 
