@@ -1,3 +1,4 @@
+// pages/signup.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
@@ -9,18 +10,20 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setMessage(null);
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
-        setLoading(true);
+    setLoading(true);
     try {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -29,24 +32,30 @@ export default function Signup() {
 
       if (signUpError) throw signUpError;
 
-      const user = data?.user;  // safer TypeScript check
+      const user = data?.user;
       if (user) {
         // Insert into profiles with full name + email
         const { error: profileError } = await supabase.from("profiles").insert([
           {
             id: user.id,
             full_name: fullName,
-            email: email, // 👈 added field
+            email: email,
           },
         ]);
 
         if (profileError) {
           console.error("Error saving profile:", profileError.message);
-          // don’t block signup on profile insert error
         }
       }
 
-      router.push("/welcome");
+      // If confirmation email is required, no session is returned yet
+      if (!data.session) {
+        setMessage(
+          "Check your email to confirm your account before logging in."
+        );
+      } else {
+        router.push("/welcome");
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
@@ -104,6 +113,7 @@ export default function Signup() {
         />
 
         {error && <p className="error">{error}</p>}
+        {message && <p className="success">{message}</p>}
 
         <button type="submit" disabled={loading} className="dreamy-button">
           {loading ? "Creating..." : "Sign Up"}
@@ -158,6 +168,12 @@ export default function Signup() {
 
         .error {
           color: red;
+          margin-bottom: 1rem;
+          text-align: center;
+        }
+
+        .success {
+          color: green;
           margin-bottom: 1rem;
           text-align: center;
         }
