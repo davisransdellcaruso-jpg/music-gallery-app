@@ -58,23 +58,27 @@ export default function ResetPassword() {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    try {
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setMessage("Password updated! Redirecting to login…");
-      setTimeout(() => router.push("/welcome"), 3000);
-    }
+  if (updateError) throw updateError;
+
+  setMessage("Password updated! Redirecting to login…");
+  setTimeout(() => router.push("/welcome"), 3000);
+} catch (err: any) {
+  setError(err.message || "Something went wrong while updating password.");
+}
 
     setLoading(false);
   };
 
   const canSubmitNewPassword =
-    newPassword.trim().length > 0 &&
-    confirmPassword.trim().length > 0 &&
-    newPassword === confirmPassword &&
-    !loading;
+  newPassword.trim().length >= 6 &&   // 👈 enforce minimum length
+  confirmPassword.trim().length >= 6 &&
+  newPassword === confirmPassword &&
+  !loading;
 
   return (
     <div

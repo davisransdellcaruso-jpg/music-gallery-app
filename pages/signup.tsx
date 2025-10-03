@@ -20,16 +20,37 @@ export default function Signup() {
       return;
     }
 
-    setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    setLoading(false);
+        setLoading(true);
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
-      return;
+      if (signUpError) throw signUpError;
+
+      const user = data.user;
+      if (user) {
+        // Insert into profiles with full name + email
+        const { error: profileError } = await supabase.from("profiles").insert([
+          {
+            id: user.id,
+            full_name: fullName,
+            email: email, // 👈 added field
+          },
+        ]);
+
+        if (profileError) {
+          console.error("Error saving profile:", profileError.message);
+          // don’t block signup on profile insert error
+        }
+      }
+
+      router.push("/welcome");
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
 
     const user = data.user;
