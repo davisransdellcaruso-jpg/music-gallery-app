@@ -28,27 +28,12 @@ export default function Signup() {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: { full_name: fullName }, // 👈 pass full name into user_metadata
+        },
       });
 
       if (signUpError) throw signUpError;
-
-      const user = data?.user;
-      if (user) {
-        // Use upsert so we fill in full_name even if row already exists
-        const { error: profileError } = await supabase.from("profiles").upsert(
-          {
-            id: user.id,
-            full_name: fullName,
-            email: email,
-            subscription: "free", // default plan
-          },
-          { onConflict: "id" } // 👈 ensures update if the row already exists
-        );
-
-        if (profileError) {
-          console.error("Error saving profile:", profileError);
-        }
-      }
 
       // If email confirmation is required, no session is returned yet
       if (!data.session) {

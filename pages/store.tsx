@@ -11,7 +11,7 @@ const stripePromise = loadStripe(
 const products = [
   {
     id: "tshirt",
-    name: "wavis T-Shirt",
+    name: "Dreamin On Paris T-Shirt",
     basePrice: 3000,
     image: "/tshirt.jpeg",
     variants: [
@@ -23,7 +23,7 @@ const products = [
   },
   {
     id: "hoodie",
-    name: "wavis Hoodie",
+    name: "Dreamin On Paris Hoodie",
     basePrice: 5000,
     image: "/hoodie.jpeg",
     variants: [
@@ -31,13 +31,33 @@ const products = [
       { size: "Medium", stock: 2, priceId: "price_1SBKWqLZry0DH74AL43FLDqM" },
     ],
   },
+  {
+    id: "poster",
+    name: "Periwinkly Dragonfly Poster",   // 👈 you can keep your custom name
+    basePrice: 1500,
+    image: "/poster.jpeg",
+    variants: [
+      { size: "Standard", stock: 20, priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" },
+    ],
+  },
 ];
 
 export default function Store() {
-  const [selectedVariant, setSelectedVariant] = useState<Record<string, string>>(
-    {}
-  );
+  const [selectedVariant, setSelectedVariant] = useState<Record<string, string>>({});
   const router = useRouter();
+
+  // Stripe checkout handler
+  const handleCheckout = async (priceId: string) => {
+    const stripe = await stripePromise;
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priceId }),
+    });
+
+    const { id } = await res.json();
+    await stripe?.redirectToCheckout({ sessionId: id });
+  };
 
   return (
     <div className="store-page">
@@ -55,14 +75,14 @@ export default function Store() {
 
       {/* Header */}
       <div className="title-block">
-        <h1 className="brand-title">wavis</h1>
+        <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">art &amp; story</p>
+        <p className="tagline">art for $ :)</p>
       </div>
 
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Merch Store</h2>
       <p style={{ textAlign: "center", marginBottom: "2rem", fontStyle: "italic" }}>
-        🚧 Store under construction — check back soon! 🚧
+        All orders ship on the <b>1st of the month</b>. Thank you for your patience 💜
       </p>
 
       {/* Products grid */}
@@ -81,7 +101,7 @@ export default function Store() {
               ${(product.basePrice / 100).toFixed(2)}
             </p>
 
-            {/* Size buttons (disabled for now) */}
+            {/* Size buttons */}
             <div
               style={{
                 display: "grid",
@@ -90,35 +110,49 @@ export default function Store() {
                 marginBottom: "1rem",
               }}
             >
-              {product.variants.map((variant, idx) => (
-                <button
-                  key={idx}
-                  disabled
-                  style={{
-                    height: "80px",
-                    borderRadius: "8px",
-                    fontSize: "1rem",
-                    cursor: "not-allowed",
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    color: "white",
-                    border: "none",
-                    opacity: 0.5,
-                  }}
-                >
-                  {variant.size}
-                  <br />
-                  <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                    {variant.stock} left
-                  </span>
-                </button>
-              ))}
+              {product.variants.map((variant, idx) => {
+                const isSelected = selectedVariant[product.id] === variant.priceId;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() =>
+                      setSelectedVariant({ ...selectedVariant, [product.id]: variant.priceId })
+                    }
+                    style={{
+                      height: "80px",
+                      borderRadius: "8px",
+                      fontSize: "1rem",
+                      backgroundColor: isSelected
+                        ? "rgba(174,184,254,0.9)"
+                        : "rgba(255,255,255,0.1)",
+                      color: "white",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {variant.size}
+                    <br />
+                    <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
+                      {variant.stock} left
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Buy button (disabled) */}
+            {/* Buy button */}
             <button
-              disabled
+              onClick={() =>
+                selectedVariant[product.id] &&
+                handleCheckout(selectedVariant[product.id])
+              }
               className="dreamy-button"
-              style={{ width: "100%", opacity: 0.6, cursor: "not-allowed" }}
+              style={{
+                width: "100%",
+                opacity: selectedVariant[product.id] ? 1 : 0.6,
+                cursor: selectedVariant[product.id] ? "pointer" : "not-allowed",
+              }}
+              disabled={!selectedVariant[product.id]}
             >
               Buy Now
             </button>

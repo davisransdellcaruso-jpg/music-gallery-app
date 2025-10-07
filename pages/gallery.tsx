@@ -55,9 +55,9 @@ function Gallery() {
       {/* Title block */}
       <div className="title-block">
         <div className="glow-behind"></div>
-        <h1 className="brand-title">wavis</h1>
+        <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">art &amp; story</p>
+        <p className="tagline">art is for everyone</p>
       </div>
 
       {/* Album grid */}

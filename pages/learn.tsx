@@ -23,7 +23,7 @@ export default function Learn() {
 
       {/* Header block */}
       <div className="title-block">
-        <h1 className="brand-title">wavis</h1>
+        <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
         <p className="tagline">art &amp; story</p>
       </div>
