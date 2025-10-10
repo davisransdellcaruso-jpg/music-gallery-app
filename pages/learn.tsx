@@ -25,7 +25,7 @@ export default function Learn() {
       <div className="title-block">
         <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">art &amp; story</p>
+        <p className="tagline">creativity amplified</p>
       </div>
 
       {/* Content placeholder */}

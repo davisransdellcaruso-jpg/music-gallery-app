@@ -36,7 +36,13 @@ function AlbumPage() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
   const [activeTab, setActiveTab] = useState<"lyrics" | "credits" | null>(null);
+
+  // 🔒 unlock logic
+  const [unlocked, setUnlocked] = useState(false);
+  const [requiredAmount, setRequiredAmount] = useState<number | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lyricsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -59,6 +65,30 @@ function AlbumPage() {
         .eq("album_id", id)
         .order("track_number", { ascending: true });
       if (trackData) setTracks(trackData as Track[]);
+
+      // 🔒 Unlock check
+      const user = (await supabase.auth.getUser()).data.user;
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("total_spent")
+          .eq("id", user.id)
+          .single();
+
+        const { data: unlock } = await supabase
+          .from("album_unlocks")
+          .select("required_amount")
+          .eq("album_id", id)
+          .single();
+
+        if (profile && unlock) {
+          setRequiredAmount(unlock.required_amount);
+          if (profile.total_spent >= unlock.required_amount) {
+            setUnlocked(true);
+          }
+        }
+      }
+      // 🔒 end unlock check
 
       setLoading(false);
     };
@@ -105,9 +135,102 @@ function AlbumPage() {
     }
   }, [currentLyricIndex]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!audioRef.current) return;
+
+      switch (e.code) {
+        case "Space":
+          e.preventDefault();
+          if (audioRef.current.paused) {
+            audioRef.current.play();
+          } else {
+            audioRef.current.pause();
+          }
+          break;
+        case "ArrowLeft":
+          audioRef.current.currentTime = Math.max(audioRef.current.currentTime - 5, 0);
+          setCurrentTime(audioRef.current.currentTime);
+          break;
+        case "ArrowRight":
+          audioRef.current.currentTime = Math.min(
+            audioRef.current.currentTime + 5,
+            duration
+          );
+          setCurrentTime(audioRef.current.currentTime);
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          const volUp = Math.min(volume + 0.1, 1);
+          audioRef.current.volume = volUp;
+          setVolume(volUp);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          const volDown = Math.max(volume - 0.1, 0);
+          audioRef.current.volume = volDown;
+          setVolume(volDown);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [volume, duration]);
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
+
   if (loading) return <div style={{ color: "white" }}>Loading album…</div>;
   if (!album || tracks.length === 0)
     return <div style={{ color: "white" }}>Album not found</div>;
+
+  // 🔒 If album is locked
+if (!unlocked) {
+  return (
+    <div className="album-page">
+      {/* dreamy background layers */}
+      <div className="glow glow1" />
+      <div className="glow glow2" />
+      <div className="clouds"></div>
+      <div className="mist"></div>
+
+      <div style={{ textAlign: "center", marginTop: "5rem", zIndex: 2 }}>
+        <h1 className="album-title">{album.title}</h1>
+
+        {requiredAmount ? (
+          <p style={{ fontSize: "1.5rem", marginTop: "1rem", color: "white" }}>
+            Spend ${requiredAmount / 100} to unlock this material.
+          </p>
+        ) : (
+          <p style={{ fontSize: "1.5rem", marginTop: "1rem", color: "white" }}>
+            This album is locked.
+          </p>
+        )}
+
+        <button
+          onClick={() => router.push("/store")}
+          className="dreamy-button"
+          style={{
+            marginTop: "2rem",
+            padding: "0.75rem 1.5rem",
+            fontSize: "1.1rem",
+            borderRadius: "6px",
+          }}
+        >
+          Store 🛒
+        </button>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="album-page">
@@ -147,7 +270,10 @@ function AlbumPage() {
             onClick={() => {
               setCurrentIndex(i);
               setCurrentTime(0);
-              audioRef.current?.play();
+              if (audioRef.current) {
+                audioRef.current.src = track.audio_url;
+                audioRef.current.play();
+              }
             }}
             className={`track-item ${i === currentIndex ? "active" : ""}`}
           >
@@ -161,15 +287,93 @@ function AlbumPage() {
           <h3>
             {currentTrack.track_number}. {currentTrack.title}
           </h3>
+
+          {/* Hidden audio element */}
           <audio
             ref={audioRef}
-            controls
             src={currentTrack.audio_url}
-            className="audio-player"
             onEnded={handleEnded}
             onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={() => {
+              if (audioRef.current) setDuration(audioRef.current.duration);
+            }}
             autoPlay
+            style={{ display: "none" }}
           />
+
+          {/* Custom controls */}
+          <div className="custom-player">
+            {/* Play / Pause */}
+            <button
+              onClick={() => {
+                if (!audioRef.current) return;
+                if (audioRef.current.paused) {
+                  audioRef.current.play();
+                } else {
+                  audioRef.current.pause();
+                }
+              }}
+              className="play-button"
+            >
+              {audioRef.current?.paused ? (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="icon">
+                  <path d="M5 3l14 9-14 9V3z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="icon">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+              )}
+            </button>
+
+            {/* Scrubber + Time */}
+            <div className="scrubber-container">
+              <input
+                type="range"
+                min={0}
+                max={duration}
+                value={currentTime}
+                onChange={(e) => {
+                  const newTime = Number(e.target.value);
+                  if (audioRef.current) {
+                    audioRef.current.currentTime = newTime;
+                  }
+                  setCurrentTime(newTime);
+                }}
+                className="scrubber"
+                style={{
+                  background: `linear-gradient(90deg, #a78bfa ${
+                    (currentTime / (duration || 1)) * 100
+                  }%, #4b2a6f ${(currentTime / (duration || 1)) * 100}%)`,
+                }}
+              />
+              <div className="time-display">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </div>
+            </div>
+
+            {/* Volume */}
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={(e) => {
+                const newVolume = Number(e.target.value);
+                setVolume(newVolume);
+                if (audioRef.current) {
+                  audioRef.current.volume = newVolume;
+                }
+              }}
+              className="volume"
+            />
+
+            {/* Hover shortcut hint */}
+            <div className="shortcut-hint">
+              ⌨️ <b>Space</b> = Play/Pause • <b>←/→</b> = Seek • <b>↑/↓</b> = Volume
+            </div>
+          </div>
         </>
       )}
 
@@ -178,24 +382,16 @@ function AlbumPage() {
           <div className="tab-buttons">
             {currentTrack?.lyrics && (
               <button
-                onClick={() =>
-                  setActiveTab(activeTab === "lyrics" ? null : "lyrics")
-                }
-                className={`dreamy-button ${
-                  activeTab === "lyrics" ? "active-tab" : ""
-                }`}
+                onClick={() => setActiveTab(activeTab === "lyrics" ? null : "lyrics")}
+                className={`dreamy-button ${activeTab === "lyrics" ? "active-tab" : ""}`}
               >
                 Lyrics
               </button>
             )}
             {currentTrack?.credits && (
               <button
-                onClick={() =>
-                  setActiveTab(activeTab === "credits" ? null : "credits")
-                }
-                className={`dreamy-button ${
-                  activeTab === "credits" ? "active-tab" : ""
-                }`}
+                onClick={() => setActiveTab(activeTab === "credits" ? null : "credits")}
+                className={`dreamy-button ${activeTab === "credits" ? "active-tab" : ""}`}
               >
                 Credits
               </button>
@@ -211,21 +407,13 @@ function AlbumPage() {
                     ref={(el) => {
                       if (el) lineRefs.current[i] = el;
                     }}
-                    className={`lyric-line ${
-                      i === currentLyricIndex ? "active-lyric" : ""
-                    }`}
+                    className={`lyric-line ${i === currentLyricIndex ? "active-lyric" : ""}`}
                   >
                     {line.line}
                   </p>
                 ))
               ) : (
-                <p
-                  style={{
-                    whiteSpace: "pre-wrap",
-                    color: "#ddd",
-                    fontSize: "1.5rem",
-                  }}
-                >
+                <p style={{ whiteSpace: "pre-wrap", color: "#ddd", fontSize: "1.5rem" }}>
                   {currentTrack.lyrics}
                 </p>
               )}
@@ -234,9 +422,7 @@ function AlbumPage() {
 
           {activeTab === "credits" && currentTrack?.credits && (
             <div className="credits-box">
-              <p style={{ fontSize: "1.5rem", lineHeight: "1.6" }}>
-                {currentTrack.credits}
-              </p>
+              <p style={{ fontSize: "1.5rem", lineHeight: "1.6" }}>{currentTrack.credits}</p>
             </div>
           )}
         </div>
@@ -279,14 +465,8 @@ function AlbumPage() {
           animation-delay: 6s;
         }
         @keyframes pulse {
-          from {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-          to {
-            transform: scale(1.2);
-            opacity: 0.7;
-          }
+          from { transform: scale(1); opacity: 0.4; }
+          to { transform: scale(1.2); opacity: 0.7; }
         }
 
         .clouds {
@@ -306,21 +486,10 @@ function AlbumPage() {
           left: 0;
           width: 100%;
           height: 100%;
-          background: radial-gradient(
-            ellipse at center,
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0) 70%
-          );
+          background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
           pointer-events: none;
         }
-        @keyframes drift {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
+        @keyframes drift { 0% { transform: translateX(0);} 100% { transform: translateX(-50%);} }
 
         .dreamy-button {
           background-color: #aeb8fe;
@@ -337,9 +506,7 @@ function AlbumPage() {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
         }
-        .active-tab {
-          background-color: #8f9efc;
-        }
+        .active-tab { background-color: #8f9efc; }
 
         .nav-bar {
           width: 100%;
@@ -360,10 +527,7 @@ function AlbumPage() {
           position: relative;
           z-index: 2;
         }
-        .album-year {
-          font-size: 2rem;
-          font-weight: normal;
-        }
+        .album-year { font-size: 2rem; font-weight: normal; }
 
         .album-cover {
           width: 300px;
@@ -373,32 +537,104 @@ function AlbumPage() {
           position: relative;
           z-index: 2;
         }
-        .album-cover:hover {
-          filter: drop-shadow(0 0 15px rgba(200, 180, 255, 0.7));
-        }
+        .album-cover:hover { filter: drop-shadow(0 0 15px rgba(200, 180, 255, 0.7)); }
 
-        .track-list {
-          margin-bottom: 2rem;
-          position: relative;
-          z-index: 2;
-        }
+        .track-list { margin-bottom: 2rem; position: relative; z-index: 2; }
         .track-item {
           cursor: pointer;
           margin: 0.5rem 0;
           font-size: 2rem;
         }
-        .track-item.active {
-          font-weight: bold;
-          text-decoration: underline;
-        }
-        .track-item:hover {
-          filter: drop-shadow(0 0 10px rgba(200, 180, 255, 0.7));
+        .track-item.active { font-weight: bold; text-decoration: underline; }
+        .track-item:hover { filter: drop-shadow(0 0 10px rgba(200, 180, 255, 0.7)); }
+
+        .custom-player {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          background: rgba(75, 42, 111, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 0.5rem 1rem;
+          box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+          width: 100%;
+          max-width: 500px;
+          position: relative;
         }
 
-        .audio-player {
-          width: 300px;
-          position: relative;
-          z-index: 2;
+        .play-button {
+          background: #aeb8fe;
+          border: none;
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: #2a004f;
+          transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        .play-button:hover {
+          background: #8f9efc;
+          transform: scale(1.1);
+          box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
+        }
+        .icon { width: 24px; height: 24px; }
+
+        .scrubber-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+        }
+        .scrubber {
+          -webkit-appearance: none;
+          width: 100%;
+          height: 6px;
+          border-radius: 5px;
+          background: linear-gradient(90deg, #a78bfa 0%, #4b2a6f 0%);
+          outline: none;
+          cursor: pointer;
+        }
+        .scrubber::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #fff;
+          border: 2px solid #a78bfa;
+          box-shadow: 0 0 8px rgba(167, 139, 250, 1);
+          transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        .scrubber::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 15px rgba(167, 139, 250, 1);
+        }
+        .scrubber::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #fff;
+          border: 2px solid #a78bfa;
+          box-shadow: 0 0 8px rgba(167, 139, 250, 1);
+          transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        .scrubber::-moz-range-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 15px rgba(167, 139, 250, 1);
+        }
+
+        .time-display {
+          font-size: 0.8rem;
+          color: #ccc;
+          text-align: center;
+        }
+
+        .volume {
+          width: 80px;
+          accent-color: #aeb8fe;
+          cursor: pointer;
         }
 
         .tab-container {
@@ -435,6 +671,26 @@ function AlbumPage() {
           color: #fff;
           font-weight: bold;
           font-size: 1.8rem;
+        }
+
+        .shortcut-hint {
+          position: absolute;
+          bottom: -2.2rem;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(75, 42, 111, 0.9);
+          color: #fff;
+          padding: 0.4rem 0.8rem;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          white-space: nowrap;
+          box-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+        }
+        .custom-player:hover .shortcut-hint {
+          opacity: 1;
         }
       `}</style>
     </div>

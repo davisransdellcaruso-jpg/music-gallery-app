@@ -57,7 +57,7 @@ function Gallery() {
         <div className="glow-behind"></div>
         <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">art is for everyone</p>
+        <p className="tagline">creativity amplified</p>
       </div>
 
       {/* Album grid */}

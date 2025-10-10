@@ -34,7 +34,7 @@ export default function Welcome() {
         <div className="glow-behind"></div>
         <h1 className="brand-title">davis caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">art is for everyone</p>
+        <p className="tagline">creativity amplified</p>
       </div>
 
       <form onSubmit={handleLogin} className="login-box">

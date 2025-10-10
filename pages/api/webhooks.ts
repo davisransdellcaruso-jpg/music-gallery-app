@@ -1,7 +1,8 @@
 // pages/api/webhooks.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
-import { stripe } from "../../lib/stripe";
+import Stripe from "stripe";
+import { stripe } from "../../lib/stripe"; // make sure lib/stripe.ts exports a configured Stripe instance
 
 // Disable Next.js body parsing so we can verify Stripe signatures
 export const config = {
@@ -23,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).send("Missing Stripe signature or webhook secret");
   }
 
-  let event;
+  let event: Stripe.Event;
 
   try {
     const buf = await buffer(req);
@@ -37,28 +38,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as any;
+        const session = event.data.object as Stripe.Checkout.Session;
         console.log("✅ Checkout session completed:", session.id);
 
-        // Example: You can update your DB, fulfill order, etc.
-        // await supabase.from("orders").insert({ session_id: session.id, ... })
+        // Optional: log what was purchased
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+          expand: ["data.price.product"],
+        });
+
+        lineItems.data.forEach((item) => {
+          const product = (item.price?.product as Stripe.Product)?.name;
+          console.log(
+            `🛒 ${item.quantity} × ${product} — ${item.price?.id}`
+          );
+        });
         break;
       }
 
       case "payment_intent.succeeded": {
-        const paymentIntent = event.data.object as any;
-        console.log("💰 Payment succeeded:", paymentIntent.id);
+        const pi = event.data.object as Stripe.PaymentIntent;
+        console.log("💰 Payment succeeded:", pi.id);
         break;
       }
 
       case "payment_intent.payment_failed": {
-        const paymentIntent = event.data.object as any;
-        console.warn("⚠️ Payment failed:", paymentIntent.id);
+        const pi = event.data.object as Stripe.PaymentIntent;
+        console.warn("⚠️ Payment failed:", pi.id);
+        break;
+      }
+
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        console.log("↩️ Charge refunded:", charge.id);
         break;
       }
 
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
 
     return res.status(200).send("Webhook received");

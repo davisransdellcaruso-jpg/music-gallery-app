@@ -1,12 +1,8 @@
 // pages/store.tsx
-import { loadStripe } from "@stripe/stripe-js";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+import { useCart } from "@/lib/cartContext";
 
 const products = [
   {
@@ -15,10 +11,10 @@ const products = [
     basePrice: 3000,
     image: "/tshirt.jpeg",
     variants: [
-      { size: "Small", stock: 6, priceId: "price_1SBKTQLZry0DH74Axed97gUj" },
-      { size: "Medium", stock: 12, priceId: "price_1SBKUfLZry0DH74A7TLRVZs4" },
-      { size: "Large", stock: 6, priceId: "price_1SBKVALZry0DH74A2x5b4CbO" },
-      { size: "XL", stock: 5, priceId: "price_1SBKVdLZry0DH74Auo5AJHoK" },
+      { size: "Small", priceId: "price_1SFv2OLM8xwOOb8opA4S2REn" },
+      { size: "Medium", priceId: "price_1SFvE7LM8xwOOb8omcIVkVG5" },
+      { size: "Large", priceId: "price_1SFvESLM8xwOOb8orM8YfxiD" },
+      { size: "XL", priceId: "price_1SFvG6LM8xwOOb8oDjck2SSn" },
     ],
   },
   {
@@ -27,36 +23,47 @@ const products = [
     basePrice: 5000,
     image: "/hoodie.jpeg",
     variants: [
-      { size: "Small", stock: 2, priceId: "price_1SBKWcLZry0DH74AO1xQMA4Y" },
-      { size: "Medium", stock: 2, priceId: "price_1SBKWqLZry0DH74AL43FLDqM" },
+      { size: "Small", priceId: "price_1SFv21LM8xwOOb8oHhXcEYR3" },
+      { size: "Medium", priceId: "price_1SFvJALM8xwOOb8onDRbuOmw" },
     ],
   },
   {
     id: "poster",
-    name: "Periwinkly Dragonfly Poster",   // 👈 you can keep your custom name
+    name: "Periwinkle Dragonfly Poster",
     basePrice: 1500,
     image: "/poster.jpeg",
     variants: [
-      { size: "Standard", stock: 20, priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" },
+      { size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" },
     ],
   },
 ];
 
 export default function Store() {
   const [selectedVariant, setSelectedVariant] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { addToCart } = useCart();
 
-  // Stripe checkout handler
-  const handleCheckout = async (priceId: string) => {
-    const stripe = await stripePromise;
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId }),
-    });
-
-    const { id } = await res.json();
-    await stripe?.redirectToCheckout({ sessionId: id });
+  const donate = async (amount: number) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/create-donation-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Something went wrong.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error starting donation session.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,8 +75,11 @@ export default function Store() {
 
       {/* Top navigation bar */}
       <div className="nav-bar">
-        <button onClick={() => router.push("/welcome")} className="dreamy-button">
-          ← Back to Welcome
+        <button onClick={() => router.push("/gallery")} className="dreamy-button">
+          ← Back to Gallery
+        </button>
+        <button onClick={() => router.push("/cart")} className="dreamy-button">
+          🛒 Cart
         </button>
       </div>
 
@@ -77,12 +87,12 @@ export default function Store() {
       <div className="title-block">
         <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">art for $ :)</p>
+        <p className="tagline"></p>
       </div>
 
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Merch Store</h2>
       <p style={{ textAlign: "center", marginBottom: "2rem", fontStyle: "italic" }}>
-        All orders ship on the <b>1st of the month</b>. Thank you for your patience 💜
+        All orders ship on the <b>1st of the month (included in the price)</b>. Thank you for your patience 💜
       </p>
 
       {/* Products grid */}
@@ -101,7 +111,7 @@ export default function Store() {
               ${(product.basePrice / 100).toFixed(2)}
             </p>
 
-            {/* Size buttons */}
+            {/* Size buttons with toggle + glow */}
             <div
               style={{
                 display: "grid",
@@ -116,7 +126,10 @@ export default function Store() {
                   <button
                     key={idx}
                     onClick={() =>
-                      setSelectedVariant({ ...selectedVariant, [product.id]: variant.priceId })
+                      setSelectedVariant({
+                        ...selectedVariant,
+                        [product.id]: isSelected ? "" : variant.priceId, // toggle on/off
+                      })
                     }
                     style={{
                       height: "80px",
@@ -126,27 +139,43 @@ export default function Store() {
                         ? "rgba(174,184,254,0.9)"
                         : "rgba(255,255,255,0.1)",
                       color: "white",
-                      border: "none",
+                      border: isSelected
+                        ? "2px solid #aeb8fe"
+                        : "1px solid rgba(255,255,255,0.2)",
+                      boxShadow: isSelected
+                        ? "0 0 12px rgba(174,184,254,0.9)"
+                        : "none",
                       cursor: "pointer",
+                      transition: "all 0.3s ease",
                     }}
                   >
                     {variant.size}
-                    <br />
-                    <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                      {variant.stock} left
-                    </span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Buy button */}
+            {/* Add to Cart button */}
             <button
-              onClick={() =>
-                selectedVariant[product.id] &&
-                handleCheckout(selectedVariant[product.id])
-              }
-              className="dreamy-button"
+              onClick={() => {
+                const variantId = selectedVariant[product.id];
+                if (!variantId) return;
+
+                const variant = product.variants.find((v) => v.priceId === variantId);
+                if (!variant) return;
+
+                addToCart({
+                  productId: product.id,
+                  variantId: variant.priceId,
+                  name: `${product.name} (${variant.size})`,
+                  priceId: variant.priceId,
+                  price: product.basePrice,
+                  quantity: 1,
+                });
+
+                alert(`${product.name} (${variant.size}) added to cart!`);
+              }}
+              className="dreamy-button add-to-cart"
               style={{
                 width: "100%",
                 opacity: selectedVariant[product.id] ? 1 : 0.6,
@@ -154,10 +183,32 @@ export default function Store() {
               }}
               disabled={!selectedVariant[product.id]}
             >
-              Buy Now
+              Add to Cart
             </button>
           </div>
         ))}
+      </div>
+
+      {/* Donation Section */}
+      <div className="donation-section">
+        <h2>Support My Music</h2>
+        <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
+          Your donations help keep the music alive 💜
+        </p>
+        <div className="donation-buttons">
+          <button className="dreamy-button pulse" onClick={() => donate(500)} disabled={loading}>
+            Donate $5
+          </button>
+          <button className="dreamy-button pulse" onClick={() => donate(2000)} disabled={loading}>
+            Donate $20
+          </button>
+          <button className="dreamy-button pulse" onClick={() => donate(10000)} disabled={loading}>
+            Donate $100
+          </button>
+          <button className="dreamy-button pulse" onClick={() => donate(25000)} disabled={loading}>
+            Donate $250
+          </button>
+        </div>
       </div>
 
       {/* Styles */}
@@ -174,92 +225,10 @@ export default function Store() {
           align-items: center;
         }
 
-        .glow-behind {
-          position: absolute;
-          top: 20%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 250px;
-          height: 250px;
-          border-radius: 50%;
-          background: radial-gradient(
-            circle,
-            rgba(255, 180, 120, 0.6) 0%,
-            rgba(255, 140, 100, 0.3) 40%,
-            transparent 70%
-          );
-          filter: blur(40px);
-          z-index: 0;
-          animation: pulse 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulse {
-          from {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 0.7;
-          }
-          to {
-            transform: translate(-50%, -50%) scale(1.15);
-            opacity: 1;
-          }
-        }
-
-        .nav-bar {
-          width: 100%;
-          max-width: 1200px;
-          display: flex;
-          justify-content: flex-start;
-          align-items: center;
-          margin-bottom: 2rem;
-          position: relative;
-          z-index: 2;
-        }
-
-        .title-block {
-          text-align: center;
-          margin-bottom: 2rem;
-          position: relative;
-          z-index: 2;
-        }
-
-        .brand-title {
-          font-size: 3rem;
-          font-weight: 700;
-          color: #ffffff;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          font-family: "Eurostile", "Futura", "Helvetica Neue", sans-serif;
-        }
-
-        .underline {
-          width: 120px;
-          height: 3px;
-          margin: 0.5rem auto 1rem;
-          background: linear-gradient(to right, #ff6b4a, #ffb347);
-          border-radius: 2px;
-        }
-
-        .tagline {
-          font-style: italic;
-          font-size: 1.3rem;
-          color: #ddd;
-          font-family: "Didot", "Bodoni MT", serif;
-        }
-
-        .dreamy-button {
-          background-color: #aeb8fe;
-          color: #2a004f;
-          border: none;
-          border-radius: 6px;
-          padding: 0.75rem 1.25rem;
-          font-size: 1rem;
-          font-weight: bold;
-        }
-
         .products-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
+          gap: 3rem; /* more spacing between items */
           position: relative;
           z-index: 2;
           max-width: 1200px;
@@ -276,44 +245,50 @@ export default function Store() {
           margin: 0 auto;
         }
 
-        .product-image {
-          border-radius: 8px;
-          margin-bottom: 1rem;
-          object-fit: cover;
+        .dreamy-button {
+          background-color: #aeb8fe;
+          color: #2a004f;
+          border: none;
+          border-radius: 6px;
+          padding: 0.75rem 1.5rem;
+          cursor: pointer;
+          font-size: 1rem;
+          font-weight: bold;
+          transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .dreamy-button:hover {
+          background-color: #8f9efc;
+          box-shadow: 0 0 15px rgba(175, 184, 254, 0.9);
+          transform: translateY(-2px);
         }
 
-        .clouds {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 200%;
-          height: 100%;
-          background: url("/clouds.png") repeat-x;
-          background-size: cover;
-          opacity: 0.2;
-          animation: drift 60s linear infinite;
+        .add-to-cart {
+          padding: 1rem 1.5rem; /* thicker button */
+          margin-top: 1rem;
         }
 
-        .mist {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(
-            ellipse at center,
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0) 70%
-          );
-          pointer-events: none;
+        .donation-section {
+          margin-top: 4rem;
+          text-align: center;
+          z-index: 2;
+        }
+        .donation-buttons {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+          margin-top: 1rem;
         }
 
-        @keyframes drift {
-          0% {
-            transform: translateX(0);
+        .pulse:hover {
+          animation: pulseGlow 1.5s infinite alternate;
+        }
+        @keyframes pulseGlow {
+          from {
+            box-shadow: 0 0 15px rgba(175, 184, 254, 0.6);
           }
-          100% {
-            transform: translateX(-50%);
+          to {
+            box-shadow: 0 0 25px rgba(175, 184, 254, 1);
           }
         }
       `}</style>
