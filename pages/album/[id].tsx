@@ -81,9 +81,11 @@ function AlbumPage() {
           .eq("album_id", id)
           .single();
 
-        if (profile && unlock) {
+        if (unlock) {
           setRequiredAmount(unlock.required_amount);
-          if (profile.total_spent >= unlock.required_amount) {
+
+          // only mark unlocked if the user has spent enough
+          if (profile && profile.total_spent >= unlock.required_amount) {
             setUnlocked(true);
           }
         }
@@ -150,7 +152,10 @@ function AlbumPage() {
           }
           break;
         case "ArrowLeft":
-          audioRef.current.currentTime = Math.max(audioRef.current.currentTime - 5, 0);
+          audioRef.current.currentTime = Math.max(
+            audioRef.current.currentTime - 5,
+            0
+          );
           setCurrentTime(audioRef.current.currentTime);
           break;
         case "ArrowRight":
@@ -193,44 +198,173 @@ function AlbumPage() {
     return <div style={{ color: "white" }}>Album not found</div>;
 
   // 🔒 If album is locked
-if (!unlocked) {
-  return (
-    <div className="album-page">
-      {/* dreamy background layers */}
-      <div className="glow glow1" />
-      <div className="glow glow2" />
-      <div className="clouds"></div>
-      <div className="mist"></div>
+  if (!unlocked) {
+    return (
+      <div className="album-page">
+        {/* dreamy background layers */}
+        <div className="glow glow1" />
+        <div className="glow glow2" />
+        <div className="clouds"></div>
+        <div className="mist"></div>
 
-      <div style={{ textAlign: "center", marginTop: "5rem", zIndex: 2 }}>
-        <h1 className="album-title">{album.title}</h1>
-
-        {requiredAmount ? (
-          <p style={{ fontSize: "1.5rem", marginTop: "1rem", color: "white" }}>
-            Spend ${requiredAmount / 100} to unlock this material.
-          </p>
-        ) : (
-          <p style={{ fontSize: "1.5rem", marginTop: "1rem", color: "white" }}>
-            This album is locked.
-          </p>
-        )}
-
-        <button
-          onClick={() => router.push("/store")}
-          className="dreamy-button"
+        {/* locked content */}
+        <div
           style={{
-            marginTop: "2rem",
-            padding: "0.75rem 1.5rem",
-            fontSize: "1.1rem",
-            borderRadius: "6px",
+            textAlign: "center",
+            marginTop: "5rem",
+            position: "relative",
+            zIndex: 2,
           }}
         >
-          Store 🛒
-        </button>
+          <h1 className="album-title">{album.title}</h1>
+
+          {requiredAmount !== null ? (
+            <p
+              style={{
+                fontSize: "1.8rem",
+                marginTop: "1.5rem",
+                color: "white",
+              }}
+            >
+              Spend ${requiredAmount / 100} to unlock this material.
+            </p>
+          ) : (
+            <p
+              style={{
+                fontSize: "1.8rem",
+                marginTop: "1.5rem",
+                color: "white",
+              }}
+            >
+              This album is locked.
+            </p>
+          )}
+
+          <button
+            onClick={() => router.push("/store")}
+            className="dreamy-button"
+            style={{
+              marginTop: "2rem",
+              padding: "1rem 2rem",
+              fontSize: "1.2rem",
+              borderRadius: "8px",
+            }}
+          >
+            Store 🛒
+          </button>
+        </div>
+
+        <style jsx global>{`
+          .album-page {
+            min-height: 100vh;
+            padding: 2rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(
+              135deg,
+              #2a004f 0%,
+              #4b2a6f 50%,
+              #2e1a47 100%
+            );
+          }
+
+          .glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.5;
+            animation: pulse 12s ease-in-out infinite alternate;
+          }
+          .glow1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+            background: rgba(168, 85, 247, 0.6);
+          }
+          .glow2 {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -150px;
+            background: rgba(99, 102, 241, 0.6);
+            animation-delay: 6s;
+          }
+          @keyframes pulse {
+            from {
+              transform: scale(1);
+              opacity: 0.4;
+            }
+            to {
+              transform: scale(1.2);
+              opacity: 0.7;
+            }
+          }
+
+          .clouds {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: url("/clouds.png") repeat-x;
+            background-size: cover;
+            opacity: 0.25;
+            animation: drift 60s linear infinite;
+          }
+          .mist {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+              ellipse at center,
+              rgba(255, 255, 255, 0.15) 0%,
+              rgba(255, 255, 255, 0) 70%
+            );
+            pointer-events: none;
+          }
+          @keyframes drift {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+
+          .dreamy-button {
+            background-color: #aeb8fe;
+            color: #2a004f;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+          }
+          .dreamy-button:hover {
+            background-color: #8f9efc;
+            box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
+          }
+
+          .album-title {
+            font-family: Bodoni, serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+          }
+        `}</style>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="album-page">
@@ -316,11 +450,21 @@ if (!unlocked) {
               className="play-button"
             >
               {audioRef.current?.paused ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="icon"
+                >
                   <path d="M5 3l14 9-14 9V3z" />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="icon"
+                >
                   <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                 </svg>
               )}
@@ -382,16 +526,24 @@ if (!unlocked) {
           <div className="tab-buttons">
             {currentTrack?.lyrics && (
               <button
-                onClick={() => setActiveTab(activeTab === "lyrics" ? null : "lyrics")}
-                className={`dreamy-button ${activeTab === "lyrics" ? "active-tab" : ""}`}
+                onClick={() =>
+                  setActiveTab(activeTab === "lyrics" ? null : "lyrics")
+                }
+                className={`dreamy-button ${
+                  activeTab === "lyrics" ? "active-tab" : ""
+                }`}
               >
                 Lyrics
               </button>
             )}
             {currentTrack?.credits && (
               <button
-                onClick={() => setActiveTab(activeTab === "credits" ? null : "credits")}
-                className={`dreamy-button ${activeTab === "credits" ? "active-tab" : ""}`}
+                onClick={() =>
+                  setActiveTab(activeTab === "credits" ? null : "credits")
+                }
+                className={`dreamy-button ${
+                  activeTab === "credits" ? "active-tab" : ""
+                }`}
               >
                 Credits
               </button>
@@ -407,13 +559,21 @@ if (!unlocked) {
                     ref={(el) => {
                       if (el) lineRefs.current[i] = el;
                     }}
-                    className={`lyric-line ${i === currentLyricIndex ? "active-lyric" : ""}`}
+                    className={`lyric-line ${
+                      i === currentLyricIndex ? "active-lyric" : ""
+                    }`}
                   >
                     {line.line}
                   </p>
                 ))
               ) : (
-                <p style={{ whiteSpace: "pre-wrap", color: "#ddd", fontSize: "1.5rem" }}>
+                <p
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    color: "#ddd",
+                    fontSize: "1.5rem",
+                  }}
+                >
                   {currentTrack.lyrics}
                 </p>
               )}
@@ -422,7 +582,9 @@ if (!unlocked) {
 
           {activeTab === "credits" && currentTrack?.credits && (
             <div className="credits-box">
-              <p style={{ fontSize: "1.5rem", lineHeight: "1.6" }}>{currentTrack.credits}</p>
+              <p style={{ fontSize: "1.5rem", lineHeight: "1.6" }}>
+                {currentTrack.credits}
+              </p>
             </div>
           )}
         </div>
@@ -439,7 +601,12 @@ if (!unlocked) {
           gap: 2rem;
           position: relative;
           overflow: hidden;
-          background: linear-gradient(135deg, #2a004f 0%, #4b2a6f 50%, #2e1a47 100%);
+          background: linear-gradient(
+            135deg,
+            #2a004f 0%,
+            #4b2a6f 50%,
+            #2e1a47 100%
+          );
         }
 
         .glow {
@@ -465,8 +632,14 @@ if (!unlocked) {
           animation-delay: 6s;
         }
         @keyframes pulse {
-          from { transform: scale(1); opacity: 0.4; }
-          to { transform: scale(1.2); opacity: 0.7; }
+          from {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          to {
+            transform: scale(1.2);
+            opacity: 0.7;
+          }
         }
 
         .clouds {
@@ -486,10 +659,21 @@ if (!unlocked) {
           left: 0;
           width: 100%;
           height: 100%;
-          background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+          background: radial-gradient(
+            ellipse at center,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0) 70%
+          );
           pointer-events: none;
         }
-        @keyframes drift { 0% { transform: translateX(0);} 100% { transform: translateX(-50%);} }
+        @keyframes drift {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
 
         .dreamy-button {
           background-color: #aeb8fe;
@@ -506,7 +690,9 @@ if (!unlocked) {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
         }
-        .active-tab { background-color: #8f9efc; }
+        .active-tab {
+          background-color: #8f9efc;
+        }
 
         .nav-bar {
           width: 100%;
@@ -527,7 +713,10 @@ if (!unlocked) {
           position: relative;
           z-index: 2;
         }
-        .album-year { font-size: 2rem; font-weight: normal; }
+        .album-year {
+          font-size: 2rem;
+          font-weight: normal;
+        }
 
         .album-cover {
           width: 300px;
@@ -537,16 +726,27 @@ if (!unlocked) {
           position: relative;
           z-index: 2;
         }
-        .album-cover:hover { filter: drop-shadow(0 0 15px rgba(200, 180, 255, 0.7)); }
+        .album-cover:hover {
+          filter: drop-shadow(0 0 15px rgba(200, 180, 255, 0.7));
+        }
 
-        .track-list { margin-bottom: 2rem; position: relative; z-index: 2; }
+        .track-list {
+          margin-bottom: 2rem;
+          position: relative;
+          z-index: 2;
+        }
         .track-item {
           cursor: pointer;
           margin: 0.5rem 0;
           font-size: 2rem;
         }
-        .track-item.active { font-weight: bold; text-decoration: underline; }
-        .track-item:hover { filter: drop-shadow(0 0 10px rgba(200, 180, 255, 0.7)); }
+        .track-item.active {
+          font-weight: bold;
+          text-decoration: underline;
+        }
+        .track-item:hover {
+          filter: drop-shadow(0 0 10px rgba(200, 180, 255, 0.7));
+        }
 
         .custom-player {
           display: flex;
@@ -573,14 +773,18 @@ if (!unlocked) {
           justify-content: center;
           cursor: pointer;
           color: #2a004f;
-          transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+          transition: background 0.3s ease, transform 0.2s ease,
+            box-shadow 0.3s ease;
         }
         .play-button:hover {
           background: #8f9efc;
           transform: scale(1.1);
           box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
         }
-        .icon { width: 24px; height: 24px; }
+        .icon {
+          width: 24px;
+          height: 24px;
+        }
 
         .scrubber-container {
           flex: 1;

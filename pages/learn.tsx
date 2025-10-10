@@ -16,9 +16,7 @@ export default function Learn() {
         <button onClick={() => router.push("/gallery")} className="dreamy-button">
           ← Back to Gallery
         </button>
-        <button onClick={() => router.push("/welcome")} className="dreamy-button">
-          Welcome 🏠
-        </button>
+        
       </div>
 
       {/* Header block */}

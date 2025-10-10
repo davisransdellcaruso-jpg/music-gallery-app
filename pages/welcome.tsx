@@ -76,8 +76,77 @@ export default function Welcome() {
         {error && <p className="error">{error}</p>}
       </form>
 
+      {/* Gentle divider (matches the underline vibe) */}
+      <hr className="soft-divider" />
+
+      {/* --- Social + Support (no box) --- */}
+      <section className="social-footer">
+        <h2 className="footer-title">Stay connected</h2>
+
+        <div className="links-icons">
+          {/* Instagram */}
+          <a
+            className="social-icon"
+            href="https://www.instagram.com/dav_wav_/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            title="Instagram"
+          >
+            <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"
+                fill="currentColor"
+              />
+            </svg>
+          </a>
+
+          {/* Facebook */}
+          <a
+            className="social-icon"
+            href="https://www.facebook.com/DavisCarusoMusic/?rdid=nTaJjpsEu63FSUx7"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            title="Facebook"
+          >
+            <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M22 12a10 10 0 1 0-11.56 9.9v-7h-2.3V12h2.3V9.8c0-2.27 1.35-3.53 3.42-3.53.99 0 2.02.18 2.02.18v2.23h-1.14c-1.12 0-1.47.7-1.47 1.42V12h2.5l-.4 2.9h-2.1v7A10 10 0 0 0 22 12z"
+                fill="currentColor"
+              />
+            </svg>
+          </a>
+
+          {/* TikTok */}
+          <a
+            className="social-icon"
+            href="https://www.tiktok.com/@dav_wav_?_t=ZT-90R8qRubZ2E&_r=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TikTok"
+            title="TikTok"
+          >
+            <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M21 8.5a6.9 6.9 0 0 1-4.5-1.65V16a5.85 5.85 0 1 1-5.85-5.85c.36 0 .72.04 1.06.12v2.35a3.5 3.5 0 1 0 2.44 3.36V2h2.42a6.9 6.9 0 0 0 4.43 4.54V8.5z"
+                fill="currentColor"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <p className="support">
+          Need help? Email{" "}
+          <a href="mailto:davisransdellcaruso@gmail.com" className="support-link">
+            davisransdellcaruso@gmail.com
+          </a>{" "}
+          for tech support.
+        </p>
+      </section>
+
       <style jsx>{`
-        /* Inspired by album artwork tones */
+        /* Page */
         .welcome-page {
           min-height: 100vh;
           display: flex;
@@ -97,7 +166,7 @@ export default function Welcome() {
           position: relative;
         }
 
-        /* Glow behind "wavis" */
+        /* Glow behind title */
         .glow-behind {
           position: absolute;
           top: 50%;
@@ -106,7 +175,12 @@ export default function Welcome() {
           width: 300px;
           height: 300px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(255, 180, 120, 0.6) 0%, rgba(255, 140, 100, 0.3) 40%, transparent 70%);
+          background: radial-gradient(
+            circle,
+            rgba(255, 180, 120, 0.6) 0%,
+            rgba(255, 140, 100, 0.3) 40%,
+            transparent 70%
+          );
           filter: blur(60px);
           z-index: 0;
           animation: pulse 8s ease-in-out infinite alternate;
@@ -227,6 +301,78 @@ export default function Welcome() {
           color: #ff7b7b;
           margin-top: 0.5rem;
           font-size: 0.9rem;
+        }
+
+        /* Gentle divider matching the brand underline vibe */
+        .soft-divider {
+          width: min(960px, 92vw);
+          margin: 2.25rem auto 1.25rem;
+          border: none;
+          height: 2px;
+          background: linear-gradient(to right, #ff6b4a, #ffb347);
+          opacity: 0.55; /* softer than the title underline */
+          border-radius: 2px;
+        }
+
+        /* Social (no box) */
+        .social-footer {
+          margin-top: 0.25rem;
+        }
+
+        .footer-title {
+          margin: 0 0 0.75rem 0;
+          text-align: center;
+          font-family: Bodoni, serif;
+          font-size: 1.9rem;
+          letter-spacing: 0.5px;
+        }
+
+        /* Icon links (compact, circular) */
+        .links-icons {
+          display: flex;
+          justify-content: center;
+          gap: 0.9rem;
+          margin-bottom: 0.6rem;
+        }
+        .social-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: #111;
+          color: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.25s ease;
+          box-shadow: 0 0 0 rgba(175, 184, 254, 0);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .social-icon:hover {
+          background: #1a1a1a;
+          box-shadow: 0 0 14px rgba(175, 184, 254, 0.55);
+          transform: translateY(-1px) scale(1.03);
+        }
+        .icon {
+          width: 22px;
+          height: 22px;
+          display: block;
+        }
+
+        .support {
+          color: #eae6ff;
+          text-align: center;
+          margin: 0.25rem 0 0;
+          font-size: 0.98rem;
+          opacity: 0.92;
+        }
+        .support-link {
+          color: #fff;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+        .support-link:hover {
+          text-decoration-thickness: 2px;
         }
       `}</style>
     </div>
