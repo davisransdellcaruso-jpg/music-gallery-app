@@ -5,7 +5,12 @@ export default function Learn() {
   const router = useRouter();
 
   return (
-    <div className="learn-page">
+    <div className="learn-page trocchi">
+      <link
+        href="https://fonts.googleapis.com/css2?family=Trocchi&display=swap"
+        rel="stylesheet"
+      />
+
       {/* Background layers */}
       <div className="glow-behind"></div>
       <div className="clouds"></div>
@@ -16,14 +21,12 @@ export default function Learn() {
         <button onClick={() => router.push("/gallery")} className="dreamy-button">
           ← Back to Gallery
         </button>
-        
       </div>
 
       {/* Header block */}
       <div className="title-block">
         <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline">creativity amplified</p>
       </div>
 
       {/* Content placeholder */}
@@ -32,6 +35,10 @@ export default function Learn() {
       </p>
 
       <style jsx>{`
+        .trocchi {
+          font-family: "Trocchi", serif;
+        }
+
         .learn-page {
           min-height: 100vh;
           background: linear-gradient(135deg, #2a004f, #4b2a6f 50%, #2e1a47 100%);
@@ -85,6 +92,24 @@ export default function Learn() {
           z-index: 2;
         }
 
+        .dreamy-button {
+          background-color: #aeb8fe;
+          color: #2a004f;
+          border: none;
+          border-radius: 6px;
+          padding: 0.75rem 1.5rem;
+          cursor: pointer;
+          font-size: 1rem;
+          font-family: "Trocchi", serif;
+          font-weight: bold;
+          transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .dreamy-button:hover {
+          background-color: #8f9efc;
+          box-shadow: 0 0 15px rgba(175, 184, 254, 0.9);
+          transform: translateY(-2px);
+        }
+
         .title-block {
           text-align: center;
           margin-bottom: 2rem;
@@ -94,11 +119,8 @@ export default function Learn() {
 
         .brand-title {
           font-size: 3rem;
-          font-weight: 700;
           color: #ffffff;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          font-family: "Eurostile", "Futura", "Helvetica Neue", sans-serif;
+          letter-spacing: 0.05em;
         }
 
         .underline {
@@ -109,37 +131,26 @@ export default function Learn() {
           border-radius: 2px;
         }
 
-        .tagline {
-          font-style: italic;
-          font-size: 1.3rem;
-          color: #ddd;
-          font-family: "Didot", "Bodoni MT", serif;
-        }
-
         .info-text {
           color: #ddd;
-          font-size: 1.5rem;
+          font-size: 1.6rem;
           max-width: 600px;
           text-align: center;
           line-height: 1.6;
           z-index: 2;
           position: relative;
+          animation: glowText 3s ease-in-out infinite alternate;
         }
 
-        .dreamy-button {
-          background-color: #aeb8fe;
-          color: #2a004f;
-          border: none;
-          border-radius: 6px;
-          padding: 0.5rem 1rem;
-          cursor: pointer;
-          font-size: 1rem;
-          font-weight: bold;
-          transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .dreamy-button:hover {
-          background-color: #8f9efc;
-          box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
+        @keyframes glowText {
+          from {
+            text-shadow: 0 0 8px rgba(174, 184, 254, 0.4);
+            opacity: 0.8;
+          }
+          to {
+            text-shadow: 0 0 18px rgba(174, 184, 254, 1);
+            opacity: 1;
+          }
         }
 
         .clouds {

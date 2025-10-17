@@ -1,4 +1,3 @@
-// pages/store.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
@@ -32,9 +31,7 @@ const products = [
     name: "Periwinkle Dragonfly Poster",
     basePrice: 1500,
     image: "/poster.jpeg",
-    variants: [
-      { size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" },
-    ],
+    variants: [{ size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" }],
   },
 ];
 
@@ -67,7 +64,13 @@ export default function Store() {
   };
 
   return (
-    <div className="store-page">
+    <div className="store-page trocchi">
+      {/* Load Trocchi font */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Trocchi&display=swap"
+        rel="stylesheet"
+      />
+
       {/* Background layers */}
       <div className="glow-behind"></div>
       <div className="clouds"></div>
@@ -92,7 +95,8 @@ export default function Store() {
 
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Merch Store</h2>
       <p style={{ textAlign: "center", marginBottom: "2rem", fontStyle: "italic" }}>
-        All orders ship on the <b>1st of the month (included in the price)</b>. Thank you for your patience 💜
+        All orders ship on the <b>1st of the month (included in the price)</b>. Thank you
+        for your patience 💜
       </p>
 
       {/* Products grid */}
@@ -128,7 +132,7 @@ export default function Store() {
                     onClick={() =>
                       setSelectedVariant({
                         ...selectedVariant,
-                        [product.id]: isSelected ? "" : variant.priceId, // toggle on/off
+                        [product.id]: isSelected ? "" : variant.priceId,
                       })
                     }
                     style={{
@@ -213,6 +217,10 @@ export default function Store() {
 
       {/* Styles */}
       <style jsx>{`
+        .trocchi {
+          font-family: "Trocchi", serif;
+        }
+
         .store-page {
           min-height: 100vh;
           background: linear-gradient(135deg, #2a004f, #4b2a6f 50%, #2e1a47 100%);
@@ -228,7 +236,7 @@ export default function Store() {
         .products-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 3rem; /* more spacing between items */
+          gap: 3rem;
           position: relative;
           z-index: 2;
           max-width: 1200px;
@@ -243,6 +251,7 @@ export default function Store() {
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
           max-width: 400px;
           margin: 0 auto;
+          font-family: "Trocchi", serif;
         }
 
         .dreamy-button {
@@ -253,9 +262,11 @@ export default function Store() {
           padding: 0.75rem 1.5rem;
           cursor: pointer;
           font-size: 1rem;
+          font-family: "Trocchi", serif;
           font-weight: bold;
           transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
         }
+
         .dreamy-button:hover {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.9);
@@ -263,7 +274,7 @@ export default function Store() {
         }
 
         .add-to-cart {
-          padding: 1rem 1.5rem; /* thicker button */
+          padding: 1rem 1.5rem;
           margin-top: 1rem;
         }
 
@@ -271,7 +282,9 @@ export default function Store() {
           margin-top: 4rem;
           text-align: center;
           z-index: 2;
+          font-family: "Trocchi", serif;
         }
+
         .donation-buttons {
           display: flex;
           gap: 1rem;
@@ -283,6 +296,7 @@ export default function Store() {
         .pulse:hover {
           animation: pulseGlow 1.5s infinite alternate;
         }
+
         @keyframes pulseGlow {
           from {
             box-shadow: 0 0 15px rgba(175, 184, 254, 0.6);
