@@ -11,6 +11,7 @@
   "dependencies": {
     "@stripe/stripe-js": "^7.9.0",
     "@supabase/supabase-js": "^2.58.0",
+    "@vercel/analytics": "^1.5.0",
     "@wavesurfer/react": "^1.0.11",
     "next": "15.5.1",
     "react": "19.1.0",

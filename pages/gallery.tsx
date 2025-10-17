@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
 import Image from "next/image";
+import { track } from "@vercel/analytics";
+
 
 type Album = {
   id: string;

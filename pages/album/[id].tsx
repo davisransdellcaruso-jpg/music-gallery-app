@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import withAuth from "../../components/withAuth";
+import { track } from "@vercel/analytics";
 
 type Album = {
   id: string;
@@ -220,9 +221,23 @@ function AlbumPage() {
     if (audioRef.current.paused) {
       await audioRef.current.play();
       setIsPlaying(true);
+      // 🎯 track event: play
+      track("Track Played", {
+        album: album?.title,
+        albumId: album?.id,
+        track: currentTrack?.title,
+        trackNumber: currentTrack?.track_number,
+      });
     } else {
       audioRef.current.pause();
       setIsPlaying(false);
+      // 🎯 track event: pause
+      track("Track Paused", {
+        album: album?.title,
+        albumId: album?.id,
+        track: currentTrack?.title,
+        trackNumber: currentTrack?.track_number,
+      });
     }
   };
 
@@ -236,6 +251,13 @@ function AlbumPage() {
       if (autoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
+        // 🎯 track event: next
+        track("Next Track", {
+          album: album?.title,
+          albumId: album?.id,
+          track: tracks[nextIndex]?.title,
+          trackNumber: tracks[nextIndex]?.track_number,
+        });
       } else {
         setIsPlaying(false);
       }
@@ -252,6 +274,13 @@ function AlbumPage() {
       if (autoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
+        // 🎯 track event: previous
+        track("Previous Track", {
+          album: album?.title,
+          albumId: album?.id,
+          track: tracks[prevIndex]?.title,
+          trackNumber: tracks[prevIndex]?.track_number,
+        });
       } else {
         setIsPlaying(false);
       }
@@ -542,7 +571,7 @@ function AlbumPage() {
         }
         .glow1 { width: 600px; height: 600px; top: -200px; left: -200px; background: rgba(168, 85, 247, 0.6); }
         .glow2 { width: 500px; height: 500px; bottom: -150px; right: -150px; background: rgba(99, 102, 241, 0.6); animation-delay: 6s; }
-        @keyframes pulse { from { transform: scale(1); opacity: 0.4; } to { transform: scale(1.2); opacity: 0.7; } }
+        @keyframes pulse { from { transform: scale(1); opacity: 0.4; } to { transform: scale(1.2); opacity: 0.7); } }
 
         .clouds {
           position: absolute; top: 0; left: 0; width: 200%; height: 100%;
