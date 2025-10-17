@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
 import Image from "next/image";
-import { track } from "@vercel/analytics";
-
 
 type Album = {
   id: string;
@@ -17,6 +15,8 @@ export default function Gallery() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchAlbums = async () => {
@@ -31,6 +31,21 @@ export default function Gallery() {
     };
     fetchAlbums();
   }, []);
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage("");
+    if (!email) return setMessage("Please enter your email.");
+
+    const { error } = await supabase.from("mailing_list").insert([{ email }]);
+    if (error) {
+      if (error.code === "23505") setMessage("You're already signed up 💜");
+      else setMessage("Error: " + error.message);
+    } else {
+      setMessage("Thanks for supporting 🌙");
+      setEmail("");
+    }
+  };
 
   if (loading) return <div style={{ color: "white" }}>Loading albums…</div>;
 
@@ -86,9 +101,10 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* Social section */}
-        <div className="social-section">
-          <p className="social-title">Follow me:</p>
+        {/* Support section */}
+        <div className="support-section">
+          <h2 className="support-title">Easy ways to support 💜</h2>
+
           <div className="social-icons">
             {/* Instagram */}
             <a
@@ -126,6 +142,20 @@ export default function Gallery() {
               </svg>
             </a>
           </div>
+
+          {/* Email signup */}
+          <form onSubmit={handleEmailSubmit} className="email-form">
+            <input
+              type="email"
+              placeholder="Enter your email to stay in touch"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <button type="submit" className="dreamy-button">Join Mailing List ✨</button>
+          </form>
+
+          {message && <p className="message">{message}</p>}
 
           <p className="support-text">
             email{" "}
@@ -268,16 +298,21 @@ export default function Gallery() {
           margin-top: 0.25rem;
         }
 
-        .social-section {
+        .support-section {
           text-align: center;
           margin-top: 4rem;
           color: #d1c4e9;
+        }
+        .support-title {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+          color: #ffffff;
         }
         .social-icons {
           display: flex;
           justify-content: center;
           gap: 1.5rem;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
         }
         .social-icons svg {
           transition: transform 0.3s ease, fill 0.3s ease;
@@ -287,9 +322,56 @@ export default function Gallery() {
           transform: scale(1.2);
           filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.8));
         }
+
+        .email-form {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .email-form input {
+          width: 100%;
+          max-width: 320px;
+          padding: 0.8rem 1rem;
+          border-radius: 8px;
+          border: 1px solid #a78bfa;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          text-align: center;
+          font-size: 1rem;
+          transition: box-shadow 0.3s ease;
+        }
+        .email-form input:focus {
+          outline: none;
+          box-shadow: 0 0 15px rgba(167, 139, 250, 0.7);
+        }
+
+        .dreamy-button {
+          background-color: #aeb8fe;
+          color: #2a004f;
+          border: none;
+          border-radius: 8px;
+          padding: 0.6rem 1.5rem;
+          font-size: 1rem;
+          cursor: pointer;
+          font-family: "Trocchi", serif;
+          font-weight: bold;
+          transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dreamy-button:hover {
+          background-color: #8f9efc;
+          box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+        }
+
+        .message {
+          color: #c4b5fd;
+          margin-top: 0.5rem;
+        }
+
         .support-text {
           font-size: 0.9rem;
           color: #bcaef5;
+          margin-top: 1.5rem;
         }
         .support-text a {
           color: #a78bfa;
