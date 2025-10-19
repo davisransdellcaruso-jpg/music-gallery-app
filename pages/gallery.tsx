@@ -65,8 +65,11 @@ export default function Gallery() {
             <button onClick={() => router.push("/learn")} className="nav-button">
               Learn 📖
             </button>
+            <button onClick={() => router.push("/newsletter")} className="nav-button">
+              Newsletter ✍️
+            </button>
           </div>
-        </div>
+        </div> {/* ✅ this closing div was missing */}
 
         {/* Title */}
         <div className="title-block">

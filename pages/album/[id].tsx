@@ -2,8 +2,12 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { supabase } from "../../lib/supabase";
-import withAuth from "../../components/withAuth";
 import { track } from "@vercel/analytics";
+import type { GetStaticPaths, GetStaticProps } from "next";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 
 type Album = {
   id: string;
@@ -247,7 +251,7 @@ function AlbumPage() {
     setCurrentIndex(nextIndex);
     setCurrentTime(0);
     if (audioRef.current) {
-      audioRef.current.src = tracks[nextIndex].audio_url;
+      audioRef.current.src = `/api/stream?path=${encodeURIComponent(tracks[nextIndex].audio_url)}`;
       if (autoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
@@ -270,7 +274,7 @@ function AlbumPage() {
     setCurrentIndex(prevIndex);
     setCurrentTime(0);
     if (audioRef.current) {
-      audioRef.current.src = tracks[prevIndex].audio_url;
+      audioRef.current.src = `/api/stream?path=${encodeURIComponent(tracks[prevIndex].audio_url)}`;
       if (autoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
@@ -385,7 +389,7 @@ function AlbumPage() {
               setCurrentIndex(i);
               setCurrentTime(0);
               if (audioRef.current) {
-                audioRef.current.src = track.audio_url;
+                audioRef.current.src = `/api/stream?path=${encodeURIComponent(track.audio_url)}`;
                 await audioRef.current.play();
                 setIsPlaying(true);
               }
@@ -405,8 +409,8 @@ function AlbumPage() {
 
           {/* Hidden audio element */}
           <audio
-            ref={audioRef}
-            src={currentTrack.audio_url}
+  ref={audioRef}
+  src={`/api/stream?path=${encodeURIComponent(currentTrack.audio_url)}`}
             onEnded={handleEnded}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={() => {
@@ -727,5 +731,15 @@ function AlbumPage() {
     </div>
   );
 }
+// ✅ Dynamic page support for mobile/direct loads
+// ✅ Server-side rendering: guarantees dynamic rendering
+export async function getServerSideProps() {
+  return {
+    props: {}, // data is fetched client-side
+  };
+}
 
-export default withAuth(AlbumPage);
+// export default withAuth(AlbumPage);
+export default AlbumPage;
+
+
