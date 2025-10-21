@@ -33,6 +33,13 @@ const products = [
     image: "/poster.jpeg",
     variants: [{ size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" }],
   },
+  {
+    id: "cd",
+    name: "The Fool CD",
+    basePrice: 1200,
+    image: "/thefoolcd.jpeg",
+    variants: [{ size: "Standard", priceId: "price_1SKlA2LM8xwOOb8odxsDt8nz" }],
+  },
 ];
 
 export default function Store() {
