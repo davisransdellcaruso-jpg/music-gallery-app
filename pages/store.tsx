@@ -5,6 +5,20 @@ import { useCart } from "@/lib/cartContext";
 
 const products = [
   {
+    id: "poster",
+    name: "Periwinkle Dragonfly Poster",
+    basePrice: 1500,
+    image: "/poster.jpeg",
+    variants: [{ size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" }],
+  },
+  {
+    id: "cd",
+    name: "The Fool CD",
+    basePrice: 1200,
+    image: "/thefoolcd.jpeg",
+    variants: [{ size: "Standard", priceId: "price_1SKlA2LM8xwOOb8odxsDt8nz" }],
+  },
+  {
     id: "tshirt",
     name: "Dreamin On Paris T-Shirt",
     basePrice: 3000,
@@ -25,20 +39,6 @@ const products = [
       { size: "Small", priceId: "price_1SFv21LM8xwOOb8oHhXcEYR3" },
       { size: "Medium", priceId: "price_1SFvJALM8xwOOb8onDRbuOmw" },
     ],
-  },
-  {
-    id: "poster",
-    name: "Periwinkle Dragonfly Poster",
-    basePrice: 1500,
-    image: "/poster.jpeg",
-    variants: [{ size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" }],
-  },
-  {
-    id: "cd",
-    name: "The Fool CD",
-    basePrice: 1200,
-    image: "/thefoolcd.jpeg",
-    variants: [{ size: "Standard", priceId: "price_1SKlA2LM8xwOOb8odxsDt8nz" }],
   },
 ];
 
@@ -241,13 +241,18 @@ export default function Store() {
         }
 
         .products-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 3rem;
-          position: relative;
-          z-index: 2;
-          max-width: 1200px;
-          width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
+  grid-template-rows: repeat(2, auto);
+  gap: 3rem;
+  justify-content: center;
+  align-items: start;
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
         }
 
         .product-card {
