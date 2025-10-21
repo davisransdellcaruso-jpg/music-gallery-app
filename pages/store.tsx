@@ -14,7 +14,7 @@ const products = [
   {
     id: "cd",
     name: "The Fool CD",
-    basePrice: 1200,
+    basePrice: 1500,
     image: "/thefoolcd.jpeg",
     variants: [{ size: "Standard", priceId: "price_1SKlA2LM8xwOOb8odxsDt8nz" }],
   },

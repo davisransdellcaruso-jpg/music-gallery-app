@@ -251,7 +251,7 @@ function AlbumPage() {
     setCurrentIndex(nextIndex);
     setCurrentTime(0);
     if (audioRef.current) {
-      audioRef.current.src = `/api/stream?path=${encodeURIComponent(tracks[nextIndex].audio_url)}`;
+      audioRef.current.src = tracks[nextIndex].audio_url;
       if (autoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
@@ -274,7 +274,7 @@ function AlbumPage() {
     setCurrentIndex(prevIndex);
     setCurrentTime(0);
     if (audioRef.current) {
-      audioRef.current.src = `/api/stream?path=${encodeURIComponent(tracks[prevIndex].audio_url)}`;
+      audioRef.current.src = tracks[prevIndex].audio_url;
       if (autoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
@@ -389,7 +389,7 @@ function AlbumPage() {
               setCurrentIndex(i);
               setCurrentTime(0);
               if (audioRef.current) {
-                audioRef.current.src = `/api/stream?path=${encodeURIComponent(track.audio_url)}`;
+                audioRef.current.src = track.audio_url;
                 await audioRef.current.play();
                 setIsPlaying(true);
               }
@@ -409,8 +409,8 @@ function AlbumPage() {
 
           {/* Hidden audio element */}
           <audio
-  ref={audioRef}
-  src={`/api/stream?path=${encodeURIComponent(currentTrack.audio_url)}`}
+            ref={audioRef}
+            src={currentTrack.audio_url}
             onEnded={handleEnded}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={() => {
