@@ -72,7 +72,6 @@ export default function Store() {
 
   return (
     <div className="store-page trocchi">
-      {/* Load Trocchi font */}
       <link
         href="https://fonts.googleapis.com/css2?family=Trocchi&display=swap"
         rel="stylesheet"
@@ -83,7 +82,7 @@ export default function Store() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
-      {/* Top navigation bar */}
+      {/* Nav bar */}
       <div className="nav-bar">
         <button onClick={() => router.push("/gallery")} className="dreamy-button">
           ← Back to Gallery
@@ -97,7 +96,6 @@ export default function Store() {
       <div className="title-block">
         <h1 className="brand-title">Davis Caruso</h1>
         <div className="underline"></div>
-        <p className="tagline"></p>
       </div>
 
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Merch Store</h2>
@@ -110,27 +108,19 @@ export default function Store() {
       <div className="products-grid">
         {products.map((product) => (
           <div key={product.id} className="product-card">
-            <Image
-              src={product.image}
-              alt={product.name}
-              width={400}
-              height={400}
-              className="product-image"
-            />
-            <h3 style={{ marginBottom: "0.5rem" }}>{product.name}</h3>
-            <p style={{ marginBottom: "1rem" }}>
-              ${(product.basePrice / 100).toFixed(2)}
-            </p>
+            <div className="product-image-wrapper">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                className="product-image"
+              />
+            </div>
+            <h3>{product.name}</h3>
+            <p>${(product.basePrice / 100).toFixed(2)}</p>
 
-            {/* Size buttons with toggle + glow */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${product.variants.length}, 1fr)`,
-                gap: "0.5rem",
-                marginBottom: "1rem",
-              }}
-            >
+            {/* Variants */}
+            <div className="variant-grid">
               {product.variants.map((variant, idx) => {
                 const isSelected = selectedVariant[product.id] === variant.priceId;
                 return (
@@ -142,23 +132,7 @@ export default function Store() {
                         [product.id]: isSelected ? "" : variant.priceId,
                       })
                     }
-                    style={{
-                      height: "80px",
-                      borderRadius: "8px",
-                      fontSize: "1rem",
-                      backgroundColor: isSelected
-                        ? "rgba(174,184,254,0.9)"
-                        : "rgba(255,255,255,0.1)",
-                      color: "white",
-                      border: isSelected
-                        ? "2px solid #aeb8fe"
-                        : "1px solid rgba(255,255,255,0.2)",
-                      boxShadow: isSelected
-                        ? "0 0 12px rgba(174,184,254,0.9)"
-                        : "none",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                    }}
+                    className={`variant-btn ${isSelected ? "selected" : ""}`}
                   >
                     {variant.size}
                   </button>
@@ -166,15 +140,12 @@ export default function Store() {
               })}
             </div>
 
-            {/* Add to Cart button */}
             <button
               onClick={() => {
                 const variantId = selectedVariant[product.id];
                 if (!variantId) return;
-
                 const variant = product.variants.find((v) => v.priceId === variantId);
                 if (!variant) return;
-
                 addToCart({
                   productId: product.id,
                   variantId: variant.priceId,
@@ -183,15 +154,9 @@ export default function Store() {
                   price: product.basePrice,
                   quantity: 1,
                 });
-
                 alert(`${product.name} (${variant.size}) added to cart!`);
               }}
               className="dreamy-button add-to-cart"
-              style={{
-                width: "100%",
-                opacity: selectedVariant[product.id] ? 1 : 0.6,
-                cursor: selectedVariant[product.id] ? "pointer" : "not-allowed",
-              }}
               disabled={!selectedVariant[product.id]}
             >
               Add to Cart
@@ -207,22 +172,19 @@ export default function Store() {
           Your donations help keep the music alive 💜
         </p>
         <div className="donation-buttons">
-          <button className="dreamy-button pulse" onClick={() => donate(500)} disabled={loading}>
-            Donate $5
-          </button>
-          <button className="dreamy-button pulse" onClick={() => donate(2000)} disabled={loading}>
-            Donate $20
-          </button>
-          <button className="dreamy-button pulse" onClick={() => donate(10000)} disabled={loading}>
-            Donate $100
-          </button>
-          <button className="dreamy-button pulse" onClick={() => donate(25000)} disabled={loading}>
-            Donate $250
-          </button>
+          {[500, 2000, 10000, 25000].map((amt, i) => (
+            <button
+              key={i}
+              className="dreamy-button pulse"
+              onClick={() => donate(amt)}
+              disabled={loading}
+            >
+              Donate ${amt / 100}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Styles */}
       <style jsx>{`
         .trocchi {
           font-family: "Trocchi", serif;
@@ -231,39 +193,22 @@ export default function Store() {
         .store-page {
           min-height: 100vh;
           background: linear-gradient(135deg, #2a004f, #4b2a6f 50%, #2e1a47 100%);
-          padding: 2rem;
+          padding: 2rem 1rem;
           color: white;
-          position: relative;
-          overflow: hidden;
           display: flex;
           flex-direction: column;
           align-items: center;
         }
 
-        .products-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(300px, 1fr));
-  grid-template-rows: repeat(2, auto);
-  gap: 3rem;
-  justify-content: center;
-  align-items: start;
-  position: relative;
-  z-index: 2;
-  max-width: 900px;
-  width: 100%;
-  margin: 0 auto;
-}
-        }
-
-        .product-card {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          padding: 1rem;
-          text-align: center;
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-          max-width: 400px;
-          margin: 0 auto;
-          font-family: "Trocchi", serif;
+        /* Nav bar responsive */
+        .nav-bar {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-bottom: 2rem;
+          width: 100%;
+          z-index: 2;
         }
 
         .dreamy-button {
@@ -271,12 +216,10 @@ export default function Store() {
           color: #2a004f;
           border: none;
           border-radius: 6px;
-          padding: 0.75rem 1.5rem;
+          padding: 0.75rem 1.25rem;
           cursor: pointer;
-          font-size: 1rem;
-          font-family: "Trocchi", serif;
           font-weight: bold;
-          transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+          transition: all 0.3s ease;
         }
 
         .dreamy-button:hover {
@@ -285,28 +228,83 @@ export default function Store() {
           transform: translateY(-2px);
         }
 
+        .products-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 2rem;
+          justify-content: center;
+          align-items: start;
+          width: 100%;
+          max-width: 1000px;
+        }
+
+        .product-card {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 1rem;
+          text-align: center;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .product-image-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 360px;
+          aspect-ratio: 1 / 1;
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 1rem;
+        }
+
+        .product-image {
+          object-fit: cover;
+        }
+
+        .variant-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+          width: 100%;
+        }
+
+        .variant-btn {
+          height: 50px;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          background-color: rgba(255, 255, 255, 0.1);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          transition: all 0.3s ease;
+        }
+
+        .variant-btn.selected {
+          background-color: rgba(174, 184, 254, 0.9);
+          border: 2px solid #aeb8fe;
+          box-shadow: 0 0 10px rgba(174, 184, 254, 0.9);
+          color: #2a004f;
+        }
+
         .add-to-cart {
-          padding: 1rem 1.5rem;
-          margin-top: 1rem;
+          width: 100%;
+          margin-top: auto;
         }
 
         .donation-section {
-          margin-top: 4rem;
+          margin-top: 3rem;
           text-align: center;
-          z-index: 2;
-          font-family: "Trocchi", serif;
+          width: 100%;
         }
 
         .donation-buttons {
           display: flex;
+          flex-wrap: wrap;
           gap: 1rem;
           justify-content: center;
-          flex-wrap: wrap;
           margin-top: 1rem;
-        }
-
-        .pulse:hover {
-          animation: pulseGlow 1.5s infinite alternate;
         }
 
         @keyframes pulseGlow {
@@ -315,6 +313,37 @@ export default function Store() {
           }
           to {
             box-shadow: 0 0 25px rgba(175, 184, 254, 1);
+          }
+        }
+
+        .pulse:hover {
+          animation: pulseGlow 1.5s infinite alternate;
+        }
+
+        /* 📱 Mobile adjustments */
+        @media (max-width: 600px) {
+          .store-page {
+            padding: 1rem 0.5rem;
+          }
+
+          .products-grid {
+            gap: 1.5rem;
+          }
+
+          .product-card {
+            padding: 0.75rem;
+          }
+
+          h3 {
+            font-size: 1.1rem;
+          }
+
+          .dreamy-button {
+            font-size: 0.9rem;
+          }
+
+          .donation-buttons {
+            gap: 0.75rem;
           }
         }
       `}</style>

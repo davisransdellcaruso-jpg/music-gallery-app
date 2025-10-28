@@ -219,6 +219,18 @@ function AlbumPage() {
       .padStart(2, "0");
     return `${minutes}:${seconds}`;
   };
+  // 🪄 Log play event to Supabase
+async function logTrackPlay(trackId: string) {
+  try {
+    await fetch("/api/log-play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ track_id: trackId }),
+    });
+  } catch (err) {
+    console.error("Error logging play:", err);
+  }
+}
 
   const togglePlay = async () => {
     if (!audioRef.current) return;
@@ -226,12 +238,15 @@ function AlbumPage() {
       await audioRef.current.play();
       setIsPlaying(true);
       // 🎯 track event: play
-      track("Track Played", {
-        album: album?.title,
-        albumId: album?.id,
-        track: currentTrack?.title,
-        trackNumber: currentTrack?.track_number,
-      });
+track("Track Played", {
+  album: album?.title,
+  albumId: album?.id,
+  track: currentTrack?.title,
+  trackNumber: currentTrack?.track_number,
+});
+
+// 🪄 NEW: Log to Supabase
+if (currentTrack?.id) logTrackPlay(currentTrack.id);
     } else {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -392,6 +407,7 @@ function AlbumPage() {
                 audioRef.current.src = track.audio_url;
                 await audioRef.current.play();
                 setIsPlaying(true);
+                if (track.id) logTrackPlay(track.id);
               }
             }}
             className={`track-item ${i === currentIndex ? "active" : ""}`}
