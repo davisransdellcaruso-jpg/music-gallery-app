@@ -1,15 +1,21 @@
-// pages/api/webhooks.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
 import Stripe from "stripe";
-import { stripe } from "../../lib/stripe"; // make sure lib/stripe.ts exports a configured Stripe instance
+import { stripe } from "../../lib/stripe";
+import { createClient } from "@supabase/supabase-js";
 
-// Disable Next.js body parsing so we can verify Stripe signatures
+// ✅ Disable Next.js body parsing so we can verify Stripe signatures
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+// ✅ Create Supabase client using service role key
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.SUPABASE_SERVICE_ROLE_KEY as string
+);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -34,42 +40,80 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle event types
   try {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         console.log("✅ Checkout session completed:", session.id);
 
-        // Optional: log what was purchased
+        const email = session.customer_details?.email || null;
+        const amount_total = session.amount_total ? session.amount_total / 100 : 0;
+        const shipping = session.shipping_details || null;
+
+        // 🛒 Get purchased items
         const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
           expand: ["data.price.product"],
         });
 
-        lineItems.data.forEach((item) => {
-          const product = (item.price?.product as Stripe.Product)?.name;
-          console.log(
-            `🛒 ${item.quantity} × ${product} — ${item.price?.id}`
-          );
+        const items = lineItems.data.map((item) => {
+          const product = item.price?.product as Stripe.Product;
+          const price_id = item.price?.id || "";
+
+          // 🏷️ Automatically detect donation vs merch by product name
+          const category = product?.name?.toLowerCase().includes("donation")
+            ? "donation"
+            : "merch";
+
+          return {
+            product: product?.name || "Unknown",
+            price_id,
+            quantity: item.quantity,
+            category,
+          };
         });
-        break;
-      }
 
-      case "payment_intent.succeeded": {
-        const pi = event.data.object as Stripe.PaymentIntent;
-        console.log("💰 Payment succeeded:", pi.id);
-        break;
-      }
+        // Determine overall purchase type
+        const allDonations = items.every((i) => i.category === "donation");
+        const purchase_type = allDonations ? "donation" : "merch";
 
-      case "payment_intent.payment_failed": {
-        const pi = event.data.object as Stripe.PaymentIntent;
-        console.warn("⚠️ Payment failed:", pi.id);
-        break;
-      }
+        // 🧾 Save to Supabase purchases table
+        const { error: purchaseError } = await supabase.from("purchases").insert([
+          {
+            email,
+            amount: amount_total,
+            stripe_session_id: session.id,
+            items,
+            purchase_type,
+            shipping_name: shipping?.name || null,
+            address_line1: shipping?.address?.line1 || null,
+            city: shipping?.address?.city || null,
+            state: shipping?.address?.state || null,
+            postal_code: shipping?.address?.postal_code || null,
+            country: shipping?.address?.country || null,
+            created_at: new Date().toISOString(),
+          },
+        ]);
 
-      case "charge.refunded": {
-        const charge = event.data.object as Stripe.Charge;
-        console.log("↩️ Charge refunded:", charge.id);
+        if (purchaseError && !purchaseError.message.includes("duplicate key value")) {
+          console.error("❌ Supabase insert error:", purchaseError.message);
+        } else {
+          console.log("✅ Purchase saved to Supabase:", email, amount_total);
+        }
+
+        // 📧 Add to mailing list (skip duplicates)
+        if (email) {
+          const { error: mailingError } = await supabase.from("mailing_list").upsert(
+            { email },
+            { onConflict: "email" }
+          );
+
+          if (mailingError) {
+            console.error("❌ Mailing list insert error:", mailingError.message);
+          } else {
+            console.log("✅ Added to mailing list:", email);
+          }
+        }
+
         break;
       }
 

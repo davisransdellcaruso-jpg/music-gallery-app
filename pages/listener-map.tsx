@@ -5,11 +5,23 @@ import { supabase } from "@/lib/supabase";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
 
-// Dynamic imports (avoid SSR)
-const MapContainer = dynamic(() => import("react-leaflet").then(m => m.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import("react-leaflet").then(m => m.TileLayer), { ssr: false });
-const CircleMarker = dynamic(() => import("react-leaflet").then(m => m.CircleMarker), { ssr: false });
-const Tooltip = dynamic(() => import("react-leaflet").then(m => m.Tooltip), { ssr: false });
+// ✅ Dynamic imports with 'any' type to avoid TS prop mismatches
+const MapContainer = dynamic<any>(
+  () => import("react-leaflet").then((m) => m.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic<any>(
+  () => import("react-leaflet").then((m) => m.TileLayer),
+  { ssr: false }
+);
+const CircleMarker = dynamic<any>(
+  () => import("react-leaflet").then((m) => m.CircleMarker),
+  { ssr: false }
+);
+const Tooltip = dynamic<any>(
+  () => import("react-leaflet").then((m) => m.Tooltip),
+  { ssr: false }
+);
 
 type Listen = {
   id: string;
@@ -24,7 +36,7 @@ export default function ListenerMap() {
   const [listens, setListens] = useState<Listen[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 initial fetch
+  // 🔹 Initial fetch
   useEffect(() => {
     async function fetchListens() {
       const { data, error } = await supabase
@@ -39,7 +51,7 @@ export default function ListenerMap() {
     fetchListens();
   }, []);
 
-  // 🔹 realtime subscription
+  // 🔹 Realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel("realtime:listens")
@@ -62,7 +74,9 @@ export default function ListenerMap() {
 
   if (loading)
     return (
-      <div style={{ color: "white", textAlign: "center" }}>Loading listener map…</div>
+      <div style={{ color: "white", textAlign: "center" }}>
+        Loading listener map…
+      </div>
     );
 
   return (
@@ -70,7 +84,8 @@ export default function ListenerMap() {
       style={{
         height: "100vh",
         width: "100%",
-        background: "radial-gradient(circle at 30% 50%, #3b1977 0%, #1a0b33 100%)",
+        background:
+          "radial-gradient(circle at 30% 50%, #3b1977 0%, #1a0b33 100%)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -78,7 +93,7 @@ export default function ListenerMap() {
         overflow: "hidden",
       }}
     >
-      {/* ✨ animated starfield backdrop */}
+      {/* ✨ Animated starfield backdrop */}
       <motion.div
         animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
         transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
@@ -124,7 +139,7 @@ export default function ListenerMap() {
         scrollWheelZoom={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+          attribution='© <a href="https://carto.com/">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
 
@@ -138,7 +153,6 @@ export default function ListenerMap() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
               >
-                {/* Static dot */}
                 <CircleMarker
                   center={[l.latitude, l.longitude]}
                   radius={6}
@@ -158,7 +172,6 @@ export default function ListenerMap() {
                   </Tooltip>
                 </CircleMarker>
 
-                {/* pulsing aura */}
                 <motion.div
                   style={{
                     position: "absolute",

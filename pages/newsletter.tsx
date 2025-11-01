@@ -71,12 +71,10 @@ With gratitude,
       }
     };
 
-    // Small timeout to let page mount before attempting playback
     const t = setTimeout(startAudio, 400);
     return () => clearTimeout(t);
   }, []);
 
-  // 🎵 Fade out + stop when navigating away
   const stopMusicAndReturn = async () => {
     const audio = audioRef.current;
     if (audio) {
@@ -124,11 +122,11 @@ With gratitude,
           <div className="typewriter-container">
             <div className="paper" id="parchment">
               <TypeAnimation
-  sequence={[newsletterText, 1000, () => setShowForm(true)]}
-  wrapper="span"
-  cursor={true}
-  repeat={0}
-  speed={54}
+                sequence={[newsletterText, 1000, () => setShowForm(true)]}
+                wrapper="span"
+                cursor={true}
+                repeat={0}
+                speed={54}
                 style={{
                   whiteSpace: "pre-wrap",
                   color: "#2a004f",
@@ -157,6 +155,37 @@ With gratitude,
             )}
           </div>
         </div>
+
+        {/* --- P.S.: Tour Support CTA --- */}
+        <div
+          className="trocchi"
+          style={{
+            marginTop: "2rem",
+            padding: "1rem 1.25rem",
+            borderRadius: "10px",
+            background: "rgba(75, 42, 111, 0.25)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            boxShadow: "0 0 18px rgba(167,139,250,0.35)",
+            color: "#EDE9FE",
+            lineHeight: 1.6,
+          }}
+        >
+          <p style={{ fontSize: "1.2rem", margin: 0 }}>
+            <strong>P.S.</strong> Help us go on tour this fall!{" "}
+            <a
+              href="https://gofund.me/92709cbb6"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#aeb8fe",
+                textDecoration: "underline",
+                fontWeight: 700,
+              }}
+            >
+              Chip in here →
+            </a>
+          </p>
+        </div>
       </div>
 
       <style jsx>{`
@@ -170,6 +199,10 @@ With gratitude,
           padding: 2rem;
           animation: fadeIn 2s ease;
           font-family: "Trocchi", serif;
+        }
+
+        .trocchi a:hover {
+          text-shadow: 0 0 8px rgba(174, 184, 254, 0.8);
         }
 
         .nav-top {

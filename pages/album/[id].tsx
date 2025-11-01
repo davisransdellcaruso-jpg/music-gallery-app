@@ -386,6 +386,19 @@ if (currentTrack?.id) logTrackPlay(currentTrack.id);
       <h1 className="album-title">
         {album.title} <span className="album-year">({album.year})</span>
       </h1>
+{album.title === "The Way Home" && (
+  <p
+    style={{
+      fontStyle: "italic",
+      fontSize: "0.95rem",
+      marginTop: "0.5rem",
+      color: "#cfc3e4",
+      textAlign: "center",
+    }}
+  >
+    Available on Bandcamp 11 / 14
+  </p>
+)}
 
       {/* 🎵 Spinning Vinyl (spins only while playing) */}
       <div className={`vinyl ${isPlaying ? "spin" : ""}`} title="Album">
@@ -398,23 +411,43 @@ if (currentTrack?.id) logTrackPlay(currentTrack.id);
 
       <div className="track-list">
         {tracks.map((track, i) => (
-          <div
-            key={track.id}
-            onClick={async () => {
-              setCurrentIndex(i);
-              setCurrentTime(0);
-              if (audioRef.current) {
-                audioRef.current.src = track.audio_url;
-                await audioRef.current.play();
-                setIsPlaying(true);
-                if (track.id) logTrackPlay(track.id);
-              }
-            }}
-            className={`track-item ${i === currentIndex ? "active" : ""}`}
-          >
-            {track.track_number}. {track.title}
-          </div>
-        ))}
+  <div
+    key={track.id}
+    onClick={async () => {
+      if (!track.is_available) return; // 🚫 prevent play if not available
+      setCurrentIndex(i);
+      setCurrentTime(0);
+      if (audioRef.current) {
+        audioRef.current.src = track.audio_url;
+        await audioRef.current.play();
+        setIsPlaying(true);
+        if (track.id) logTrackPlay(track.id);
+      }
+    }}
+    style={{
+      opacity: track.is_available ? 1 : 0.5,
+      pointerEvents: track.is_available ? "auto" : "none",
+      marginBottom: "1rem",
+      cursor: track.is_available ? "pointer" : "not-allowed",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "0.75rem 1rem",
+      borderRadius: "0.75rem",
+      background: track.is_available ? "rgba(167,139,250,0.15)" : "rgba(75,42,111,0.3)",
+      transition: "background 0.3s ease",
+    }}
+  >
+    <span style={{ fontFamily: "Trocchi, serif", fontSize: "1.1rem" }}>
+      {track.title}
+    </span>
+    {!track.is_available && (
+      <span style={{ fontStyle: "italic", fontSize: "0.85rem", color: "#d0bdf4" }}>
+        Unavailable
+      </span>
+    )}
+  </div>
+))}
       </div>
 
       {currentTrack && (

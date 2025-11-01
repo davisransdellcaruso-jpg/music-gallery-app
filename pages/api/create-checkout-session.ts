@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-08-27.basil", // ✅ set explicit API version
+  apiVersion: "2025-08-27.basil", // ✅ explicit Stripe API version
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,15 +15,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: "Items array is required" });
       }
 
-      // Format items for Stripe Checkout
+      // 🧾 Format items for Stripe Checkout
       const line_items = items.map((item: { priceId: string; quantity: number }) => ({
         price: item.priceId,
         quantity: item.quantity,
       }));
 
+      // 🚚 Create Checkout Session with address collection only
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items,
+
+        // ✅ Collect U.S. shipping addresses only
+        shipping_address_collection: {
+          allowed_countries: ["US"],
+        },
+
+        // ✅ Redirect URLs
         success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/store-cancel`,
       });
