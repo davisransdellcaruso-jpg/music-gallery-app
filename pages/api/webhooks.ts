@@ -1,21 +1,24 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
 import Stripe from "stripe";
-import { stripe } from "../../lib/stripe";
-import { createClient } from "@supabase/supabase-js";
+import { stripe } from "../../lib/stripe"; // your configured Stripe instance
+import { supabase } from "../../lib/supabase"; // your configured Supabase client
 
-// ✅ Disable Next.js body parsing so we can verify Stripe signatures
+// Disable Next.js body parsing so we can verify Stripe signatures
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// ✅ Create Supabase client using service role key
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-  process.env.SUPABASE_SERVICE_ROLE_KEY as string
-);
+// 🧩 Extended session type for safety
+type ExtendedSession = Stripe.Checkout.Session & {
+  shipping_details?: {
+    name?: string | null;
+    address?: Stripe.Address | null;
+    phone?: string | null;
+  } | null;
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -42,8 +45,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     switch (event.type) {
+      // ✅ Checkout session completed
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object as ExtendedSession;
+
         console.log("✅ Checkout session completed:", session.id);
 
         const email = session.customer_details?.email || null;
@@ -55,65 +60,69 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           expand: ["data.price.product"],
         });
 
-        const items = lineItems.data.map((item) => {
-          const product = item.price?.product as Stripe.Product;
-          const price_id = item.price?.id || "";
-
-          // 🏷️ Automatically detect donation vs merch by product name
-          const category = product?.name?.toLowerCase().includes("donation")
-            ? "donation"
-            : "merch";
-
-          return {
-            product: product?.name || "Unknown",
-            price_id,
-            quantity: item.quantity,
-            category,
-          };
-        });
-
-        // Determine overall purchase type
-        const allDonations = items.every((i) => i.category === "donation");
-        const purchase_type = allDonations ? "donation" : "merch";
-
-        // 🧾 Save to Supabase purchases table
-        const { error: purchaseError } = await supabase.from("purchases").insert([
-          {
-            email,
-            amount: amount_total,
-            stripe_session_id: session.id,
-            items,
-            purchase_type,
-            shipping_name: shipping?.name || null,
-            address_line1: shipping?.address?.line1 || null,
-            city: shipping?.address?.city || null,
-            state: shipping?.address?.state || null,
-            postal_code: shipping?.address?.postal_code || null,
-            country: shipping?.address?.country || null,
-            created_at: new Date().toISOString(),
-          },
-        ]);
-
-        if (purchaseError && !purchaseError.message.includes("duplicate key value")) {
-          console.error("❌ Supabase insert error:", purchaseError.message);
-        } else {
-          console.log("✅ Purchase saved to Supabase:", email, amount_total);
-        }
-
-        // 📧 Add to mailing list (skip duplicates)
+        // ✅ Insert purchase record
         if (email) {
-          const { error: mailingError } = await supabase.from("mailing_list").upsert(
-            { email },
-            { onConflict: "email" }
-          );
+          const { error: purchaseError } = await supabase.from("purchases").insert([
+            {
+              email,
+              stripe_session_id: session.id,
+              amount_total,
+              shipping,
+              items: lineItems.data.map((item) => ({
+                name: (item.price?.product as Stripe.Product)?.name || "Unknown Item",
+                quantity: item.quantity,
+                price_id: item.price?.id,
+              })),
+              created_at: new Date().toISOString(),
+            },
+          ]);
 
-          if (mailingError) {
-            console.error("❌ Mailing list insert error:", mailingError.message);
+          if (purchaseError) {
+            console.error("❌ Error inserting purchase:", purchaseError.message);
           } else {
-            console.log("✅ Added to mailing list:", email);
+            console.log(`💾 Purchase logged for ${email}`);
+          }
+
+          // ✅ Add to mailing list if not already there
+          const { data: existing } = await supabase
+            .from("mailing_list")
+            .select("email")
+            .eq("email", email)
+            .single();
+
+          if (!existing) {
+            const { error: mailingError } = await supabase
+              .from("mailing_list")
+              .insert([{ email, source: "purchase", created_at: new Date().toISOString() }]);
+
+            if (mailingError) {
+              console.error("⚠️ Error adding to mailing list:", mailingError.message);
+            } else {
+              console.log(`📧 Added ${email} to mailing list.`);
+            }
+          } else {
+            console.log(`📭 ${email} already in mailing list.`);
           }
         }
 
+        break;
+      }
+
+      case "payment_intent.succeeded": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        console.log("💰 Payment succeeded:", pi.id);
+        break;
+      }
+
+      case "payment_intent.payment_failed": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        console.warn("⚠️ Payment failed:", pi.id);
+        break;
+      }
+
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        console.log("↩️ Charge refunded:", charge.id);
         break;
       }
 
