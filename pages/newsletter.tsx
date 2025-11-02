@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+/* eslint-disable react/no-unescaped-entities */
 
 export default function Newsletter() {
   const router = useRouter();
