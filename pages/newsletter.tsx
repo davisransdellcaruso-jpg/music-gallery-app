@@ -33,7 +33,7 @@ export default function Newsletter() {
           — <b>Stucchi & The Shepherd</b> are about to release our debut soul
           record, <b>The Way Home</b>, featuring <b>Kyandé</b>, live at{" "}
           <a
-            href="https://theark.org/event/stucchi-the-shepherd-kyande-241116/"
+            href="https://theark.org/event/stucchi-the-shepherd-album-release-show/"
             target="_blank"
             rel="noopener noreferrer"
             className="link"
@@ -46,7 +46,7 @@ export default function Newsletter() {
         <p>
           🎟️{" "}
           <a
-            href="https://theark.org/event/stucchi-the-shepherd-kyande-241116/"
+            href="https://theark.org/event/stucchi-the-shepherd-album-release-show/"
             target="_blank"
             rel="noopener noreferrer"
             className="link"
@@ -89,7 +89,7 @@ export default function Newsletter() {
         <p>
           💜{" "}
           <a
-            href="https://www.gofundme.com/"
+            href="https://www.gofundme.com/f/help-stucchi-the-shepherd-find-their-way-home"
             target="_blank"
             rel="noopener noreferrer"
             className="link"
