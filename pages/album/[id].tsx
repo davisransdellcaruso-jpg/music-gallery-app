@@ -14,6 +14,7 @@ type Album = {
   title: string;
   year: number;
   cover_url: string;
+  release_note?: string; //
 };
 
 type LyricLine = { time: number; line: string };
@@ -24,6 +25,7 @@ type Track = {
   title: string;
   audio_url: string;
   track_number: number;
+  is_available?: boolean;
   lyrics?: string;
   timed_lyrics?: LyricLine[];
   credits?: string;
@@ -386,7 +388,7 @@ if (currentTrack?.id) logTrackPlay(currentTrack.id);
       <h1 className="album-title">
         {album.title} <span className="album-year">({album.year})</span>
       </h1>
-{album.title === "The Way Home" && (
+{album.release_note && (
   <p
     style={{
       fontStyle: "italic",
@@ -396,7 +398,7 @@ if (currentTrack?.id) logTrackPlay(currentTrack.id);
       textAlign: "center",
     }}
   >
-    Available on Bandcamp 11 / 14
+    {album.release_note}
   </p>
 )}
 
