@@ -37,6 +37,7 @@ function AlbumPage() {
 
   const [album, setAlbum] = useState<Album | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
+  const availableTracks = tracks.filter((t) => t.is_available);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -142,7 +143,7 @@ function AlbumPage() {
     lineRefs.current = [];
   }, [currentIndex]);
 
-  const currentTrack = tracks[currentIndex];
+  const currentTrack = availableTracks[currentIndex];
 
   const currentLyricIndex =
     currentTrack?.timed_lyrics?.findIndex(
@@ -263,50 +264,60 @@ if (currentTrack?.id) logTrackPlay(currentTrack.id);
   };
 
   const nextTrack = async (autoPlay = true) => {
-    if (!tracks.length) return;
-    const nextIndex = (currentIndex + 1) % tracks.length;
-    setCurrentIndex(nextIndex);
-    setCurrentTime(0);
+  if (!availableTracks.length) return;
+  const nextIndex = currentIndex + 1;
+  if (nextIndex >= availableTracks.length) {
+    // no more playable tracks — stop playback
+    setIsPlaying(false);
     if (audioRef.current) {
-      audioRef.current.src = tracks[nextIndex].audio_url;
-      if (autoPlay) {
-        await audioRef.current.play();
-        setIsPlaying(true);
-        // 🎯 track event: next
-        track("Next Track", {
-          album: album?.title,
-          albumId: album?.id,
-          track: tracks[nextIndex]?.title,
-          trackNumber: tracks[nextIndex]?.track_number,
-        });
-      } else {
-        setIsPlaying(false);
-      }
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
-  };
+    return;
+  }
 
-  const prevTrack = async (autoPlay = true) => {
-    if (!tracks.length) return;
-    const prevIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
-    setCurrentIndex(prevIndex);
-    setCurrentTime(0);
-    if (audioRef.current) {
-      audioRef.current.src = tracks[prevIndex].audio_url;
-      if (autoPlay) {
-        await audioRef.current.play();
-        setIsPlaying(true);
-        // 🎯 track event: previous
-        track("Previous Track", {
-          album: album?.title,
-          albumId: album?.id,
-          track: tracks[prevIndex]?.title,
-          trackNumber: tracks[prevIndex]?.track_number,
-        });
-      } else {
-        setIsPlaying(false);
-      }
+  setCurrentIndex(nextIndex);
+  setCurrentTime(0);
+
+  if (audioRef.current) {
+    audioRef.current.src = availableTracks[nextIndex].audio_url;
+    if (autoPlay) {
+      await audioRef.current.play();
+      setIsPlaying(true);
+      track("Next Track", {
+        album: album?.title,
+        albumId: album?.id,
+        track: availableTracks[nextIndex]?.title,
+        trackNumber: availableTracks[nextIndex]?.track_number,
+      });
+      if (availableTracks[nextIndex]?.id) logTrackPlay(availableTracks[nextIndex].id);
     }
-  };
+  }
+};
+
+const prevTrack = async (autoPlay = true) => {
+  if (!availableTracks.length) return;
+  const prevIndex =
+    currentIndex === 0 ? availableTracks.length - 1 : currentIndex - 1;
+
+  setCurrentIndex(prevIndex);
+  setCurrentTime(0);
+
+  if (audioRef.current) {
+    audioRef.current.src = availableTracks[prevIndex].audio_url;
+    if (autoPlay) {
+      await audioRef.current.play();
+      setIsPlaying(true);
+      track("Previous Track", {
+        album: album?.title,
+        albumId: album?.id,
+        track: availableTracks[prevIndex]?.title,
+        trackNumber: availableTracks[prevIndex]?.track_number,
+      });
+      if (availableTracks[prevIndex]?.id) logTrackPlay(availableTracks[prevIndex].id);
+    }
+  }
+};
 
   if (loading) return <div style={{ color: "white" }}>Loading album…</div>;
   if (!album || tracks.length === 0)
@@ -416,16 +427,18 @@ if (currentTrack?.id) logTrackPlay(currentTrack.id);
   <div
     key={track.id}
     onClick={async () => {
-      if (!track.is_available) return; // 🚫 prevent play if not available
-      setCurrentIndex(i);
-      setCurrentTime(0);
-      if (audioRef.current) {
-        audioRef.current.src = track.audio_url;
-        await audioRef.current.play();
-        setIsPlaying(true);
-        if (track.id) logTrackPlay(track.id);
-      }
-    }}
+  if (!track.is_available) return; // 🚫 prevent play if not available
+  const availableIndex = availableTracks.findIndex((t) => t.id === track.id);
+  if (availableIndex === -1) return;
+  setCurrentIndex(availableIndex);
+  setCurrentTime(0);
+  if (audioRef.current) {
+    audioRef.current.src = track.audio_url;
+    await audioRef.current.play();
+    setIsPlaying(true);
+    if (track.id) logTrackPlay(track.id);
+  }
+}}
     style={{
       opacity: track.is_available ? 1 : 0.5,
       pointerEvents: track.is_available ? "auto" : "none",
