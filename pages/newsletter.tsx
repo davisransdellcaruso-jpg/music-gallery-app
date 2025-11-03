@@ -11,7 +11,7 @@ export default function Newsletter() {
   useEffect(() => {
     // Load and fade in music
     soundRef.current = new Howl({
-      src: ["/Funky Soul Instrumental.wav"], // 🎵 your file in /public
+      src: ["/Funky Soul Instrumental.mp3"], // 🎵 your file in /public
       volume: 0,
       loop: true,
       html5: true,
