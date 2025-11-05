@@ -4,13 +4,7 @@ import Image from "next/image";
 import { useCart } from "@/lib/cartContext";
 
 const products = [
-  {
-    id: "poster",
-    name: "Periwinkle Dragonfly Poster",
-    basePrice: 1500,
-    image: "/poster.jpeg",
-    variants: [{ size: "Standard", priceId: "price_1SFiQpLM8xwOOb8o79aUovuy" }],
-  },
+
   {
     id: "cd",
     name: "The Fool CD",
