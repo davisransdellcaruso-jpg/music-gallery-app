@@ -12,28 +12,6 @@ const products = [
     image: "/thefoolcd.jpeg",
     variants: [{ size: "Standard", priceId: "price_1SKlA2LM8xwOOb8odxsDt8nz" }],
   },
-  {
-    id: "tshirt",
-    name: "Dreamin On Paris T-Shirt",
-    basePrice: 3000,
-    image: "/tshirt.jpeg",
-    variants: [
-      { size: "Small", priceId: "price_1SFv2OLM8xwOOb8opA4S2REn" },
-      { size: "Medium", priceId: "price_1SFvE7LM8xwOOb8omcIVkVG5" },
-      { size: "Large", priceId: "price_1SFvESLM8xwOOb8orM8YfxiD" },
-      { size: "XL", priceId: "price_1SFvG6LM8xwOOb8oDjck2SSn" },
-    ],
-  },
-  {
-    id: "hoodie",
-    name: "Dreamin On Paris Hoodie",
-    basePrice: 5000,
-    image: "/hoodie.jpeg",
-    variants: [
-      { size: "Small", priceId: "price_1SFv21LM8xwOOb8oHhXcEYR3" },
-      { size: "Medium", priceId: "price_1SFvJALM8xwOOb8onDRbuOmw" },
-    ],
-  },
 ];
 
 export default function Store() {

@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import Head from "next/head";
 import { Howl } from "howler";
 /* eslint-disable react/no-unescaped-entities */
 
@@ -11,7 +12,7 @@ export default function Newsletter() {
   useEffect(() => {
     // Load and fade in music
     soundRef.current = new Howl({
-      src: ["/Funky Soul Instrumental.mp3"], // 🎵 your file in /public
+      src: ["/Funky Soul Instrumental.mp3"],
       volume: 0,
       loop: true,
       html5: true,
@@ -21,7 +22,7 @@ export default function Newsletter() {
     sound.play();
     sound.fade(0, 0.35, 4000); // fade in over 4s
 
-    // Fade out gracefully when page unmounts
+    // Fade out on unmount
     return () => {
       if (sound) {
         sound.fade(0.35, 0, 3000);
@@ -44,16 +45,19 @@ export default function Newsletter() {
 
   return (
     <div className="newsletter-page trocchi">
-      <link
-        href="https://fonts.googleapis.com/css2?family=Trocchi&display=swap"
-        rel="stylesheet"
-      />
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Trocchi&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
 
       {/* Background glows */}
       <div className="glow glow1" />
       <div className="glow glow2" />
       <div className="mist" />
 
+      {/* Top Navigation */}
       <div className="top-buttons">
         <button
           onClick={() => router.push("/gallery")}
@@ -67,77 +71,47 @@ export default function Newsletter() {
       </div>
 
       <div className="newsletter-content">
-        <h1 className="newsletter-title">November 2025 Newsletter</h1>
+        <h1 className="newsletter-title">December News</h1>
 
-        {/* Brush reveal text from your final draft */}
         <div className="brush-reveal">
-          <p>Hey ya,</p>
-          <p>Glad you’re here‼ It means a lot :)</p>
+
+          <p>Greetings,</p>
+          <p>Happy December :)</p>
 
           <p>
-            <b>Stucchi & The Shepherd</b> are releasing our debut soul record{" "}
-            <i>The Way Home</i> — featuring the one and only <b>Kyandé</b> — live
-            at{" "}
+            <b>Stucchi & The Shepherd</b> are on the road! Have a listen to our new record on bandcamp...
+          </p>
+
+          <p>
+            ‼️{" "}
             <a
-              href="https://theark.org/event/stucchi-the-shepherd-album-release-show/"
+              href="https://stucchiats.bandcamp.com/album/the-way-home"
               target="_blank"
               rel="noopener noreferrer"
               className="link"
             >
-              The Ark in Ann Arbor
-            </a>{" "}
-            on <b>November 16th</b>.
+              The Way Home
+            </a>
           </p>
 
           <p>
-            🎟️{" "}
-            <a
-              href="https://theark.org/event/stucchi-the-shepherd-album-release-show/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link"
-            >
-              Grab your tickets here
-            </a>{" "}
-            — and if you can’t make it, send someone who needs a little soul
-            medicine 😉
+            Our road thusfar:
+            ANN ARBOR MI // 
+            CHICAGO IL //
+            MINNEAPOLIS MN // 
+            SIOUX FALLS SD //
+            RAPID CITY SD //
+            BOZEMAN MT //
+            STANLEY ID //
+            PENDLETON OR //
+            SEATTLE WA //
+            PORTLAND OR ...
           </p>
 
           <p>
-            I often think of songwriting as archaeology — the music’s already
-            there, waiting like fossils. My role is to uncover it gently,
-            treating the process as sacred and mutualistic. The songs I find are
-            just as glad to be found as I am to discover them.
-          </p>
-
-          <p>
-            With the rise of Artificial Intelligence, I sometimes imagine
-            bulldozers ripping through that same landscape — uprooting trees by
-            the dozen, extracting songs without care for the land.
-          </p>
-
-          <p>
-            I believe music is bigger than us — a living consciousness that
-            knows the sincerity of the vessel it flows through. You can fake it
-            through a speaker, but not on a stage. For this reason I’m investing
-            more time into the live performance aspect right now as{" "}
-            <b>Stucchi & The Shepherd</b> prepare to make our way around the
-            country sharing and connecting with others who align with our
-            vision.
-          </p>
-
-          <p>
-            I’m challenging myself to set clear boundaries with the tools we
-            use and to stay true to the goal: building sustainability for myself
-            and my collaborators as creative entrepreneurs. My priorities differ
-            from those of dominant culture — I value family, community, and
-            artistic expression over pure profit.
-          </p>
-
-          <p>
-            Big love to everyone who’s already shown support — sharing,
-            donating, showing up, sending kind words. You’re the reason we get
-            to keep making noise, and we plan on making plenty more!
+            We have currently landed in Portland OR and grateful to all the people that helped us get here and sleep 
+            comfortably along the way.  Thanks to all those listening & supporting the music, the creativity remains
+            abundant and we look forward to sharing more as it comes together. Stay tuned!  
           </p>
 
           <p>
@@ -150,17 +124,18 @@ export default function Newsletter() {
             >
               Here’s our GoFundMe
             </a>{" "}
-            if you wanna help us hit the road.
+            if you wanna help us get home!
           </p>
 
           <p>
-            Til next time — stay cool, but keep warm... <br />
+            Til next time... <br />
             Much love, <br />
             <b>Davis</b>
           </p>
         </div>
       </div>
 
+      {/* Styles */}
       <style jsx>{`
         .trocchi {
           font-family: "Trocchi", serif;
@@ -274,7 +249,6 @@ export default function Newsletter() {
           color: #d2c2ff;
         }
 
-        /* Brush reveal preserved */
         .brush-reveal p {
           font-size: 1.1rem;
           margin-bottom: 1.25rem;
