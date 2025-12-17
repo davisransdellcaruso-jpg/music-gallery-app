@@ -59,12 +59,6 @@ export default function Gallery() {
         {/* Top navigation */}
         <div className="nav-bar">
           <div style={{ display: "flex", gap: "1rem" }}>
-            <button onClick={() => router.push("/store")} className="nav-button">
-              Store 🛒
-            </button>
-            <button onClick={() => router.push("/learn")} className="nav-button">
-              Learn 📖
-            </button>
             <button onClick={() => router.push("/newsletter")} className="nav-button">
               Newsletter ✍️
             </button>
