@@ -68,7 +68,7 @@ export default function Gallery() {
         {/* Title */}
         <div className="title-block">
           <div className="glow-behind"></div>
-          <h1 className="brand-title">Davis Caruso // Stucchi</h1>
+          <h1 className="brand-title">DAViS // STUCCHi </h1>
           <div className="underline"></div>
         </div>
 
