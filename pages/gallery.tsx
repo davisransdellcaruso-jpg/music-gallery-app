@@ -104,7 +104,7 @@ export default function Gallery() {
 
         {/* SUPPORT */}
         <div className="support-section">
-          <h2 className="support-title">Easy ways to support</h2>
+          <h2 className="support-title">see you soon...</h2>
 
           <div className="social-icons">
             {/* Instagram (stroke) */}
@@ -230,6 +230,9 @@ export default function Gallery() {
           color: #e6e3dc;
           display: inline-flex;
           gap: 0.6rem;
+          flex-wrap: wrap;
+          justify-content: center;
+          text-transform: none;
         }
 
         .gold-ellipsis {
@@ -245,25 +248,28 @@ export default function Gallery() {
 
         .album-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, 300px);
-          gap: 4rem;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 3rem;
           justify-content: center;
           max-width: 960px;
           width: 100%;
         }
 
         .album-card {
-          width: 300px;
+          width: 100%;
+          max-width: 320px;
           text-align: center;
           cursor: pointer;
+          margin: 0 auto;
         }
 
         .vinyl {
-          width: 300px;
-          height: 300px;
+          width: min(320px, 82vw);
+          height: min(320px, 82vw);
           border-radius: 50%;
           background: #111;
           position: relative;
+          margin: 0 auto;
         }
 
         .album-card:hover .vinyl {
@@ -271,8 +277,12 @@ export default function Gallery() {
         }
 
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .vinyl-center {
@@ -280,8 +290,8 @@ export default function Gallery() {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 120px;
-          height: 120px;
+          width: min(130px, 34vw);
+          height: min(130px, 34vw);
           border-radius: 50%;
           overflow: hidden;
         }
@@ -289,7 +299,9 @@ export default function Gallery() {
         .album-title {
           margin-top: 1rem;
           color: #e6e3dc;
-          font-size: 1.1rem;
+          font-size: 1.05rem;
+          line-height: 1.25;
+          padding: 0 0.25rem;
         }
 
         .album-year {
@@ -298,21 +310,26 @@ export default function Gallery() {
         }
 
         .support-section {
-          margin-top: 6rem;
+          margin-top: 5rem;
           text-align: center;
           color: #b6b1a7;
+          width: 100%;
+          max-width: 720px;
         }
 
         .support-title {
           color: #e6e3dc;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
+          font-size: 1.25rem;
+          letter-spacing: 0.08em;
         }
 
         .social-icons {
           display: flex;
           justify-content: center;
-          gap: 2rem;
-          margin-bottom: 3rem;
+          flex-wrap: wrap;
+          gap: 1.25rem;
+          margin-bottom: 2.25rem;
         }
 
         .social-icons svg {
@@ -328,31 +345,66 @@ export default function Gallery() {
           flex-direction: column;
           align-items: center;
           gap: 0.75rem;
+          width: 100%;
         }
 
         .email-form input {
           width: 100%;
-          max-width: 320px;
+          max-width: 360px;
           border: 1px solid #b6b1a7;
           background: none;
           color: #e6e3dc;
-          padding: 0.7rem 1rem;
+          padding: 0.75rem 1rem;
           text-align: center;
+          border-radius: 10px;
         }
 
         .dreamy-button {
           border: 1px solid #c9a24d;
           background: none;
           color: #c9a24d;
-          padding: 0.6rem 1.4rem;
+          padding: 0.7rem 1.4rem;
           cursor: pointer;
           letter-spacing: 0.1em;
           font-family: "Trocchi", serif;
+          border-radius: 10px;
+          width: 100%;
+          max-width: 360px;
         }
 
         .message {
           margin-top: 1rem;
           color: #e6e3dc;
+        }
+
+        /* --- Mobile polish --- */
+        @media (max-width: 480px) {
+          .gallery-page {
+            padding: 2.25rem 1.1rem;
+          }
+
+          .title-block {
+            margin-bottom: 3.25rem;
+          }
+
+          .brand-title {
+            font-size: 1.9rem;
+            letter-spacing: 0.16em;
+            gap: 0.5rem;
+          }
+
+          .underline {
+            width: 54px;
+            margin-top: 1.1rem;
+          }
+
+          .album-grid {
+            gap: 2.25rem;
+          }
+
+          .support-section {
+            margin-top: 3.75rem;
+          }
         }
       `}</style>
     </>
