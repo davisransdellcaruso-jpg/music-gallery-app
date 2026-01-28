@@ -92,7 +92,10 @@ export default function Gallery() {
                     alt={album.title}
                     width={120}
                     height={120}
+                    className="vinyl-label"
                   />
+                  {/* center hole */}
+                  <div className="center-hole" />
                 </div>
               </div>
 
@@ -182,6 +185,24 @@ export default function Gallery() {
                 fill="#c9a24d"
               >
                 <path d="M23.5 6.2s-.2-1.7-.8-2.4c-.8-.9-1.7-.9-2.1-1C17.7 2.5 12 2.5 12 2.5h0s-5.7 0-8.6.3c-.4.1-1.3.1-2.1 1-.6.7-.8 2.4-.8 2.4S0 8.1 0 10v2c0 1.9.2 3.8.2 3.8s.2 1.7.8 2.4c.8.9 1.9.9 2.4 1 1.7.2 7.1.3 8.6.3s5.7 0 8.6-.3c.4-.1 1.3-.1 2.1-1 .6-.7.8-2.4.8-2.4s.2-1.9.2-3.8v-2c0-1.9-.2-3.8-.2-3.8zM9.6 14.8V7.8l6.4 3.5-6.4 3.5z" />
+              </svg>
+            </a>
+
+            {/* Bandcamp */}
+            <a
+              href="https://davisransdellcaruso.bandcamp.com/?search_item_id%3D582533888%26search_item_type%3Db%26search_match_part%3D%253F%26search_page_id%3D5074082088%26search_page_no%3D0%26search_rank%3D1="
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Bandcamp"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 256 256"
+                fill="#c9a24d"
+              >
+                <path d="M21 194L112 62c2.3-3.4 6.1-5.4 10.2-5.4H235c6.4 0 10.2 7.2 6.6 12.4L150 201c-2.3 3.4-6.1 5.4-10.2 5.4H27.6C21.2 206.4 17.4 199.2 21 194z" />
               </svg>
             </a>
           </div>
@@ -290,10 +311,65 @@ export default function Gallery() {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: min(130px, 34vw);
-          height: min(130px, 34vw);
+          width: min(120px, 30vw);
+          height: min(120px, 30vw);
           border-radius: 50%;
           overflow: hidden;
+          background: #000;
+        }
+
+        /* Ensure label never crops */
+        .vinyl-label {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          border-radius: 50%;
+          display: block;
+          background: #000;
+          position: relative;
+          z-index: 1;
+          /* faint paper texture */
+          filter: contrast(1.02) saturate(1.02);
+        }
+
+        /* Paper texture overlay */
+        .vinyl-center::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background:
+            radial-gradient(circle at 30% 25%, rgba(255,255,255,0.06), transparent 55%),
+            radial-gradient(circle at 70% 70%, rgba(0,0,0,0.10), transparent 60%),
+            repeating-linear-gradient(
+              45deg,
+              rgba(255, 255, 255, 0.018) 0px,
+              rgba(255, 255, 255, 0.018) 2px,
+              transparent 2px,
+              transparent 6px
+            );
+          mix-blend-mode: overlay;
+          opacity: 0.35;
+          pointer-events: none;
+          z-index: 2;
+        }
+
+        /* Center hole (faint) */
+        .center-hole {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.95) 60%, rgba(0,0,0,1) 100%);
+          box-shadow:
+            0 0 0 2px rgba(255,255,255,0.06),
+            inset 0 1px 2px rgba(255,255,255,0.08);
+          opacity: 0.55;
+          z-index: 3;
+          pointer-events: none;
         }
 
         .album-title {
@@ -404,6 +480,11 @@ export default function Gallery() {
 
           .support-section {
             margin-top: 3.75rem;
+          }
+
+          .center-hole {
+            width: 9px;
+            height: 9px;
           }
         }
       `}</style>
