@@ -131,7 +131,7 @@ export default function Gallery() {
               </svg>
             </a>
 
-            {/* TikTok (fill) */}
+            {/* TikTok */}
             <a
               href="https://www.tiktok.com/@dav_wav_?_t=ZT-90R8qRubZ2E&_r=1"
               target="_blank"
@@ -149,7 +149,7 @@ export default function Gallery() {
               </svg>
             </a>
 
-            {/* Facebook (fill) */}
+            {/* Facebook */}
             <a
               href="https://www.facebook.com/DavisCarusoMusic/?rdid=nTaJjpsEu63FSUx7"
               target="_blank"
@@ -164,6 +164,24 @@ export default function Gallery() {
                 fill="#c9a24d"
               >
                 <path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.2c-1.2 0-1.6.7-1.6 1.5V12H17l-.5 3h-2.3v7A10 10 0 0 0 22 12" />
+              </svg>
+            </a>
+
+            {/* YouTube */}
+            <a
+              href="https://www.youtube.com/@dav_wav"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="#c9a24d"
+              >
+                <path d="M23.5 6.2s-.2-1.7-.8-2.4c-.8-.9-1.7-.9-2.1-1C17.7 2.5 12 2.5 12 2.5h0s-5.7 0-8.6.3c-.4.1-1.3.1-2.1 1-.6.7-.8 2.4-.8 2.4S0 8.1 0 10v2c0 1.9.2 3.8.2 3.8s.2 1.7.8 2.4c.8.9 1.9.9 2.4 1 1.7.2 7.1.3 8.6.3s5.7 0 8.6-.3c.4-.1 1.3-.1 2.1-1 .6-.7.8-2.4.8-2.4s.2-1.9.2-3.8v-2c0-1.9-.2-3.8-.2-3.8zM9.6 14.8V7.8l6.4 3.5-6.4 3.5z" />
               </svg>
             </a>
           </div>
@@ -197,7 +215,6 @@ export default function Gallery() {
           flex-direction: column;
           align-items: center;
         }
-
         .gallery-page.fade-in {
           opacity: 1;
         }
@@ -254,12 +271,8 @@ export default function Gallery() {
         }
 
         @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         .vinyl-center {
@@ -334,6 +347,7 @@ export default function Gallery() {
           padding: 0.6rem 1.4rem;
           cursor: pointer;
           letter-spacing: 0.1em;
+          font-family: "Trocchi", serif;
         }
 
         .message {
