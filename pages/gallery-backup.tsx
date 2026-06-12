@@ -72,18 +72,9 @@ export default function Gallery() {
           <h1 className="brand-title">
             <span>DAViS</span>
             <span className="gold-ellipsis">…</span>
+            <span>STUCCHi</span>
           </h1>
           <div className="underline" />
-        </div>
-
-        {/* FEATURED VIDEO */}
-        <div className="video-wrapper">
-          <iframe
-            src="https://www.youtube.com/embed/dSE6G5vTX40"
-            title="DAViS featured video"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
         </div>
 
         {/* ALBUMS */}
@@ -214,24 +205,6 @@ export default function Gallery() {
                 <path d="M21 194L112 62c2.3-3.4 6.1-5.4 10.2-5.4H235c6.4 0 10.2 7.2 6.6 12.4L150 201c-2.3 3.4-6.1 5.4-10.2 5.4H27.6C21.2 206.4 17.4 199.2 21 194z" />
               </svg>
             </a>
-
-            {/* Venmo */}
-            <a
-              href="https://venmo.com/davislikesmoney"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Venmo"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="#c9a24d"
-              >
-                <path d="M19.5 2c.6 1 .9 2.1.9 3.5 0 4.3-3.7 9.9-6.7 13.8H7.2L4.5 2.6l5.9-.6 1.4 11.1c1.3-2.2 2.9-5.6 2.9-8 0-1.3-.2-2.2-.6-2.9L19.5 2z" />
-              </svg>
-            </a>
           </div>
 
           <form onSubmit={handleEmailSubmit} className="email-form">
@@ -249,11 +222,6 @@ export default function Gallery() {
 
           {message && <p className="message">{message}</p>}
         </div>
-
-        {/* DISCLAIMER */}
-        <p className="disclaimer">
-          © {new Date().getFullYear()} Davis Caruso. All rights reserved. This website and all its content — including music, lyrics, artwork, and images — may not be used to train artificial intelligence or machine learning models without explicit written permission.
-        </p>
       </div>
 
       <style jsx>{`
@@ -297,22 +265,6 @@ export default function Gallery() {
           height: 1px;
           margin: 1.5rem auto 0;
           background: #c9a24d;
-        }
-
-        .video-wrapper {
-          width: 100%;
-          max-width: 900px;
-          margin-bottom: 5rem;
-          aspect-ratio: 16 / 9;
-          border-radius: 6px;
-          overflow: hidden;
-        }
-
-        .video-wrapper iframe {
-          width: 100%;
-          height: 100%;
-          border: none;
-          display: block;
         }
 
         .album-grid {
@@ -499,17 +451,6 @@ export default function Gallery() {
         .message {
           margin-top: 1rem;
           color: #e6e3dc;
-        }
-
-        .disclaimer {
-          margin-top: 4rem;
-          padding: 0 1rem 2rem;
-          color: #6b6660;
-          font-size: 0.72rem;
-          text-align: center;
-          max-width: 600px;
-          line-height: 1.6;
-          letter-spacing: 0.02em;
         }
 
         /* --- Mobile polish --- */
