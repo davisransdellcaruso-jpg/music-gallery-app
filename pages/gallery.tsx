@@ -16,8 +16,8 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
   const [email, setEmail] = useState("");
-  const [city, setCity] = useState("");
-  const [cityDetected, setCityDetected] = useState("");
+  const [location, setLocation] = useState("");
+  const [locationDetected, setLocationDetected] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -36,13 +36,15 @@ export default function Gallery() {
 
     fetchAlbums();
 
-    // Auto-detect city from IP
+    // Auto-detect location from IP
     fetch("https://ipapi.co/json/")
       .then((res) => res.json())
       .then((data) => {
-        const detected = data.city || "";
-        setCityDetected(detected);
-        setCity(detected);
+        const detected = [data.city, data.region, data.country_name]
+          .filter(Boolean)
+          .join(", ");
+        setLocationDetected(detected);
+        setLocation(detected);
       })
       .catch(() => {});
   }, []);
@@ -55,8 +57,8 @@ export default function Gallery() {
 
     const { error } = await supabase.from("mailing_list").insert([{
       email,
-      city: city || cityDetected || null,
-      city_detected: cityDetected || null,
+      location: location || locationDetected || null,
+      location_detected: locationDetected || null,
     }]);
 
     if (error) {
@@ -68,8 +70,8 @@ export default function Gallery() {
     } else {
       setMessage("Thanks for supporting …");
       setEmail("");
-      setCity("");
-      setCityDetected("");
+      setLocation("");
+      setLocationDetected("");
     }
   };
 
@@ -193,13 +195,12 @@ export default function Gallery() {
             />
             <input
               type="text"
-              placeholder="Your city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="city-input"
+              placeholder="Your location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
             />
-            {cityDetected && city !== cityDetected && (
-              <p className="city-hint">We detected {cityDetected} — feel free to correct it above.</p>
+            {locationDetected && location !== locationDetected && (
+              <p className="city-hint">We detected {locationDetected} — feel free to correct it above.</p>
             )}
             <button type="submit" className="dreamy-button">
               Join Mailing List
