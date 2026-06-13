@@ -47,7 +47,6 @@ function AlbumPage() {
   const [activeTab, setActiveTab] = useState<"lyrics" | "credits" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // 🔒 unlock logic (kept for easy re-enable) — bypassed
   const [unlocked, setUnlocked] = useState(false);
   const [requiredAmount, setRequiredAmount] = useState<number | null>(null);
 
@@ -55,11 +54,10 @@ function AlbumPage() {
   const lyricsContainerRef = useRef<HTMLDivElement | null>(null);
   const lineRefs = useRef<HTMLParagraphElement[]>([]);
 
-  // 👇 Always-public album IDs (kept for reference)
   const publicAlbumIds = [
-    "1f4e2467-2ea1-4dcb-b65d-01bfd6096e14", // Dreamin on Paris
-    "998d0b78-709c-480d-bf5c-63469f832c6c", // The Fool
-    "fd1a5c47-45ab-449f-ae72-ce7b9a953a7d", // Wavis (EP)
+    "1f4e2467-2ea1-4dcb-b65d-01bfd6096e14",
+    "998d0b78-709c-480d-bf5c-63469f832c6c",
+    "fd1a5c47-45ab-449f-ae72-ce7b9a953a7d",
   ];
 
   useEffect(() => {
@@ -74,11 +72,7 @@ function AlbumPage() {
 
       if (albumData) {
         setAlbum(albumData as Album);
-
-        // BYPASS: always unlocked
         setUnlocked(true);
-        // If you prefer whitelist later:
-        // if (publicAlbumIds.includes(albumData.id)) setUnlocked(true);
       }
 
       const { data: trackData } = await supabase
@@ -88,9 +82,6 @@ function AlbumPage() {
         .order("track_number", { ascending: true });
 
       if (trackData) setTracks(trackData as TrackT[]);
-
-      // (Original unlock check preserved in your version — omitted here for brevity,
-      // but you can paste it back into this spot anytime.)
 
       setLoading(false);
     };
@@ -106,7 +97,6 @@ function AlbumPage() {
     nextTrack(true);
   };
 
-  // reset lyric refs on track change
   useEffect(() => {
     lineRefs.current = [];
   }, [currentIndex]);
@@ -135,7 +125,6 @@ function AlbumPage() {
     }
   }, [currentLyricIndex]);
 
-  // 🪄 Log play event to Supabase
   async function logTrackPlay(trackId: string) {
     try {
       await fetch("/api/log-play", {
@@ -246,7 +235,6 @@ function AlbumPage() {
     return `${minutes}:${seconds}`;
   };
 
-  // ⌨️ Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!audioRef.current) return;
@@ -291,10 +279,9 @@ function AlbumPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume, duration, currentTrack?.id]);
 
-  if (loading) return <div style={{ color: "#e6e3dc" }}>Loading album…</div>;
-  if (!album) return <div style={{ color: "#e6e3dc" }}>Album not found</div>;
+  if (loading) return <div style={{ color: "#e6e3dc", background: "#7b7fc4", minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Trocchi', serif" }}>Loading album…</div>;
+  if (!album) return <div style={{ color: "#e6e3dc", background: "#7b7fc4", minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Trocchi', serif" }}>Album not found</div>;
 
-  // NOTE: lock screen route is bypassed — kept for reference
   if (!unlocked && !publicAlbumIds.includes(album.id)) {
     return (
       <div className="album-page">
@@ -322,7 +309,7 @@ function AlbumPage() {
         <style jsx>{`
           .album-page {
             min-height: 100vh;
-            background: #3a2f4d;
+            background: #7b7fc4;
             font-family: "Trocchi", serif;
             color: #e6e3dc;
             display: grid;
@@ -339,7 +326,7 @@ function AlbumPage() {
             margin: 0 0 1rem;
           }
           .lock-text {
-            color: #b6b1a7;
+            color: #d4d1eb;
             margin: 0.5rem 0 2rem;
           }
           .outline-button {
@@ -350,6 +337,9 @@ function AlbumPage() {
             letter-spacing: 0.1em;
             cursor: pointer;
             font-family: "Trocchi", serif;
+            border-radius: 999px;
+            -webkit-appearance: none;
+            appearance: none;
           }
           .outline-button:hover {
             background: rgba(201, 162, 77, 0.1);
@@ -546,23 +536,22 @@ function AlbumPage() {
       )}
 
       <style jsx>{`
-        /* Palette:
-           dusk purple: #3a2f4d
-           ash white:  #e6e3dc
-           muted:      #b6b1a7
-           worn gold:  #c9a24d
-        */
+        *, *::before, *::after {
+          box-sizing: border-box;
+        }
 
         .album-page {
           min-height: 100vh;
           padding: 3rem 2rem 4rem;
-          background: #3a2f4d;
+          background: #7b7fc4;
           font-family: "Trocchi", serif;
           color: #e6e3dc;
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 2.5rem;
+          overflow-x: hidden;
+          -webkit-text-size-adjust: 100%;
         }
 
         .top-row {
@@ -579,6 +568,9 @@ function AlbumPage() {
           letter-spacing: 0.08em;
           cursor: pointer;
           padding: 0.25rem 0;
+          font-family: "Trocchi", serif;
+          font-size: 1rem;
+          -webkit-tap-highlight-color: transparent;
         }
         .text-link:hover {
           text-decoration: underline;
@@ -598,7 +590,7 @@ function AlbumPage() {
         }
 
         .year {
-          color: #b6b1a7;
+          color: #d4d1eb;
           font-weight: 400;
           letter-spacing: 0.08em;
         }
@@ -606,7 +598,7 @@ function AlbumPage() {
         .release-note {
           margin: 0.75rem auto 0;
           max-width: 640px;
-          color: #b6b1a7;
+          color: #d4d1eb;
           font-style: italic;
           font-size: 0.95rem;
           line-height: 1.6;
@@ -620,8 +612,8 @@ function AlbumPage() {
         }
 
         .vinyl {
-          width: 320px;
-          height: 320px;
+          width: min(320px, 82vw);
+          height: min(320px, 82vw);
           border-radius: 50%;
           background: #111;
           position: relative;
@@ -632,8 +624,8 @@ function AlbumPage() {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 130px;
-          height: 130px;
+          width: min(130px, 33vw);
+          height: min(130px, 33vw);
           border-radius: 50%;
           overflow: hidden;
         }
@@ -650,12 +642,8 @@ function AlbumPage() {
         }
 
         @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         .track-list {
@@ -681,7 +669,11 @@ function AlbumPage() {
           gap: 1rem;
           text-align: left;
           font-family: "Trocchi", serif;
+          font-size: 1rem;
           transition: border-color 0.2s ease, background 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-appearance: none;
+          appearance: none;
         }
 
         .track-row:hover {
@@ -707,7 +699,7 @@ function AlbumPage() {
         }
 
         .track-num {
-          color: #b6b1a7;
+          color: #d4d1eb;
           flex: 0 0 auto;
         }
 
@@ -718,7 +710,7 @@ function AlbumPage() {
         }
 
         .track-right {
-          color: #b6b1a7;
+          color: #d4d1eb;
           font-style: italic;
           font-size: 0.9rem;
           flex: 0 0 auto;
@@ -749,6 +741,9 @@ function AlbumPage() {
           place-items: center;
           transition: background 0.2s ease;
           flex: 0 0 auto;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-appearance: none;
+          appearance: none;
         }
 
         .icon-btn:hover {
@@ -777,7 +772,7 @@ function AlbumPage() {
 
         .time {
           font-size: 0.8rem;
-          color: #b6b1a7;
+          color: #d4d1eb;
           text-align: center;
         }
 
@@ -809,8 +804,12 @@ function AlbumPage() {
           letter-spacing: 0.1em;
           cursor: pointer;
           font-family: "Trocchi", serif;
+          font-size: 16px;
           border-radius: 999px;
           transition: background 0.2s ease, color 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-appearance: none;
+          appearance: none;
         }
 
         .outline-button:hover {
@@ -841,7 +840,7 @@ function AlbumPage() {
 
         .lyric {
           margin: 0.35rem 0;
-          color: #b6b1a7;
+          color: #d4d1eb;
           font-size: 1rem;
           line-height: 1.6;
           text-align: center;
@@ -853,13 +852,13 @@ function AlbumPage() {
         }
 
         @media (max-width: 520px) {
-          .page-title {
-            font-size: 1.6rem;
+          .album-page {
+            padding: 2.25rem 1.1rem 3rem;
+            gap: 2rem;
           }
 
-          .vinyl {
-            width: 270px;
-            height: 270px;
+          .page-title {
+            font-size: 1.6rem;
           }
 
           .player {
@@ -877,7 +876,6 @@ function AlbumPage() {
   );
 }
 
-// ✅ Dynamic page support for mobile/direct loads
 export async function getServerSideProps() {
   return { props: {} };
 }
