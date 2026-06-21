@@ -96,6 +96,18 @@ export default function Gallery() {
           <div className="underline" />
         </div>
 
+        {/* TICKET LINK */}
+        <div className="ticket-link-wrapper">
+          <a
+            href="https://theark.org/event/an-intimate-evening-with-davis-caruso/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ticket-link"
+          >
+            Tickets - Davis Caruso Trio @ The Ark, July 24th
+          </a>
+        </div>
+
         {/* FEATURED VIDEO */}
         <div className="video-wrapper">
           <iframe
@@ -263,6 +275,29 @@ export default function Gallery() {
           height: 1px;
           margin: 1.5rem auto 0;
           background: #c9a24d;
+        }
+
+        .ticket-link-wrapper {
+          text-align: center;
+          margin-bottom: 4rem;
+        }
+
+        .ticket-link {
+          display: inline-block;
+          color: #c9a24d;
+          border: 1px solid #c9a24d;
+          padding: 0.65rem 1.3rem;
+          border-radius: 10px;
+          text-decoration: none;
+          letter-spacing: 0.04em;
+          font-size: 1.9rem;
+          font-weight: 700;
+          transition: opacity 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .ticket-link:hover {
+          opacity: 0.7;
         }
 
         .video-wrapper {
@@ -524,6 +559,16 @@ export default function Gallery() {
           .underline {
             width: 54px;
             margin-top: 1.1rem;
+          }
+
+          .ticket-link-wrapper {
+            margin-bottom: 3rem;
+          }
+
+          .ticket-link {
+            font-size: 1.7rem;
+            font-weight: 700;
+            padding: 0.55rem 1.1rem;
           }
 
           .video-wrapper {
