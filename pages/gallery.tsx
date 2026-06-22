@@ -84,6 +84,9 @@ export default function Gallery() {
         rel="stylesheet"
       />
 
+      {/* Dreamy gradient border frame */}
+      <div className="gradient-border-frame" aria-hidden="true" />
+
       <div className={`gallery-page ${fadeIn ? "fade-in" : ""}`}>
         <div style={{ height: "2rem" }} />
 
@@ -227,6 +230,55 @@ export default function Gallery() {
           © {new Date().getFullYear()} Davis Caruso. All rights reserved. This website and all its content — including music, lyrics, artwork, and images — may not be used to train artificial intelligence or machine learning models without explicit written permission.
         </p>
       </div>
+
+      <style jsx global>{`
+        @keyframes borderDrift {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .gradient-border-frame {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 9999;
+          /* Four sides rendered as box-shadow inset stripes */
+          box-shadow: inset 0 0 0 10px transparent;
+        }
+
+        .gradient-border-frame::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 0;
+          padding: 10px;
+          background: linear-gradient(
+            135deg,
+            #c9a24d,
+            #9b8ec4,
+            #7b7fc4,
+            #e6e3dc,
+            #c9a24d,
+            #7b7fc4,
+            #c9a24d
+          );
+          background-size: 300% 300%;
+          animation: borderDrift 10s ease infinite;
+          -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .gradient-border-frame::before {
+            animation: none;
+            background-position: 0% 50%;
+          }
+        }
+      `}</style>
 
       <style jsx>{`
         *, *::before, *::after {
