@@ -77,11 +77,11 @@ export default function Gallery() {
   if (loading) return (
     <div style={{
       minHeight: "100vh",
-      background: "#1a1410",
+      background: "#EAE4F7",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      color: "#c9a24d",
+      color: "#8a6a24",
       fontFamily: "Trocchi, serif",
       letterSpacing: "0.12em",
       fontSize: "0.85rem",
@@ -290,7 +290,7 @@ export default function Gallery() {
         html, body {
           margin: 0;
           padding: 0;
-          background: #1a1410;
+          background: #EAE4F7;
         }
 
         /* Grain texture */
@@ -299,7 +299,7 @@ export default function Gallery() {
           inset: 0;
           pointer-events: none;
           z-index: 1;
-          opacity: 0.045;
+          opacity: 0.035;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
           background-size: 300px 300px;
         }
@@ -325,13 +325,13 @@ export default function Gallery() {
           padding: 8px;
           background: linear-gradient(
             135deg,
-            #c9a24d,
+            #8a6a24,
             #6b6fa8,
             #8a8dc0,
-            #e6e3dc44,
-            #c9a24d,
+            #d8d2e844,
+            #8a6a24,
             #7b7fc4,
-            #c9a24d
+            #8a6a24
           );
           background-size: 300% 300%;
           animation: borderDrift 14s ease infinite;
@@ -367,7 +367,7 @@ export default function Gallery() {
           flex-direction: column;
           align-items: center;
           overflow-x: hidden;
-          color: #e6e3dc;
+          color: #2E2440;
         }
         .gallery-page.fade-in { opacity: 1; }
 
@@ -386,8 +386,8 @@ export default function Gallery() {
           height: 500px;
           background: radial-gradient(
             ellipse at 50% 30%,
-            rgba(201, 162, 77, 0.22) 0%,
-            rgba(123, 127, 196, 0.10) 45%,
+            rgba(201, 162, 77, 0.20) 0%,
+            rgba(123, 127, 196, 0.14) 45%,
             transparent 70%
           );
           pointer-events: none;
@@ -405,7 +405,7 @@ export default function Gallery() {
         .eyebrow {
           font-size: 0.72rem;
           letter-spacing: 0.35em;
-          color: #9b8ec4;
+          color: #6b5fa0;
           text-transform: uppercase;
           margin: 0 0 1.1rem;
         }
@@ -413,14 +413,14 @@ export default function Gallery() {
         .brand-title {
           font-size: clamp(3.2rem, 8vw, 5.5rem);
           letter-spacing: 0.28em;
-          color: #e6e3dc;
+          color: #2E2440;
           margin: 0;
           line-height: 1;
           font-weight: 400;
         }
 
         .title-i {
-          color: #c9a24d;
+          color: #8a6a24;
           font-style: italic;
         }
 
@@ -436,11 +436,11 @@ export default function Gallery() {
         .rule-line {
           flex: 1;
           height: 1px;
-          background: linear-gradient(to right, transparent, #c9a24d88, transparent);
+          background: linear-gradient(to right, transparent, #8a6a2488, transparent);
         }
 
         .rule-diamond {
-          color: #c9a24d;
+          color: #8a6a24;
           font-size: 0.7rem;
           line-height: 1;
           flex-shrink: 0;
@@ -468,16 +468,16 @@ export default function Gallery() {
         .ticket-link {
           display: inline-block;
           text-decoration: none;
-          border: 1px solid #c9a24d55;
+          border: 1px solid #8a6a2455;
           border-radius: 3px;
           padding: 1rem 1.8rem;
           transition: border-color 0.3s ease, background 0.3s ease;
-          background: rgba(201, 162, 77, 0.05);
+          background: rgba(201, 162, 77, 0.07);
         }
 
         .ticket-link:hover {
-          border-color: #c9a24d;
-          background: rgba(201, 162, 77, 0.10);
+          border-color: #8a6a24;
+          background: rgba(201, 162, 77, 0.13);
         }
 
         .ticket-inner {
@@ -490,14 +490,14 @@ export default function Gallery() {
         .ticket-venue {
           font-size: 0.68rem;
           letter-spacing: 0.28em;
-          color: #9b8ec4;
+          color: #6b5fa0;
           text-transform: uppercase;
         }
 
         .ticket-cta {
           font-size: 1.05rem;
           letter-spacing: 0.08em;
-          color: #c9a24d;
+          color: #8a6a24;
         }
 
         /* ── Video ── */
@@ -505,7 +505,7 @@ export default function Gallery() {
           width: 100%;
           max-width: 860px;
           padding: 6px;
-          background: linear-gradient(135deg, #c9a24d33, #7b7fc422, #c9a24d33);
+          background: linear-gradient(135deg, #c9a24d44, #7b7fc433, #c9a24d44);
           border-radius: 5px;
           margin-bottom: 0;
         }
@@ -549,8 +549,8 @@ export default function Gallery() {
           background:
             radial-gradient(circle at 50% 50%, #1c1c1c 0%, #0d0d0d 100%);
           box-shadow:
-            0 0 0 1px rgba(201,162,77,0.12),
-            0 8px 40px rgba(0,0,0,0.7),
+            0 0 0 1px rgba(201,162,77,0.18),
+            0 8px 40px rgba(46,36,64,0.25),
             inset 0 1px 0 rgba(255,255,255,0.04);
           position: relative;
           margin: 0 auto;
@@ -560,9 +560,9 @@ export default function Gallery() {
         .album-card:hover .vinyl {
           animation: spin 16s linear infinite;
           box-shadow:
-            0 0 0 1px rgba(201,162,77,0.28),
-            0 12px 50px rgba(0,0,0,0.8),
-            0 0 30px rgba(201,162,77,0.08),
+            0 0 0 1px rgba(201,162,77,0.32),
+            0 12px 50px rgba(46,36,64,0.32),
+            0 0 30px rgba(201,162,77,0.10),
             inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
@@ -639,7 +639,7 @@ export default function Gallery() {
 
         .album-title {
           margin-top: 1.1rem;
-          color: #e6e3dc;
+          color: #2E2440;
           font-size: 0.95rem;
           letter-spacing: 0.08em;
           line-height: 1.3;
@@ -648,7 +648,7 @@ export default function Gallery() {
         }
 
         .album-year {
-          color: #9b8ec4;
+          color: #6b5fa0;
           font-size: 0.75rem;
           letter-spacing: 0.18em;
           margin-top: 0.2rem;
@@ -665,7 +665,7 @@ export default function Gallery() {
         .support-title {
           font-size: 0.75rem;
           letter-spacing: 0.32em;
-          color: #9b8ec4;
+          color: #6b5fa0;
           text-transform: uppercase;
           margin: 0 0 2.5rem;
         }
@@ -676,7 +676,7 @@ export default function Gallery() {
           flex-wrap: wrap;
           gap: 1.6rem;
           margin-bottom: 3rem;
-          color: #c9a24d;
+          color: #8a6a24;
         }
 
         .social-icons a {
@@ -685,8 +685,8 @@ export default function Gallery() {
           justify-content: center;
           width: 36px;
           height: 36px;
-          color: #c9a24d;
-          opacity: 0.8;
+          color: #8a6a24;
+          opacity: 0.85;
           transition: opacity 0.2s ease;
           -webkit-tap-highlight-color: transparent;
         }
@@ -706,9 +706,9 @@ export default function Gallery() {
           width: 100%;
           max-width: 340px;
           border: none;
-          border-bottom: 1px solid #c9a24d44;
+          border-bottom: 1px solid #8a6a2455;
           background: none;
-          color: #e6e3dc;
+          color: #2E2440;
           padding: 0.7rem 0.2rem;
           text-align: center;
           font-size: 0.9rem;
@@ -722,27 +722,27 @@ export default function Gallery() {
         }
 
         .email-form input:focus {
-          border-bottom-color: #c9a24d;
+          border-bottom-color: #8a6a24;
         }
 
         .email-form input::placeholder {
-          color: #6b6760;
+          color: #9a92ac;
           font-size: 0.82rem;
           letter-spacing: 0.14em;
         }
 
         .city-hint {
           font-size: 0.7rem;
-          color: #7b7fc4;
+          color: #5f56a0;
           letter-spacing: 0.06em;
           margin: 0;
         }
 
         .join-button {
           margin-top: 0.5rem;
-          border: 1px solid #c9a24d55;
+          border: 1px solid #8a6a2455;
           background: none;
-          color: #c9a24d;
+          color: #8a6a24;
           padding: 0.7rem 2.2rem;
           cursor: pointer;
           letter-spacing: 0.22em;
@@ -757,15 +757,15 @@ export default function Gallery() {
         }
 
         .join-button:hover {
-          border-color: #c9a24d;
-          background: rgba(201, 162, 77, 0.08);
+          border-color: #8a6a24;
+          background: rgba(201, 162, 77, 0.12);
         }
 
         .message {
           margin-top: 1.25rem;
           font-size: 0.78rem;
           letter-spacing: 0.14em;
-          color: #9b8ec4;
+          color: #6b5fa0;
         }
 
         /* ── Footer ── */
@@ -785,7 +785,7 @@ export default function Gallery() {
         }
 
         .disclaimer {
-          color: #4a4840;
+          color: #8f889c;
           font-size: 0.66rem;
           letter-spacing: 0.06em;
           line-height: 1.8;
