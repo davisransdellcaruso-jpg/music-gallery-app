@@ -123,26 +123,11 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* TICKET LINK */}
-        <div className="ticket-link-wrapper">
-          <a
-            href="https://theark.org/event/an-intimate-evening-with-davis-caruso/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ticket-link"
-          >
-            <span className="ticket-inner">
-              <span className="ticket-venue">The Ark · Ann Arbor</span>
-              <span className="ticket-cta">Davis Caruso Trio — July 24th →</span>
-            </span>
-          </a>
-        </div>
-
         {/* FEATURED VIDEO */}
         <div className="video-outer">
           <div className="video-wrapper">
             <iframe
-              src="https://www.youtube.com/embed/dSE6G5vTX40"
+              src="https://www.youtube.com/embed/MM28HFRnYos"
               title="DAViS featured video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -458,48 +443,6 @@ export default function Gallery() {
           margin: 4.5rem auto 4.5rem;
         }
 
-        /* ── Ticket ── */
-        .ticket-link-wrapper {
-          margin-bottom: 3.5rem;
-          position: relative;
-          z-index: 1;
-        }
-
-        .ticket-link {
-          display: inline-block;
-          text-decoration: none;
-          border: 1px solid #8a6a2455;
-          border-radius: 3px;
-          padding: 1rem 1.8rem;
-          transition: border-color 0.3s ease, background 0.3s ease;
-          background: rgba(201, 162, 77, 0.07);
-        }
-
-        .ticket-link:hover {
-          border-color: #8a6a24;
-          background: rgba(201, 162, 77, 0.13);
-        }
-
-        .ticket-inner {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.3rem;
-        }
-
-        .ticket-venue {
-          font-size: 0.68rem;
-          letter-spacing: 0.28em;
-          color: #6b5fa0;
-          text-transform: uppercase;
-        }
-
-        .ticket-cta {
-          font-size: 1.05rem;
-          letter-spacing: 0.08em;
-          color: #8a6a24;
-        }
-
         /* ── Video ── */
         .video-outer {
           width: 100%;
@@ -801,7 +744,6 @@ export default function Gallery() {
             gap: 2.5rem;
             grid-template-columns: 1fr;
           }
-          .ticket-cta { font-size: 0.95rem; }
           .video-outer { padding: 4px; }
           .section-rule { margin: 3rem auto; }
         }
