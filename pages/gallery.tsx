@@ -377,17 +377,95 @@ export default function Gallery() {
                   </a>
 
                   <a
-                    href="https://venmo.com/davislikesmoney"
+                    href="https://substack.com/@daviscaruso"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
                   >
                     <span className="social-icon">
                       <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.5 2c.6 1 .9 2.1.9 3.5 0 4.3-3.7 9.9-6.7 13.8H7.2L4.5 2.6l5.9-.6 1.4 11.1c1.3-2.2 2.9-5.6 2.9-8 0-1.3-.2-2.2-.6-2.9L19.5 2z" />
+                        <rect x="3" y="3" width="18" height="3" />
+                        <rect x="3" y="8.4" width="18" height="3" />
+                        <path d="M3 13.8h18v2.9L12 22 3 16.7z" />
                       </svg>
                     </span>
-                    <span className="social-name">Venmo</span>
+                    <span className="social-name">Substack</span>
+                  </a>
+
+                  <a
+                    href="https://www.reddit.com/user/Davis_Caruso/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="14" r="7" />
+                        <circle
+                          cx="8.7"
+                          cy="14"
+                          r="1.05"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                        <circle
+                          cx="15.3"
+                          cy="14"
+                          r="1.05"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                        <path d="M8.7 17.3c1 .75 2.1 1.1 3.3 1.1s2.3-.35 3.3-1.1" />
+                        <path d="M12 7V4.2" />
+                        <circle
+                          cx="12"
+                          cy="3.3"
+                          r="0.9"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                        <path d="M17.1 8.4a1.5 1.5 0 1 1 1.85 1.45" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Reddit</span>
+                  </a>
+
+                  <a
+                    href="https://www.linkedin.com/in/davis-caruso-5b29072b1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="2.5" y="2.5" width="19" height="19" rx="3" />
+                        <rect
+                          x="6.3"
+                          y="9.7"
+                          width="2.9"
+                          height="8.3"
+                          fill="var(--bandana-light, #f3d7d3)"
+                        />
+                        <circle
+                          cx="7.75"
+                          cy="6.4"
+                          r="1.7"
+                          fill="var(--bandana-light, #f3d7d3)"
+                        />
+                        <path
+                          d="M11.6 9.7h2.8v1.3c.5-.85 1.5-1.5 3-1.5 2.5 0 3.3 1.6 3.3 4v4.5h-2.9v-3.95c0-1.05-.35-1.8-1.35-1.8-1 0-1.55.7-1.55 1.8v3.95h-2.9V9.7z"
+                          fill="var(--bandana-light, #f3d7d3)"
+                        />
+                      </svg>
+                    </span>
+                    <span className="social-name">LinkedIn</span>
                   </a>
                 </div>
 
@@ -704,12 +782,14 @@ export default function Gallery() {
             }
 
             .social-grid {
-              display: grid;
-              grid-template-columns: repeat(6, 1fr);
+              display: flex;
+              flex-wrap: nowrap;
 
-              gap: 1rem;
+              justify-content: center;
 
-              width: min(100%, 790px);
+              gap: 1.1rem;
+
+              width: min(100%, 900px);
 
               margin: clamp(2.8rem, 6vw, 4rem) auto 0;
             }
@@ -719,7 +799,10 @@ export default function Gallery() {
               flex-direction: column;
               align-items: center;
 
-              gap: 0.7rem;
+              gap: 0.6rem;
+
+              flex: 0 0 auto;
+              width: 72px;
 
               color: var(--lavender);
 
@@ -740,22 +823,22 @@ export default function Gallery() {
               align-items: center;
               justify-content: center;
 
-              width: 43px;
-              height: 43px;
+              width: 38px;
+              height: 38px;
             }
 
             .social-icon svg {
               display: block;
-              width: 33px;
-              height: 33px;
+              width: 29px;
+              height: 29px;
             }
 
             .social-icon.youtube svg {
-              width: 35px;
+              width: 31px;
             }
 
             .social-icon.bandcamp svg {
-              width: 38px;
+              width: 33px;
             }
 
             .social-name {
@@ -904,9 +987,12 @@ export default function Gallery() {
 
             @media (max-width: 850px) {
               .social-grid {
-                grid-template-columns: repeat(3, 1fr);
-                row-gap: 2.1rem;
-                max-width: 520px;
+                flex-wrap: wrap;
+                gap: 1.9rem 1rem;
+              }
+
+              .social-link {
+                width: 74px;
               }
             }
 
@@ -927,8 +1013,11 @@ export default function Gallery() {
               }
 
               .social-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem 0.5rem;
+                gap: 1.6rem 0.75rem;
+              }
+
+              .social-link {
+                width: 66px;
               }
 
               .social-name {
