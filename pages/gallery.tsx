@@ -377,6 +377,34 @@ export default function Gallery() {
                   </a>
 
                   <a
+                    href="https://soundcloud.com/davis-ransdell-caruso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon soundcloud">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2.5 12.2v3.6" />
+                        <path d="M5 10.8v6.4" />
+                        <path d="M7.5 9.5v7.8" />
+                        <path
+                          d="M10 8.4v9c0 .17.13.3.3.3h8.3a3.4 3.4 0 0 0 .4-6.78 4.1 4.1 0 0 0-7.72-1.9c-.32-.4-.7-.64-1.28-.62Z"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                      </svg>
+                    </span>
+                    <span className="social-name">SoundCloud</span>
+                  </a>
+
+                  <a
                     href="https://substack.com/@daviscaruso"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -393,7 +421,7 @@ export default function Gallery() {
                   </a>
 
                   <a
-                    href="https://www.reddit.com/user/Davis_Caruso/"
+                    href="https://www.reddit.com/r/DavisCaruso/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
@@ -787,9 +815,9 @@ export default function Gallery() {
 
               justify-content: center;
 
-              gap: 1.1rem;
+              gap: 1.6rem;
 
-              width: min(100%, 900px);
+              width: min(100%, 960px);
 
               margin: clamp(2.8rem, 6vw, 4rem) auto 0;
             }
@@ -802,7 +830,7 @@ export default function Gallery() {
               gap: 0.6rem;
 
               flex: 0 0 auto;
-              width: 72px;
+              width: 78px;
 
               color: var(--lavender);
 
@@ -841,12 +869,19 @@ export default function Gallery() {
               width: 33px;
             }
 
+            .social-icon.soundcloud svg {
+              width: 31px;
+            }
+
             .social-name {
+              width: 100%;
+
               font-family: "Fraunces", Georgia, serif;
-              font-size: 0.78rem;
+              font-size: 0.72rem;
               font-weight: 600;
 
-              letter-spacing: 0.12em;
+              letter-spacing: 0.08em;
+              text-align: center;
 
               text-transform: uppercase;
             }
