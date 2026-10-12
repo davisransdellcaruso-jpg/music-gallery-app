@@ -2,12 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
+import { getCurrentRelease } from "../lib/releases";
 
 const PHOTO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
-
-const AUDIO_URL =
-  "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/Peace%20Of%20Mind.wav";
 
 const NEXT_PAGE = "/story";
 
@@ -26,6 +24,9 @@ export default function Gallery() {
 
   const [isMuted, setIsMuted] = useState(true);
   const [musicStarted, setMusicStarted] = useState(false);
+
+  // Whichever song is the newest release as of today (Detroit time)
+  const [release] = useState(getCurrentRelease);
 
   useEffect(() => {
     setMounted(true);
@@ -243,8 +244,9 @@ export default function Gallery() {
       {createPortal(
         <>
           <audio
+            key={release.audioUrl}
             ref={audioRef}
-            src={AUDIO_URL}
+            src={release.audioUrl}
             loop
             preload="auto"
             autoPlay
@@ -509,7 +511,9 @@ export default function Gallery() {
 
                     <div className="track-copy">
                       <span className="track-label">NOW PLAYING</span>
-                      <span className="track-title">PEACE OF MIND</span>
+                      <span className="track-title">
+                        {release.title.toUpperCase()}
+                      </span>
                     </div>
                   </div>
 
