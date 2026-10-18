@@ -1,6 +1,6 @@
 // components/ExploreMenu.tsx
 // A small three-line (hamburger) dropdown, centered at the top of the gallery page:
-// The story, Map of La Famiglia.
+// Updates and upcoming shows (/story), Map of La Famiglia.
 // Usage (in pages/gallery.tsx):  import ExploreMenu from "../components/ExploreMenu";
 //                                 ...then render <ExploreMenu /> anywhere in the page.
 import { useEffect, useRef, useState } from "react";
@@ -8,12 +8,12 @@ import { useLang } from "./i18n";
 
 const COPY = {
   en: {
-    story: "The story",
+    story: "Updates and upcoming shows",
     map: "Map of La Famiglia",
     aria: "Menu",
   },
   es: {
-    story: "La historia",
+    story: "Novedades y próximos shows",
     map: "Mapa de La Famiglia",
     aria: "Menú",
   },
@@ -72,8 +72,8 @@ export default function ExploreMenu() {
         aria-expanded={open}
         aria-label={c.aria}
         style={{
-          width: 46,
-          height: 46,
+          width: "min(230px, 42vw)",
+          height: "min(230px, 42vw)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -86,7 +86,7 @@ export default function ExploreMenu() {
           backdropFilter: "blur(6px)",
         }}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+        <svg width="50%" height="50%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
           {open ? (
             <>
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -107,7 +107,7 @@ export default function ExploreMenu() {
           role="menu"
           style={{
             marginTop: 8,
-            minWidth: 190,
+            minWidth: "min(320px, 80vw)",
             borderRadius: 14,
             overflow: "hidden",
             border: "1px solid rgba(212,173,86,0.75)",
@@ -122,12 +122,12 @@ export default function ExploreMenu() {
               role="menuitem"
               style={{
                 display: "block",
-                padding: "13px 16px",
+                padding: "18px 20px",
                 color: "#715a99",
                 textDecoration: "none",
                 textAlign: "center",
                 whiteSpace: "nowrap",
-                fontSize: 16,
+                fontSize: 19,
                 borderTop: i ? "1px solid rgba(212,173,86,0.35)" : "none",
               }}
             >
