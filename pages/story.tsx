@@ -123,7 +123,7 @@ export default function Story() {
                   </p>
 
                   <p>
-                    In the meantime the team is building a clear growth
+                    In the meantime the team is building online spaces that foster community and devising a clear growth
                     strategy. Please don&apos;t hesitate to reach out if
                     you&apos;d like to offer support or want to know more details.
                   </p>
