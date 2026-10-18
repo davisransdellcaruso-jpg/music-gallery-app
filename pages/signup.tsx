@@ -2,9 +2,56 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
+import { useLang, type Lang } from "../components/i18n";
+
+const en = {
+  title: "Create Account",
+  fullName: "Full Name",
+  email: "Email",
+  password: "Password",
+  confirmPassword: "Confirm Password",
+  mismatch: "Passwords do not match.",
+  checkEmail: "Check your email to confirm your account before logging in.",
+  unexpected: "An unexpected error occurred.",
+  exists: "That email is already registered.",
+  weak: "Your password needs at least 6 characters.",
+  signUp: "Sign Up",
+  creating: "Creating...",
+};
+
+type Copy = typeof en;
+
+const es: Copy = {
+  title: "Crear cuenta",
+  fullName: "Nombre completo",
+  email: "Correo electrónico",
+  password: "Contraseña",
+  confirmPassword: "Confirmar contraseña",
+  mismatch: "Las contraseñas no coinciden.",
+  checkEmail:
+    "Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.",
+  unexpected: "Ocurrió un error inesperado.",
+  exists: "Ese correo ya está registrado.",
+  weak: "Tu contraseña debe tener al menos 6 caracteres.",
+  signUp: "Registrarme",
+  creating: "Creando...",
+};
+
+const COPY: Record<Lang, Copy> = { en, es };
+
+// Supabase error messages are in English, so map the common ones.
+function friendlyError(msg: string, c: Copy, lang: Lang): string {
+  const m = (msg || "").toLowerCase();
+  if (m.includes("already registered")) return c.exists;
+  if (m.includes("at least") && m.includes("character")) return c.weak;
+  return lang === "es" ? c.unexpected : msg || c.unexpected;
+}
 
 export default function Signup() {
   const router = useRouter();
+  const { lang, setLang } = useLang();
+  const c = COPY[lang];
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +66,7 @@ export default function Signup() {
     setMessage(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(c.mismatch);
       return;
     }
 
@@ -29,7 +76,12 @@ export default function Signup() {
         email,
         password,
         options: {
-          data: { full_name: fullName }, // 👈 pass full name into user_metadata
+          // full name + language saved on the user (lang lets you send
+          // Spanish emails later)
+          data: { full_name: fullName, lang },
+          // Where the "confirm your email" link lands: the map step.
+          // This URL must be allowed in Supabase (see notes).
+          emailRedirectTo: `${window.location.origin}/welcome-map?lang=${lang}`,
         },
       });
 
@@ -37,14 +89,13 @@ export default function Signup() {
 
       // If email confirmation is required, no session is returned yet
       if (!data.session) {
-        setMessage(
-          "Check your email to confirm your account before logging in."
-        );
+        setMessage(c.checkEmail);
       } else {
-        router.push("/welcome");
+        // Already signed in: straight to the map, which leads on to /story
+        router.push("/welcome-map");
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      setError(friendlyError(err?.message, c, lang));
     } finally {
       setLoading(false);
     }
@@ -60,12 +111,27 @@ export default function Signup() {
       <div className="clouds"></div>
       <div className="mist"></div>
 
+      {/* language toggle */}
+      <div className="lang-toggle">
+        {(["en", "es"] as Lang[]).map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => setLang(l)}
+            aria-pressed={lang === l}
+            className={lang === l ? "lang-btn active" : "lang-btn"}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
       <form onSubmit={handleSignup} className="signup-form">
-        <h1 className="signup-title">Create Account</h1>
+        <h1 className="signup-title">{c.title}</h1>
 
         <input
           type="text"
-          placeholder="Full Name"
+          placeholder={c.fullName}
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           required
@@ -74,7 +140,7 @@ export default function Signup() {
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder={c.email}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -83,7 +149,7 @@ export default function Signup() {
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder={c.password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -92,7 +158,7 @@ export default function Signup() {
 
         <input
           type="password"
-          placeholder="Confirm Password"
+          placeholder={c.confirmPassword}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
@@ -103,7 +169,7 @@ export default function Signup() {
         {message && <p className="success">{message}</p>}
 
         <button type="submit" disabled={loading} className="dreamy-button">
-          {loading ? "Creating..." : "Sign Up"}
+          {loading ? c.creating : c.signUp}
         </button>
       </form>
 
@@ -180,6 +246,30 @@ export default function Signup() {
         .dreamy-button:hover {
           background-color: #8f9efc;
           box-shadow: 0 0 15px rgba(175, 184, 254, 0.8);
+        }
+
+        /* language toggle */
+        .lang-toggle {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          z-index: 3;
+          display: flex;
+          gap: 6px;
+        }
+        .lang-btn {
+          padding: 5px 10px;
+          border-radius: 8px;
+          border: 1px solid rgba(174, 184, 254, 0.7);
+          background: rgba(42, 0, 79, 0.6);
+          color: #e6e9ff;
+          font-size: 0.8rem;
+          font-weight: bold;
+          cursor: pointer;
+        }
+        .lang-btn.active {
+          background: #aeb8fe;
+          color: #2a004f;
         }
 
         /* glow */

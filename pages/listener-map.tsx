@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
 
-// ✅ Dynamic imports with 'any' type to avoid TS prop mismatches
 const MapContainer = dynamic<any>(
   () => import("react-leaflet").then((m) => m.MapContainer),
   { ssr: false }
@@ -14,8 +13,8 @@ const TileLayer = dynamic<any>(
   () => import("react-leaflet").then((m) => m.TileLayer),
   { ssr: false }
 );
-const CircleMarker = dynamic<any>(
-  () => import("react-leaflet").then((m) => m.CircleMarker),
+const Marker = dynamic<any>(
+  () => import("react-leaflet").then((m) => m.Marker),
   { ssr: false }
 );
 const Tooltip = dynamic<any>(
@@ -32,9 +31,60 @@ type Listen = {
   longitude: number | null;
 };
 
+// Only the newest N listeners get the animated pulse ring (keeps things smooth)
+const PULSE_COUNT = 25;
+
+const mapCss = `
+  /* Dark-ify the OSM tiles only (markers keep their real colors) */
+  .dark-tiles {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.95) saturate(0.6);
+  }
+
+  .listener-pin {
+    position: relative;
+    width: 20px;
+    height: 20px;
+  }
+  .listener-pin .dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    background: #a78bfa;
+    border: 2px solid #c4b5fd;
+    box-sizing: border-box;
+    opacity: 0.95;
+  }
+  .listener-pin .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(167, 139, 250, 0.55) 0%,
+      rgba(167, 139, 250, 0) 70%
+    );
+    pointer-events: none;
+    animation: listener-pulse 3.5s ease-out infinite;
+  }
+  @keyframes listener-pulse {
+    0%   { transform: scale(0.6); opacity: 0.9; }
+    100% { transform: scale(2.8); opacity: 0; }
+  }
+`;
+
 export default function ListenerMap() {
   const [listens, setListens] = useState<Listen[]>([]);
   const [loading, setLoading] = useState(true);
+  const [L, setL] = useState<any>(null);
+
+  // 🔹 Load Leaflet on the client only (it touches `window`)
+  useEffect(() => {
+    import("leaflet").then((m) => setL((m as any).default ?? m));
+  }, []);
 
   // 🔹 Initial fetch
   useEffect(() => {
@@ -72,12 +122,22 @@ export default function ListenerMap() {
     };
   }, []);
 
-  if (loading)
+  if (loading || !L)
     return (
       <div style={{ color: "white", textAlign: "center" }}>
         Loading listener map…
       </div>
     );
+
+  const makeIcon = (pulse: boolean) =>
+    L.divIcon({
+      className: "", // drop Leaflet's default white box styling
+      html: `<div class="listener-pin">${
+        pulse ? '<span class="ring"></span>' : ""
+      }<span class="dot"></span></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    });
 
   return (
     <div
@@ -93,6 +153,8 @@ export default function ListenerMap() {
         overflow: "hidden",
       }}
     >
+      <style>{mapCss}</style>
+
       {/* ✨ Animated starfield backdrop */}
       <motion.div
         animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
@@ -135,70 +197,34 @@ export default function ListenerMap() {
           borderRadius: "18px",
           boxShadow: "0 0 40px rgba(167,139,250,0.35)",
           zIndex: 1,
+          background: "#1a1a1a",
         }}
         scrollWheelZoom={false}
       >
         <TileLayer
-          attribution='© <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          className="dark-tiles"
         />
 
         {listens.map(
-          (l) =>
+          (l, i) =>
             l.latitude &&
             l.longitude && (
-              <motion.div
+              <Marker
                 key={l.id}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
+                position={[l.latitude, l.longitude]}
+                icon={makeIcon(i < PULSE_COUNT)}
               >
-                <CircleMarker
-                  center={[l.latitude, l.longitude]}
-                  radius={6}
-                  pathOptions={{
-                    color: "#c4b5fd",
-                    fillColor: "#a78bfa",
-                    fillOpacity: 0.9,
-                  }}
-                >
-                  <Tooltip direction="top">
-                    <div style={{ textAlign: "center" }}>
-                      <b>{l.city || "Unknown"}</b>
-                      <br />
-                      {l.region ? `${l.region}, ` : ""}
-                      {l.country || ""}
-                    </div>
-                  </Tooltip>
-                </CircleMarker>
-
-                <motion.div
-                  style={{
-                    position: "absolute",
-                    zIndex: 500,
-                    borderRadius: "50%",
-                    pointerEvents: "none",
-                  }}
-                  animate={{
-                    scale: [1, 2.5],
-                    opacity: [0.8, 0],
-                  }}
-                  transition={{
-                    duration: 3.5,
-                    repeat: Infinity,
-                    ease: "easeOut",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 20,
-                      height: 20,
-                      background:
-                        "radial-gradient(circle, rgba(167,139,250,0.5) 0%, rgba(167,139,250,0) 80%)",
-                    }}
-                  />
-                </motion.div>
-              </motion.div>
+                <Tooltip direction="top" offset={[0, -8]}>
+                  <div style={{ textAlign: "center" }}>
+                    <b>{l.city || "Unknown"}</b>
+                    <br />
+                    {l.region ? `${l.region}, ` : ""}
+                    {l.country || ""}
+                  </div>
+                </Tooltip>
+              </Marker>
             )
         )}
       </MapContainer>

@@ -1,3 +1,4 @@
+// pages/api/verify.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { SONG_BUCKET, SONGS, songTitle } from "../../lib/songs";
@@ -5,9 +6,54 @@ import { SONG_BUCKET, SONGS, songTitle } from "../../lib/songs";
 const TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 const DOWNLOAD_LINK_SECONDS = 60 * 60; // each download link works for 1 hour
 
-function page(title: string, body: string) {
+type Lang = "en" | "es";
+
+const COPY: Record<
+  Lang,
+  {
+    expiredTitle: string;
+    expiredH1: string;
+    expiredP: string;
+    backBtn: string;
+    almostH1: string;
+    almostP: string;
+    welcomeH1: string;
+    confirmed: string;
+    download: string;
+    next: string;
+  }
+> = {
+  en: {
+    expiredTitle: "Link expired",
+    expiredH1: "This link has expired",
+    expiredP: "Head back to the site and request your song again.",
+    backBtn: "BACK TO THE SITE",
+    almostH1: "Almost there",
+    almostP:
+      "Your email is confirmed, but the song isn't available right now. Please check back soon.",
+    welcomeH1: "Welcome to la famiglia",
+    confirmed: "Your email is confirmed. Your song:",
+    download: "DOWNLOAD YOUR SONG",
+    next: "Continue to the listener map",
+  },
+  es: {
+    expiredTitle: "Enlace caducado",
+    expiredH1: "Este enlace ha caducado",
+    expiredP: "Vuelve al sitio y solicita tu canción de nuevo.",
+    backBtn: "VOLVER AL SITIO",
+    almostH1: "Casi listo",
+    almostP:
+      "Tu correo está confirmado, pero la canción no está disponible en este momento. Vuelve a intentarlo pronto.",
+    welcomeH1: "Te doy la bienvenida a la famiglia",
+    confirmed: "Tu correo está confirmado. Tu canción:",
+    download: "DESCARGAR MI CANCIÓN",
+    next: "Continuar al mapa de oyentes",
+  },
+};
+
+function page(lang: Lang, title: string, body: string) {
   return `<!doctype html>
-<html lang="en"><head>
+<html lang="${lang}"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${title}</title>
@@ -31,16 +77,21 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const token = String(req.query.token || "");
+  // Only ever "es" or "en" (safe to put into the page and links below)
+  const lang: Lang = req.query.lang === "es" ? "es" : "en";
+  const c = COPY[lang];
+
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 
   const invalid = () =>
     res.status(400).send(
       page(
-        "Link expired",
-        `<h1>This link has expired</h1>
-         <p>Head back to the site and request your song again.</p>
-         <a class="btn" href="/">BACK TO THE SITE</a>`
+        lang,
+        c.expiredTitle,
+        `<h1>${c.expiredH1}</h1>
+         <p>${c.expiredP}</p>
+         <a class="btn" href="/">${c.backBtn}</a>`
       )
     );
 
@@ -76,21 +127,24 @@ export default async function handler(
     console.error(signError);
     return res.status(500).send(
       page(
-        "Almost there",
-        `<h1>Almost there</h1>
-         <p>Your email is confirmed, but the song isn't available right now. Please check back soon.</p>`
+        lang,
+        c.almostH1,
+        `<h1>${c.almostH1}</h1>
+         <p>${c.almostP}</p>`
       )
     );
   }
 
+  // After the download, the next step is the listener map (which leads on to /story)
   return res.status(200).send(
     page(
-      "Welcome to la famiglia",
-      `<h1>Welcome to la famiglia</h1>
-       <p>Your email is confirmed. Your song:</p>
+      lang,
+      c.welcomeH1,
+      `<h1>${c.welcomeH1}</h1>
+       <p>${c.confirmed}</p>
        <p class="song">${songTitle(file)}</p>
-       <a class="btn" href="${signed.signedUrl}">DOWNLOAD YOUR SONG</a>
-       <p style="margin:24px 0 0"><a class="home" href="/story">Continue to the site</a></p>`
+       <a class="btn" href="${signed.signedUrl}">${c.download}</a>
+       <p style="margin:24px 0 0"><a class="home" href="/welcome-map?lang=${lang}">${c.next}</a></p>`
     )
   );
 }

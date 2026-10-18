@@ -1,3 +1,4 @@
+// pages/api/claim-song.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { randomUUID } from "crypto";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
@@ -6,6 +7,35 @@ import { SONGS } from "../../lib/songs";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_MS = 60_000;
+
+type Lang = "en" | "es";
+
+// Confirmation email wording, per language
+const EMAIL_COPY: Record<
+  Lang,
+  {
+    subject: string;
+    heading: string;
+    body: string;
+    button: string;
+    ignore: string;
+  }
+> = {
+  en: {
+    subject: "Your unreleased song from Davis Caruso",
+    heading: "Welcome to la famiglia",
+    body: "Confirm your email to get your unreleased song",
+    button: "GET MY SONG",
+    ignore: "If you didn't ask for this, you can ignore this message.",
+  },
+  es: {
+    subject: "Tu canción inédita de Davis Caruso",
+    heading: "Te doy la bienvenida a la famiglia",
+    body: "Confirma tu correo para recibir tu canción inédita",
+    button: "QUIERO MI CANCIÓN",
+    ignore: "Si no lo solicitaste, puedes ignorar este mensaje.",
+  },
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,9 +47,13 @@ export default async function handler(
 
   const email = String(req.body?.email || "").trim().toLowerCase();
   const location = String(req.body?.location || "").trim() || null;
+  // Only ever "es" or "en" (anything else falls back to English)
+  const lang: Lang = req.body?.lang === "es" ? "es" : "en";
 
   if (!EMAIL_RE.test(email) || email.length > 254) {
-    return res.status(400).json({ error: "Please enter a valid email." });
+    return res
+      .status(400)
+      .json({ error: "Please enter a valid email.", code: "email" });
   }
 
   const { data: existing, error: lookupError } = await supabaseAdmin
@@ -30,7 +64,9 @@ export default async function handler(
 
   if (lookupError) {
     console.error(lookupError);
-    return res.status(500).json({ error: "Something went wrong. Please try again." });
+    return res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again.", code: "server" });
   }
 
   // Don't let anyone spam an inbox: one email per minute per address.
@@ -61,30 +97,39 @@ export default async function handler(
 
   if (saveError) {
     console.error(saveError);
-    return res.status(500).json({ error: "Something went wrong. Please try again." });
+    return res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again.", code: "server" });
   }
 
-  const siteUrl = (process.env.SITE_URL || "https://daviscaruso.com").replace(/\/$/, "");
-  const confirmUrl = `${siteUrl}/api/verify?token=${token}`;
+  const siteUrl = (process.env.SITE_URL || "https://daviscaruso.com").replace(
+    /\/$/,
+    ""
+  );
+  // lang rides along in the link so the confirm page (and the map after it)
+  // stay in the same language as the email
+  const confirmUrl = `${siteUrl}/api/verify?token=${token}&lang=${lang}`;
+  const c = EMAIL_COPY[lang];
 
   try {
     await sendEmail({
       to: email,
-      subject: "Your unreleased song from Davis Caruso",
-      text: `Welcome to la famiglia.\n\nConfirm your email to get your unreleased song:\n${confirmUrl}\n\nIf you didn't ask for this, you can ignore this message.`,
+      subject: c.subject,
+      text: `${c.heading}.\n\n${c.body}:\n${confirmUrl}\n\n${c.ignore}`,
       html: `
         <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#715a99;background:#fbf5f0;border:1px solid #d4ad56;text-align:center">
-          <h2 style="font-style:italic;margin:0 0 12px">Welcome to la famiglia</h2>
-          <p style="line-height:1.6;margin:0 0 24px">Confirm your email to get your unreleased song.</p>
-          <a href="${confirmUrl}" style="display:inline-block;padding:14px 22px;background:#8068a7;color:#fffaf7;text-decoration:none;letter-spacing:0.15em;font-size:14px">GET MY SONG</a>
-          <p style="font-size:12px;opacity:0.75;margin:24px 0 0">If you didn't ask for this, you can ignore this message.</p>
+          <h2 style="font-style:italic;margin:0 0 12px">${c.heading}</h2>
+          <p style="line-height:1.6;margin:0 0 24px">${c.body}.</p>
+          <a href="${confirmUrl}" style="display:inline-block;padding:14px 22px;background:#8068a7;color:#fffaf7;text-decoration:none;letter-spacing:0.15em;font-size:14px">${c.button}</a>
+          <p style="font-size:12px;opacity:0.75;margin:24px 0 0">${c.ignore}</p>
         </div>`,
     });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ error: "Couldn't send the email. Please try again." });
+    return res.status(500).json({
+      error: "Couldn't send the email. Please try again.",
+      code: "send",
+    });
   }
 
   return res.status(200).json({ ok: true });

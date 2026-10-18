@@ -1,6 +1,56 @@
+// components/WelcomePopup.tsx
 import { useEffect, useState } from "react";
+import { useLang, type Lang } from "./i18n";
 
 const STORAGE_KEY = "dc_welcome_seen";
+
+const en = {
+  title: "A song for you",
+  copy: 'An unreleased song from my new album, "Periwinkle", free when you join.',
+  placeholder: "your email",
+  emailAria: "Your email",
+  submit: "SEND ME THE SONG",
+  fine: "Plus occasional news. Unsubscribe anytime.",
+  doneTitle: "Check your inbox",
+  doneBefore: "I just sent a confirmation link to ",
+  doneAfter: ". Tap it and your song is waiting.",
+  doneFine: "Nothing there? Check your spam or promotions folder.",
+  close: "CLOSE",
+  closeAria: "Close",
+  errEmail: "Please enter a valid email.",
+  errSend: "Couldn't send the email. Please try again.",
+  errServer: "Something went wrong. Please try again.",
+};
+
+type Copy = typeof en;
+type ErrKey = "errEmail" | "errSend" | "errServer";
+
+const es: Copy = {
+  title: "Una canción para ti",
+  copy: 'Una canción inédita de mi nuevo álbum, "Periwinkle", gratis al unirte.',
+  placeholder: "tu correo electrónico",
+  emailAria: "Tu correo electrónico",
+  submit: "ENVÍAME LA CANCIÓN",
+  fine: "Además, noticias de vez en cuando. Puedes darte de baja cuando quieras.",
+  doneTitle: "Revisa tu bandeja de entrada",
+  doneBefore: "Te acabo de enviar un enlace de confirmación a ",
+  doneAfter: ". Tócalo y tu canción te estará esperando.",
+  doneFine: "¿No lo ves? Revisa tu carpeta de spam o de promociones.",
+  close: "CERRAR",
+  closeAria: "Cerrar",
+  errEmail: "Escribe un correo electrónico válido.",
+  errSend: "No pudimos enviar el correo. Inténtalo de nuevo.",
+  errServer: "Algo salió mal. Inténtalo de nuevo.",
+};
+
+const COPY: Record<Lang, Copy> = { en, es };
+
+// Error codes returned by /api/claim-song -> translated message keys
+const ERROR_CODES: Record<string, ErrKey> = {
+  email: "errEmail",
+  send: "errSend",
+  server: "errServer",
+};
 
 type Props = {
   // Pass in locationDetected from gallery.tsx so location is still captured
@@ -8,10 +58,13 @@ type Props = {
 };
 
 export default function WelcomePopup({ location = "" }: Props) {
+  const { lang, setLang } = useLang();
+  const c = COPY[lang];
+
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
-  const [error, setError] = useState("");
+  const [errKey, setErrKey] = useState<ErrKey | null>(null);
 
   // Show once per visitor, after the gallery's fade-in has settled
   useEffect(() => {
@@ -31,25 +84,30 @@ export default function WelcomePopup({ location = "" }: Props) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setErrKey(null);
     setStatus("loading");
 
     try {
       const res = await fetch("/api/claim-song", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, location }),
+        // lang decides which language the confirmation email is written in
+        body: JSON.stringify({ email, location, lang }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      if (!res.ok) {
+        setErrKey(ERROR_CODES[data.code] ?? "errServer");
+        setStatus("idle");
+        return;
+      }
 
       setStatus("done");
       try {
         localStorage.setItem(STORAGE_KEY, "1");
       } catch {}
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch {
+      setErrKey("errServer");
       setStatus("idle");
     }
   };
@@ -66,11 +124,25 @@ export default function WelcomePopup({ location = "" }: Props) {
           aria-labelledby="welcome-title"
           onClick={(e) => e.stopPropagation()}
         >
+          <div className="welcome-lang">
+            {(["en", "es"] as Lang[]).map((l) => (
+              <button
+                key={l}
+                type="button"
+                onClick={() => setLang(l)}
+                aria-pressed={lang === l}
+                className={lang === l ? "lang-btn active" : "lang-btn"}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
           <button
             type="button"
             className="welcome-close"
             onClick={close}
-            aria-label="Close"
+            aria-label={c.closeAria}
           >
             ×
           </button>
@@ -83,45 +155,39 @@ export default function WelcomePopup({ location = "" }: Props) {
 
           {status !== "done" ? (
             <>
-              <h2 id="welcome-title">A song for you</h2>
-              <p className="welcome-copy">
-                An unreleased song from my new album, &quot;Periwinkle&quot;,
-                free when you join.
-              </p>
+              <h2 id="welcome-title">{c.title}</h2>
+              <p className="welcome-copy">{c.copy}</p>
 
               <form onSubmit={submit}>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your email"
-                  aria-label="Your email"
+                  placeholder={c.placeholder}
+                  aria-label={c.emailAria}
                   autoComplete="email"
                   required
                 />
                 <button type="submit" disabled={status === "loading"}>
-                  {status === "loading" ? "..." : "SEND ME THE SONG"}
+                  {status === "loading" ? "..." : c.submit}
                 </button>
               </form>
 
-              {error && <p className="welcome-error">{error}</p>}
+              {errKey && <p className="welcome-error">{c[errKey]}</p>}
 
-              <p className="welcome-fine">
-                Plus occasional news. Unsubscribe anytime.
-              </p>
+              <p className="welcome-fine">{c.fine}</p>
             </>
           ) : (
             <>
-              <h2 id="welcome-title">Check your inbox</h2>
+              <h2 id="welcome-title">{c.doneTitle}</h2>
               <p className="welcome-copy">
-                I just sent a confirmation link to <strong>{email}</strong>.
-                Tap it and your song is waiting.
+                {c.doneBefore}
+                <strong>{email}</strong>
+                {c.doneAfter}
               </p>
-              <p className="welcome-fine">
-                Nothing there? Check your spam or promotions folder.
-              </p>
+              <p className="welcome-fine">{c.doneFine}</p>
               <button type="button" className="welcome-done" onClick={close}>
-                CLOSE
+                {c.close}
               </button>
             </>
           )}
@@ -166,6 +232,32 @@ export default function WelcomePopup({ location = "" }: Props) {
           font-size: 1.8rem;
           line-height: 1;
           cursor: pointer;
+        }
+
+        .welcome-lang {
+          position: absolute;
+          top: 12px;
+          left: 14px;
+          display: flex;
+          gap: 4px;
+        }
+
+        .lang-btn {
+          padding: 2px 8px;
+          border: 1px solid rgba(150, 128, 184, 0.7);
+          border-radius: 3px;
+          background: transparent;
+          color: #9680b8;
+          font-family: inherit;
+          font-size: 0.7rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+        }
+
+        .lang-btn.active {
+          background: #9680b8;
+          color: #fffaf7;
         }
 
         .welcome-ornament {
