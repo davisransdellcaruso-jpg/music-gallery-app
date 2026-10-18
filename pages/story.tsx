@@ -117,10 +117,24 @@ export default function Story() {
                 </header>
 
                 <div className="mission-copy">
-                  <p className="opening-line">
-                    A new body of work called &quot;Periwinkle&quot; is finished and
-                    available for listening.
-                  </p>
+                  <ul className="updates-list">
+                    <li>&ldquo;Periwinkle&rdquo; coming soon</li>
+                    <li>
+                      Stucchi &amp; The Shepherd are cooking up &ldquo;Home Is
+                      The Way&rdquo;
+                    </li>
+                    <li>
+                      Local pals are rehearsing Spanish folky spiritual tunes and
+                      we sound v nice :)
+                    </li>
+                    <li>
+                      Dan, Austin and Me, aka Fresh Berries, are rockin&rsquo;
+                      Friday nights at Sweetwaters in A2
+                    </li>
+                    <li>
+                      Interested in learning how to sew and make custom clothes...
+                    </li>
+                  </ul>
 
                   <p>
                     In the meantime we'll build online spaces that foster more community and provide a sense of belonging... thanks for being here :)
@@ -413,6 +427,36 @@ export default function Story() {
               font-style: italic;
 
               line-height: 1.4;
+            }
+
+            .updates-list {
+              list-style: none;
+              margin: 0 0 2.4rem;
+              padding: 0;
+            }
+
+            .updates-list li {
+              position: relative;
+              margin: 0 0 1.15rem;
+              padding-left: 2rem;
+
+              color: var(--lavender-dark);
+              font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+              line-height: 1.45;
+            }
+
+            .updates-list li::before {
+              content: "✦";
+              position: absolute;
+              left: 0;
+              top: 0.1em;
+              color: var(--pink);
+              font-size: 0.8em;
+            }
+
+            .updates-list li:first-child {
+              color: var(--pink);
+              font-style: italic;
             }
 
             .mission-copy .contact-line {
@@ -744,6 +788,10 @@ export default function Story() {
 
               .mission-copy .opening-line {
                 font-size: 1.55rem;
+              }
+
+              .updates-list li {
+                font-size: 1.25rem;
               }
 
               .shows-section {
