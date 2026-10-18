@@ -8,15 +8,15 @@ import { useCallback, useEffect, useState } from "react";
 export type Lang = "en" | "es";
 
 const en = {
-  title: "🌎 Listener Map",
+  title: "🌎 Map of La Famiglia",
   searchPlaceholder: "Find a fan or city…",
   addYourself: "📍 Add yourself",
   findMyPin: "✨ Find my pin",
 
   // Map key (legend)
   legendTitle: "Map key",
-  legendListeners: "Listeners (anonymous, grouped by area)",
-  legendFans: "Fans who added themselves. Tap one to read their story",
+  legendListeners: "Listeners",
+  legendFans: "Fans · tap to read",
   legendMe: "That's you",
   legendPending: "Your pin, waiting for approval",
   stats: (stories: number, listens: number) =>
@@ -36,7 +36,7 @@ const en = {
   flowBody:
     "Listeners from all over the world are on this map. Add yourself and tell us how you found my music, or skip it and head straight to the story. Totally up to you.",
   flowAdd: "📍 Add myself",
-  flowSkip: "Skip for now →",
+  flowSkip: "Skip for now 😢",
   flowDoneTitle: "You're on the map! 💜",
   flowDoneBody: "Thanks for joining in. Ready for the story?",
   flowContinue: "Continue to the story →",
@@ -82,14 +82,14 @@ export type ErrKey =
   | "errNetwork";
 
 const es: Strings = {
-  title: "🌎 Mapa de oyentes",
+  title: "🌎 Mapa de La Famiglia",
   searchPlaceholder: "Busca a un fan o una ciudad…",
   addYourself: "📍 Agrégate",
   findMyPin: "✨ Encuentra mi pin",
 
   legendTitle: "Leyenda del mapa",
-  legendListeners: "Oyentes (anónimos, agrupados por zona)",
-  legendFans: "Fans que se agregaron. Toca uno para leer su historia",
+  legendListeners: "Oyentes",
+  legendFans: "Fans · toca para leer",
   legendMe: "Eres tú",
   legendPending: "Tu pin, en espera de aprobación",
   stats: (stories, listens) =>
@@ -107,7 +107,7 @@ const es: Strings = {
   flowBody:
     "Hay oyentes de todo el mundo en este mapa. Agrégate y cuéntanos cómo conociste mi música, o sáltalo y pasa directo a la historia. Tú decides.",
   flowAdd: "📍 Agregarme",
-  flowSkip: "Saltar por ahora →",
+  flowSkip: "Saltar por ahora 😢",
   flowDoneTitle: "¡Ya estás en el mapa! 💜",
   flowDoneBody: "Gracias por sumarte. ¿Seguimos con la historia?",
   flowContinue: "Continuar a la historia →",

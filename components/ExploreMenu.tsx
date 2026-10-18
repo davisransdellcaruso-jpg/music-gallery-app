@@ -1,5 +1,6 @@
 // components/ExploreMenu.tsx
-// A small dropdown for the gallery page: Story, Welcome map, Listener map.
+// A small three-line (hamburger) dropdown, centered at the top of the gallery page:
+// The story, Map of La Famiglia.
 // Usage (in pages/gallery.tsx):  import ExploreMenu from "../components/ExploreMenu";
 //                                 ...then render <ExploreMenu /> anywhere in the page.
 import { useEffect, useRef, useState } from "react";
@@ -7,18 +8,14 @@ import { useLang } from "./i18n";
 
 const COPY = {
   en: {
-    button: "Explore",
     story: "The story",
-    welcome: "Welcome map",
-    listener: "Listener map",
-    aria: "Explore the site",
+    map: "Map of La Famiglia",
+    aria: "Menu",
   },
   es: {
-    button: "Explorar",
     story: "La historia",
-    welcome: "Mapa de bienvenida",
-    listener: "Mapa de oyentes",
-    aria: "Explorar el sitio",
+    map: "Mapa de La Famiglia",
+    aria: "Menú",
   },
 } as const;
 
@@ -51,8 +48,7 @@ export default function ExploreMenu() {
 
   const links = [
     { href: `/story?lang=${lang}`, label: c.story },
-    { href: `/welcome-map?lang=${lang}`, label: c.welcome },
-    { href: `/listener-map?lang=${lang}`, label: c.listener },
+    { href: `/welcome-map?lang=${lang}`, label: c.map },
   ];
 
   return (
@@ -60,10 +56,14 @@ export default function ExploreMenu() {
       ref={boxRef}
       style={{
         position: "fixed",
-        top: 14,
-        left: 14,
+        top: 22,
+        left: "50%",
+        transform: "translateX(-50%)",
         zIndex: 2000,
         fontFamily: "inherit",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       <button
@@ -72,32 +72,34 @@ export default function ExploreMenu() {
         aria-expanded={open}
         aria-label={c.aria}
         style={{
+          width: 46,
+          height: 46,
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          padding: "9px 14px",
-          borderRadius: 999,
+          justifyContent: "center",
+          borderRadius: "50%",
           border: "1px solid rgba(212,173,86,0.75)",
           background: "rgba(251,245,240,0.92)",
           color: "#715a99",
-          fontSize: 15,
-          letterSpacing: "0.04em",
           cursor: "pointer",
+          padding: 0,
           backdropFilter: "blur(6px)",
         }}
       >
-        <span>{c.button}</span>
-        <span
-          aria-hidden="true"
-          style={{
-            display: "inline-block",
-            fontSize: 11,
-            transition: "transform .18s",
-            transform: open ? "rotate(180deg)" : "none",
-          }}
-        >
-          ▼
-        </span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+          {open ? (
+            <>
+              <line x1="6" y1="6" x2="18" y2="18" />
+              <line x1="18" y1="6" x2="6" y2="18" />
+            </>
+          ) : (
+            <>
+              <line x1="4" y1="7" x2="20" y2="7" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="17" x2="20" y2="17" />
+            </>
+          )}
+        </svg>
       </button>
 
       {open && (
@@ -123,6 +125,8 @@ export default function ExploreMenu() {
                 padding: "13px 16px",
                 color: "#715a99",
                 textDecoration: "none",
+                textAlign: "center",
+                whiteSpace: "nowrap",
                 fontSize: 16,
                 borderTop: i ? "1px solid rgba(212,173,86,0.35)" : "none",
               }}
