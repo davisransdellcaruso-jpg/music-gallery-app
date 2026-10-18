@@ -118,14 +118,12 @@ export default function Story() {
 
                 <div className="mission-copy">
                   <p className="opening-line">
-                    My newest album &quot;Periwinkle&quot; is finished and
-                    getting ready for publishing.
+                    A new body of work called &quot;Periwinkle&quot; is finished and
+                    available for listening.
                   </p>
 
                   <p>
-                    In the meantime the team is building online spaces that foster community and devising a clear growth
-                    strategy. Please don&apos;t hesitate to reach out if
-                    you&apos;d like to offer support or want to know more details.
+                    In the meantime we'll build online spaces that foster more community and provide a sense of belonging... thanks for being here :)
                   </p>
 
                   <p className="contact-line">
