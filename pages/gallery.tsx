@@ -1,26 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/router";
-import { supabase } from "../lib/supabase";
 import { getCurrentRelease } from "../lib/releases";
+import WelcomePopup from "../components/WelcomePopup";
 
 const PHOTO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
 
-const NEXT_PAGE = "/story";
-
 export default function Gallery() {
-  const router = useRouter();
   const audioRef = useRef<HTMLAudioElement>(null);
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [mounted, setMounted] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
 
-  const [email, setEmail] = useState("");
   const [locationDetected, setLocationDetected] = useState("");
-  const [message, setMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   const [isMuted, setIsMuted] = useState(true);
   const [musicStarted, setMusicStarted] = useState(false);
@@ -183,55 +176,6 @@ export default function Gallery() {
     setIsMuted(nextMuted);
   };
 
-  const goToStory = () => {
-    router.push(NEXT_PAGE);
-  };
-
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setMessage("");
-
-    const cleanEmail = email.trim();
-
-    if (!cleanEmail) {
-      setMessage("Please enter your email.");
-      return;
-    }
-
-    setSubmitting(true);
-
-    const { error } = await supabase.from("mailing_list").insert([
-      {
-        email: cleanEmail,
-        location: locationDetected || null,
-        location_detected: locationDetected || null,
-      },
-    ]);
-
-    if (error) {
-      if ((error as any).code === "23505") {
-        setMessage("Welcome back.");
-
-        setTimeout(() => {
-          goToStory();
-        }, 600);
-      } else {
-        console.error(error);
-        setMessage("Something went wrong. Please try again.");
-        setSubmitting(false);
-      }
-
-      return;
-    }
-
-    setMessage("Welcome to la famiglia.");
-
-    setTimeout(() => {
-      goToStory();
-    }, 700);
-  };
-
   if (!mounted) return null;
 
   return (
@@ -273,24 +217,6 @@ export default function Gallery() {
                   <span className="star">✦</span>
                   <span className="ornament-line" />
                 </div>
-
-                <form className="signup-form" onSubmit={handleEmailSubmit}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your email"
-                    aria-label="Your email"
-                    autoComplete="email"
-                    required
-                  />
-
-                  <button type="submit" disabled={submitting}>
-                    {submitting ? "..." : "JOIN LA FAMIGLIA"}
-                  </button>
-                </form>
-
-                {message && <p className="signup-message">{message}</p>}
 
                 <div className="social-grid">
                   <a
@@ -562,6 +488,8 @@ export default function Gallery() {
             </section>
           </main>
 
+          <WelcomePopup location={locationDetected} />
+
           <style jsx global>{`
             html,
             body {
@@ -728,89 +656,6 @@ export default function Gallery() {
             .ornament-bottom {
               margin-top: clamp(3.3rem, 7vw, 5.5rem);
               margin-bottom: 2.2rem;
-            }
-
-            .signup-form {
-              display: grid;
-
-              grid-template-columns:
-                minmax(0, 1.7fr)
-                minmax(145px, 0.8fr);
-
-              gap: 0.85rem;
-
-              width: min(100%, 670px);
-
-              margin: 0 auto;
-            }
-
-            .signup-form input {
-              width: 100%;
-              min-width: 0;
-
-              padding: 1.15rem 1.4rem;
-
-              border: 1px solid rgba(150, 128, 184, 0.72);
-              border-radius: 3px;
-
-              outline: none;
-
-              color: var(--lavender-dark);
-              background: rgba(255, 255, 255, 0.08);
-
-              font-family: "Fraunces", Georgia, serif;
-              font-size: 1.18rem;
-              font-style: italic;
-              font-weight: 600;
-
-              letter-spacing: 0.04em;
-            }
-
-            .signup-form input::placeholder {
-              color: rgba(113, 90, 153, 0.72);
-            }
-
-            .signup-form input:focus {
-              border-color: var(--pink);
-              background: rgba(255, 255, 255, 0.32);
-            }
-
-            .signup-form button {
-              border: 1px solid var(--lavender);
-              border-radius: 3px;
-
-              color: #fffaf7;
-
-              background: linear-gradient(
-                135deg,
-                #a08bc0,
-                #8068a7
-              );
-
-              font-family: "Fraunces", Georgia, serif;
-              font-size: 1.05rem;
-              font-weight: 600;
-
-              letter-spacing: 0.15em;
-
-              cursor: pointer;
-            }
-
-            .signup-form button:disabled {
-              opacity: 0.6;
-              cursor: default;
-            }
-
-            .signup-message {
-              margin: 1rem 0 0;
-
-              color: var(--pink);
-
-              text-align: center;
-
-              font-family: "Fraunces", Georgia, serif;
-              font-size: 1rem;
-              font-style: italic;
             }
 
             .social-grid {
@@ -1041,14 +886,6 @@ export default function Gallery() {
                   3.2rem
                   1.35rem
                   2.4rem;
-              }
-
-              .signup-form {
-                grid-template-columns: 1fr;
-              }
-
-              .signup-form button {
-                min-height: 55px;
               }
 
               .social-grid {
