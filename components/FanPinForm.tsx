@@ -36,7 +36,7 @@ const field: CSSProperties = {
   border: "2px solid #3b0a8c",
   background: "#fffaf3",
   color: "#3b0a8c",
-  fontSize: 15,
+  fontSize: 16,
   outline: "none",
   fontFamily: "inherit",
 };
@@ -49,6 +49,23 @@ const labelStyle: CSSProperties = {
 };
 
 const hint: CSSProperties = { fontSize: 12, color: "#5a2bd0", marginTop: 4 };
+
+async function geocode(q: string, lang: Lang, signal?: AbortSignal): Promise<Place[]> {
+  const r = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+      q
+    )}&count=6&language=${lang}&format=json`,
+    { signal }
+  );
+  const j = await r.json();
+  return (j.results ?? []).map((p: any) => ({
+    name: p.name,
+    region: p.admin1 ?? null,
+    country: p.country ?? null,
+    latitude: p.latitude,
+    longitude: p.longitude,
+  }));
+}
 
 export default function FanPinForm({
   lang,
@@ -85,22 +102,7 @@ export default function FanPinForm({
     const ctrl = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const r = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
-            q
-          )}&count=6&language=${lang}&format=json`,
-          { signal: ctrl.signal }
-        );
-        const j = await r.json();
-        setResults(
-          (j.results ?? []).map((p: any) => ({
-            name: p.name,
-            region: p.admin1 ?? null,
-            country: p.country ?? null,
-            latitude: p.latitude,
-            longitude: p.longitude,
-          }))
-        );
+        setResults(await geocode(q, lang, ctrl.signal));
       } catch {
         /* aborted or offline: ignore */
       }
@@ -115,21 +117,44 @@ export default function FanPinForm({
     e.preventDefault();
     setErrKey(null);
     if (!name.trim()) return setErrKey("errName");
-    if (!picked) return setErrKey("errCity");
-    if (story.trim().length < 10) return setErrKey("errStory");
+    if (story.trim().length < 10 && picked) return setErrKey("errStory");
 
     setSending(true);
     try {
+      // Phones: people often type their city and press Send without tapping a
+      // suggestion. Use the suggestion list, or look the city up right now.
+      let place: Place | null = picked;
+      if (!place) {
+        const q = query.trim();
+        if (q.length >= 2) {
+          try {
+            place = results[0] ?? (await geocode(q, lang))[0] ?? null;
+          } catch {
+            place = null;
+          }
+        }
+        if (!place) {
+          setErrKey("errCity");
+          return;
+        }
+        setPicked(place);
+        setQuery(placeLabel(place));
+        setResults([]);
+      }
+      if (story.trim().length < 10) {
+        setErrKey("errStory");
+        return;
+      }
       const res = await fetch("/api/fan-pins", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           display_name: name,
-          city: picked.name,
-          region: picked.region,
-          country: picked.country,
-          latitude: picked.latitude,
-          longitude: picked.longitude,
+          city: place.name,
+          region: place.region,
+          country: place.country,
+          latitude: place.latitude,
+          longitude: place.longitude,
           story,
           website,
         }),
@@ -143,11 +168,11 @@ export default function FanPinForm({
         onSubmitted({
           id: j.id,
           display_name: name.trim(),
-          city: picked.name,
-          region: picked.region,
-          country: picked.country,
-          latitude: round2(picked.latitude),
-          longitude: round2(picked.longitude),
+          city: place.name,
+          region: place.region,
+          country: place.country,
+          latitude: round2(place.latitude),
+          longitude: round2(place.longitude),
           story: story.trim(),
         });
       }
@@ -249,16 +274,14 @@ export default function FanPinForm({
                   setPicked(null);
                 }}
                 autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="words"
+                enterKeyHint="search"
               />
               {results.length > 0 && (
                 <div
                   style={{
-                    position: "absolute",
-                    left: 0,
-                    right: 0,
-                    top: "100%",
-                    marginTop: 4,
-                    zIndex: 10,
+                    marginTop: 6,
                     background: "#f3eee6",
                     border: "2px solid #3b0a8c",
                     borderRadius: 10,
@@ -278,11 +301,13 @@ export default function FanPinForm({
                         display: "block",
                         width: "100%",
                         textAlign: "left",
-                        padding: "9px 12px",
+                        padding: "12px 12px",
+                        minHeight: 44,
                         background: "transparent",
                         border: "none",
+                        borderBottom: "1px solid rgba(59,10,140,0.2)",
                         color: "#3b0a8c",
-                        fontSize: 14,
+                        fontSize: 16,
                         cursor: "pointer",
                       }}
                     >
