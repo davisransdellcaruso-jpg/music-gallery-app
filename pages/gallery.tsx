@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getCurrentRelease } from "../lib/releases";
 import WelcomePopup from "../components/WelcomePopup";
+import ExploreMenu from "../components/ExploreMenu";
 
 const PHOTO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
@@ -487,6 +488,8 @@ export default function Gallery() {
               </div>
             </section>
           </main>
+
+          <ExploreMenu />
 
           <WelcomePopup location={locationDetected} />
 
