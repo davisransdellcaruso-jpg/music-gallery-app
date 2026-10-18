@@ -118,9 +118,23 @@ export default function Story() {
 
                 <div className="mission-copy">
                   <p className="opening-line">
-                    Periwinkle (The Album) is currently being mixed, A content
-                    strategy is being formulated and a clearly defined brand
-                    will be born... stay tuned.
+                    My newest album &quot;Periwinkle&quot; is finished and
+                    getting ready for publishing.
+                  </p>
+
+                  <p>
+                    In the meantime the team is building a clear growth
+                    strategy. Please don&apos;t hesitate to reach out if
+                    you&apos;d like to offer support or want to know more details.
+                  </p>
+
+                  <p className="contact-line">
+                    <a
+                      className="contact-link"
+                      href="mailto:davisransdellcaruso@gmail.com"
+                    >
+                      davisransdellcaruso@gmail.com
+                    </a>
                   </p>
                 </div>
 
@@ -140,14 +154,27 @@ export default function Story() {
 
                 <article className="show">
                   <div className="date">
-                    <span className="month">SEPT</span>
-                    <span className="day">12</span>
+                    <span className="month">AUG</span>
+                    <span className="day">27</span>
                   </div>
 
                   <div className="show-info">
-                    <h3>Dally in the Alley</h3>
-                    <p className="city">Detroit</p>
-                    <p className="time">5:15 PM</p>
+                    <h3>The Ark</h3>
+                    <p className="city">Ann Arbor</p>
+                    <p className="time">2027</p>
+                  </div>
+                </article>
+
+                <article className="show weekly-show">
+                  <div className="date">
+                    <span className="month">EVERY</span>
+                    <span className="day">FRI</span>
+                  </div>
+
+                  <div className="show-info">
+                    <h3>Sweetwaters</h3>
+                    <p className="city">Kerrytown, Ann Arbor</p>
+                    <p className="time">7:00 PM · WITH FRESH BERRIES</p>
                   </div>
                 </article>
               </div>
@@ -390,6 +417,29 @@ export default function Story() {
               line-height: 1.4;
             }
 
+            .mission-copy .contact-line {
+              margin-top: -0.6rem;
+            }
+
+            .contact-link {
+              color: var(--pink);
+
+              font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+              font-style: italic;
+
+              overflow-wrap: anywhere;
+
+              text-decoration: underline;
+              text-decoration-color: rgba(225, 109, 153, 0.45);
+              text-underline-offset: 0.3em;
+
+              transition: color 0.2s ease;
+            }
+
+            .contact-link:hover {
+              color: var(--lavender-dark);
+            }
+
             .shows-section {
               position: relative;
 
@@ -476,6 +526,10 @@ export default function Story() {
               border-top: 1px solid rgba(150, 128, 184, 0.32);
 
               border-bottom: 1px solid rgba(150, 128, 184, 0.32);
+            }
+
+            .weekly-show {
+              border-top: 0;
             }
 
             .date {
