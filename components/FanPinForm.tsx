@@ -51,20 +51,57 @@ const labelStyle: CSSProperties = {
 const hint: CSSProperties = { fontSize: 12, color: "#5a2bd0", marginTop: 4 };
 
 async function geocode(q: string, lang: Lang, signal?: AbortSignal): Promise<Place[]> {
-  const r = await fetch(
-    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
-      q
-    )}&count=6&language=${lang}&format=json`,
-    { signal }
-  );
-  const j = await r.json();
-  return (j.results ?? []).map((p: any) => ({
-    name: p.name,
-    region: p.admin1 ?? null,
-    country: p.country ?? null,
-    latitude: p.latitude,
-    longitude: p.longitude,
-  }));
+  // 1) Open-Meteo matches on the city NAME only, so "Ann Arbor, MI" finds
+  //    nothing. Search with the part before the first comma.
+  const first = q.split(",")[0].trim();
+  try {
+    const r = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+        first
+      )}&count=6&language=${lang}&format=json`,
+      { signal }
+    );
+    const j = await r.json();
+    const found: Place[] = (j.results ?? []).map((p: any) => ({
+      name: p.name,
+      region: p.admin1 ?? null,
+      country: p.country ?? null,
+      latitude: p.latitude,
+      longitude: p.longitude,
+    }));
+    if (found.length) return found;
+  } catch (err: any) {
+    if (err?.name === "AbortError") throw err;
+    /* fall through to the backup service */
+  }
+
+  // 2) Backup: OpenStreetMap's search understands "City, State" and typos
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+        q
+      )}&format=jsonv2&addressdetails=1&limit=6&accept-language=${lang}`,
+      { signal }
+    );
+    const j = await r.json();
+    return (Array.isArray(j) ? j : [])
+      .filter((p: any) => Number.isFinite(parseFloat(p.lat)))
+      .map((p: any) => {
+        const a = p.address ?? {};
+        return {
+          name:
+            a.city || a.town || a.village || a.municipality || a.hamlet ||
+            a.county || p.name || q,
+          region: a.state ?? null,
+          country: a.country ?? null,
+          latitude: parseFloat(p.lat),
+          longitude: parseFloat(p.lon),
+        };
+      });
+  } catch (err: any) {
+    if (err?.name === "AbortError") throw err;
+    return [];
+  }
 }
 
 export default function FanPinForm({
