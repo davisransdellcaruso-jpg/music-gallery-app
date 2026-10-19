@@ -27,7 +27,9 @@ export type FanPin = {
   country: string | null;
   latitude: number;
   longitude: number;
-  story: string;
+  story: string; // the lyrics they shared
+  mood?: string | null; // emoji for their mood
+  edit_token?: string; // only ever kept on the fan's own device
 };
 
 export type Focus = {
@@ -89,8 +91,10 @@ const css = `
   .fan-pin { position: relative; width: 26px; height: 26px; cursor: pointer; }
   .fan-pin .dot {
     position: absolute; top: 50%; left: 50%;
-    width: 16px; height: 16px; margin: -8px 0 0 -8px;
+    width: 24px; height: 24px; margin: -12px 0 0 -12px;
     border-radius: 50%; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1;
     background: #f3eee6; border: 3px solid #3b0a8c;
   }
   .fan-pin .ring {
@@ -136,7 +140,7 @@ function buildPopup(pin: FanPin, note?: string): HTMLElement {
     root.appendChild(n);
   }
   const name = document.createElement("b");
-  name.textContent = pin.display_name;
+  name.textContent = `${pin.mood ? pin.mood + " " : ""}${pin.display_name}`;
   root.appendChild(name);
 
   const where = document.createElement("div");
@@ -147,8 +151,8 @@ function buildPopup(pin: FanPin, note?: string): HTMLElement {
   root.appendChild(where);
 
   const story = document.createElement("div");
-  story.style.cssText = "margin-top:8px;line-height:1.45";
-  story.textContent = pin.story;
+  story.style.cssText = "margin-top:8px;line-height:1.45;font-style:italic";
+  story.textContent = `\u201C${pin.story}\u201D`;
   root.appendChild(story);
   return root;
 }
@@ -243,7 +247,11 @@ export default function MapView({
       const el = document.createElement("div");
       el.className = "fan-pin" + (kind ? ` ${kind}` : "");
       el.innerHTML = '<span class="ring"></span><span class="dot"></span>';
-      el.title = `${note ? note + " " : ""}${pin.display_name} · ${pin.city}`;
+      if (pin.mood) {
+        const dot = el.querySelector(".dot");
+        if (dot) dot.textContent = pin.mood; // emoji inside the pin
+      }
+      el.title = `${note ? note + " " : ""}${pin.mood ? pin.mood + " " : ""}${pin.display_name} · ${pin.city}`;
 
       const popup = new maplibregl.Popup({ offset: 14, maxWidth: "280px" }).setDOMContent(
         buildPopup(pin, note)

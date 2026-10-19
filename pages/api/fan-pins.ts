@@ -6,13 +6,14 @@
 // harder to reverse.
 
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
+import { MOODS } from "../../components/moods";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 
 const MAX_PINS_PER_HOUR_PER_IP = 3;
 
 // The browser maps these codes to English/Spanish messages.
-type Code = "name" | "city" | "story" | "links" | "rate" | "server" | "invalid";
+type Code = "name" | "city" | "story" | "mood" | "links" | "rate" | "server" | "invalid";
 
 function clean(value: unknown, max: number): string {
   return typeof value === "string"
@@ -43,7 +44,8 @@ export default async function handler(
   const city = clean(body.city, 80);
   const region = clean(body.region, 80) || null;
   const country = clean(body.country, 80) || null;
-  const story = clean(body.story, 280);
+  const story = clean(body.story, 200); // the lyrics they typed
+  const mood = typeof body.mood === "string" ? body.mood : "";
   const lat = Number(body.latitude);
   const lng = Number(body.longitude);
 
@@ -57,8 +59,11 @@ export default async function handler(
   ) {
     return fail(400, "city", "Please pick your city from the suggestions.");
   }
-  if (story.length < 10) {
-    return fail(400, "story", "Tell us a little more.");
+  if (story.length < 2) {
+    return fail(400, "story", "Please share a few words of lyrics.");
+  }
+  if (!MOODS.includes(mood)) {
+    return fail(400, "mood", "Please pick an emoji.");
   }
   if (/(https?:\/\/|www\.|\S+@\S+\.\S+)/i.test(`${display_name} ${story}`)) {
     return fail(400, "links", "Please leave links and email addresses out.");
@@ -85,6 +90,11 @@ export default async function handler(
     return fail(429, "rate", "Too many submissions. Please try again later.");
   }
 
+  // A secret that lets this fan's device change their mood later.
+  // Only its hash is stored; the real token is sent back once.
+  const token = randomBytes(24).toString("hex");
+  const edit_token_hash = createHash("sha256").update(token).digest("hex");
+
   const { data, error } = await supabaseAdmin
     .from("fan_pins")
     .insert({
@@ -96,8 +106,10 @@ export default async function handler(
       latitude: round2(lat),
       longitude: round2(lng),
       story,
+      mood,
       approved: false,
       ip_hash,
+      edit_token_hash,
     })
     .select("id")
     .single();
@@ -107,5 +119,5 @@ export default async function handler(
     return fail(500, "server", "Couldn't save your pin.");
   }
 
-  return res.status(200).json({ ok: true, id: data.id });
+  return res.status(200).json({ ok: true, id: data.id, token });
 }

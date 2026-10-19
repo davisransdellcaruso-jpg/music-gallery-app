@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import type { FanPin } from "./MapView";
+import { MOODS } from "./moods";
 import type { ErrKey, Lang, Strings } from "./i18n";
 
 type Place = {
@@ -22,6 +23,7 @@ const SERVER_ERRORS: Record<string, ErrKey> = {
   name: "errName",
   city: "errCity",
   story: "errStory",
+  mood: "errMood",
   links: "errLinks",
   rate: "errRate",
   server: "errServer",
@@ -122,7 +124,8 @@ export default function FanPinForm({
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<Place | null>(null);
   const [results, setResults] = useState<Place[]>([]);
-  const [story, setStory] = useState("");
+  const [story, setStory] = useState(""); // the lyrics
+  const [mood, setMood] = useState("");
   const [website, setWebsite] = useState(""); // honeypot: humans never see it
   const [sending, setSending] = useState(false);
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
@@ -154,7 +157,8 @@ export default function FanPinForm({
     e.preventDefault();
     setErrKey(null);
     if (!name.trim()) return setErrKey("errName");
-    if (story.trim().length < 10 && picked) return setErrKey("errStory");
+    if (picked && story.trim().length < 2) return setErrKey("errStory");
+    if (picked && !mood) return setErrKey("errMood");
 
     setSending(true);
     try {
@@ -178,8 +182,12 @@ export default function FanPinForm({
         setQuery(placeLabel(place));
         setResults([]);
       }
-      if (story.trim().length < 10) {
+      if (story.trim().length < 2) {
         setErrKey("errStory");
+        return;
+      }
+      if (!mood) {
+        setErrKey("errMood");
         return;
       }
       const res = await fetch("/api/fan-pins", {
@@ -193,6 +201,7 @@ export default function FanPinForm({
           latitude: place.latitude,
           longitude: place.longitude,
           story,
+          mood,
           website,
         }),
       });
@@ -211,7 +220,14 @@ export default function FanPinForm({
           latitude: round2(place.latitude),
           longitude: round2(place.longitude),
           story: story.trim(),
+          mood,
+          edit_token: j.token, // lets this device change the mood later
         });
+        try {
+          localStorage.setItem("dc_mood_checkin", String(Date.now()));
+        } catch {
+          /* ignore */
+        }
       }
       setDone(true);
     } catch {
@@ -361,13 +377,45 @@ export default function FanPinForm({
             </label>
             <textarea
               id="fan-story"
-              style={{ ...field, minHeight: 96, resize: "vertical" }}
+              style={{ ...field, minHeight: 80, resize: "vertical" }}
               value={story}
-              maxLength={280}
+              maxLength={200}
               onChange={(e) => setStory(e.target.value)}
               placeholder={t.storyPlaceholder}
             />
-            <div style={{ ...hint, textAlign: "right" }}>{story.length}/280</div>
+            <div style={{ ...hint, textAlign: "right" }}>{story.length}/200</div>
+
+            <div style={labelStyle}>{t.moodLabel}</div>
+            <div
+              role="radiogroup"
+              aria-label={t.moodLabel}
+              style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
+            >
+              {MOODS.map((m) => (
+                <button
+                  type="button"
+                  key={m}
+                  role="radio"
+                  aria-checked={mood === m}
+                  onClick={() => setMood(m)}
+                  style={{
+                    width: 48,
+                    height: 48,
+                    fontSize: 26,
+                    lineHeight: 1,
+                    borderRadius: 12,
+                    cursor: "pointer",
+                    border:
+                      mood === m ? "3px solid #3b0a8c" : "2px solid rgba(59,10,140,0.25)",
+                    background: mood === m ? "#ffb59a" : "#fffaf3",
+                    transform: mood === m ? "scale(1.08)" : "none",
+                    transition: "transform .12s",
+                  }}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
 
             {/* Honeypot (hidden from people, tempting to bots) */}
             <input

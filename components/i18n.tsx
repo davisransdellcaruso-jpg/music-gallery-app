@@ -34,12 +34,12 @@ const en = {
   // Signup flow (welcome banner)
   flowTitle: "You're part of this 🌎",
   flowBody:
-    "Listeners from all over the world are on this map. Add yourself and tell us how you found my music, or skip it and head straight to the story. Totally up to you.",
+    "Listeners from all over the world are on this map. Add yourself, tell me the first lyrics that pop into your head, and pick an emoji for your mood, or skip it and head straight to the updates. Totally up to you.",
   flowAdd: "📍 Add myself",
   flowSkip: "Skip for now 😢",
   flowDoneTitle: "You're on the map! 💜",
-  flowDoneBody: "Thanks for joining in. Ready for the story?",
-  flowContinue: "Continue to the story →",
+  flowDoneBody: "Thanks for joining in. Ready for the updates?",
+  flowContinue: "Continue to the updates →",
 
   // Form
   formTitle: "📍 Add yourself to the map",
@@ -47,13 +47,14 @@ const en = {
   nameLabel: "First name or nickname",
   cityLabel: "Your city",
   cityPlaceholder: "Start typing…",
-  storyLabel: "How did you find my music?",
-  storyPlaceholder: "A friend played it in the car, I caught a set downtown…",
+  storyLabel: "Tell me the first lyrics that pop into your head...!",
+  storyPlaceholder: "la la la… whatever comes to mind",
+  moodLabel: "Pick an emoji for your mood",
   submit: "Add my pin",
   sending: "Sending…",
   cancel: "Cancel",
   publicNote:
-    "Your name and story will be public once approved. Please leave out links and email addresses.",
+    "Your name, lyrics and emoji will be public once approved. Please leave out links and email addresses.",
   thanksTitle: "Thank you!",
   thanksBody:
     "I read every pin before it goes live. In the meantime you'll see a dashed pin of your own on the map (just on this device).",
@@ -63,7 +64,8 @@ const en = {
   // Form errors
   errName: "Please add a first name or nickname.",
   errCity: "Please pick your city from the suggestions.",
-  errStory: "Tell us a little more. A sentence or two is perfect.",
+  errStory: "Please share a few words of lyrics.",
+  errMood: "Please pick an emoji for your mood.",
   errLinks: "Please leave links and email addresses out.",
   errRate: "Too many submissions. Please try again later.",
   errServer: "Something went wrong. Please try again.",
@@ -76,6 +78,7 @@ export type ErrKey =
   | "errName"
   | "errCity"
   | "errStory"
+  | "errMood"
   | "errLinks"
   | "errRate"
   | "errServer"
@@ -105,25 +108,26 @@ const es: Strings = {
 
   flowTitle: "Eres parte de esto 🌎",
   flowBody:
-    "Hay oyentes de todo el mundo en este mapa. Agrégate y cuéntanos cómo conociste mi música, o sáltalo y pasa directo a la historia. Tú decides.",
+    "Hay oyentes de todo el mundo en este mapa. Agrégate, dime la primera letra que te venga a la cabeza y elige un emoji para tu estado de ánimo, o sáltalo y pasa directo a las novedades. Tú decides.",
   flowAdd: "📍 Agregarme",
   flowSkip: "Saltar por ahora 😢",
   flowDoneTitle: "¡Ya estás en el mapa! 💜",
-  flowDoneBody: "Gracias por sumarte. ¿Seguimos con la historia?",
-  flowContinue: "Continuar a la historia →",
+  flowDoneBody: "Gracias por sumarte. ¿Seguimos con las novedades?",
+  flowContinue: "Continuar a las novedades →",
 
   formTitle: "📍 Agrégate al mapa",
   formPrivacy: "Solo se muestra tu ciudad, nunca tu ubicación exacta.",
   nameLabel: "Nombre o apodo",
   cityLabel: "Tu ciudad",
   cityPlaceholder: "Empieza a escribir…",
-  storyLabel: "¿Cómo descubriste mi música?",
-  storyPlaceholder: "Un amigo la puso en el carro, te vi tocar en el centro…",
+  storyLabel: "Dime la primera letra que te venga a la cabeza...!",
+  storyPlaceholder: "la la la… lo que se te ocurra",
+  moodLabel: "Elige un emoji para tu estado de ánimo",
   submit: "Agregar mi pin",
   sending: "Enviando…",
   cancel: "Cancelar",
   publicNote:
-    "Tu nombre y tu historia serán públicos una vez aprobados. Por favor, no incluyas enlaces ni correos electrónicos.",
+    "Tu nombre, la letra y tu emoji serán públicos una vez aprobados. Por favor, no incluyas enlaces ni correos electrónicos.",
   thanksTitle: "¡Gracias!",
   thanksBody:
     "Reviso cada pin antes de publicarlo. Mientras tanto, verás tu propio pin con línea punteada en el mapa (solo en este dispositivo).",
@@ -132,7 +136,8 @@ const es: Strings = {
 
   errName: "Agrega tu nombre o un apodo.",
   errCity: "Elige tu ciudad de las sugerencias.",
-  errStory: "Cuéntanos un poco más. Una o dos frases son perfectas.",
+  errStory: "Comparte unas palabras de la letra, por favor.",
+  errMood: "Elige un emoji para tu estado de ánimo, por favor.",
   errLinks: "Por favor, no incluyas enlaces ni correos electrónicos.",
   errRate: "Demasiados envíos. Inténtalo de nuevo más tarde.",
   errServer: "Algo salió mal. Inténtalo de nuevo.",
