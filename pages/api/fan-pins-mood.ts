@@ -45,8 +45,8 @@ export default async function handler(
   }
   if (!row || !row.edit_token_hash) return fail(403, "forbidden");
 
-  const given = createHash("sha256").update(token).digest();
-  const stored = Buffer.from(row.edit_token_hash, "hex");
+  const given = Uint8Array.from(createHash("sha256").update(token).digest());
+  const stored = Uint8Array.from(Buffer.from(row.edit_token_hash, "hex"));
   if (given.length !== stored.length || !timingSafeEqual(given, stored)) {
     return fail(403, "forbidden");
   }
