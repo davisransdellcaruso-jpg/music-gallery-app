@@ -6,7 +6,7 @@ const STORAGE_KEY = "dc_welcome_seen";
 
 const en = {
   title: "A song for you",
-  copy: 'An unreleased song from my new album, "Periwinkle", free when you join.',
+  copy: 'An unreleased song from my new album, "Periwinkle", is yours when you join.',
   placeholder: "your email",
   emailAria: "Your email",
   submit: "SEND ME THE SONG",
@@ -27,7 +27,7 @@ type ErrKey = "errEmail" | "errSend" | "errServer";
 
 const es: Copy = {
   title: "Una canción para ti",
-  copy: 'Una canción inédita de mi nuevo álbum, "Periwinkle", gratis al unirte.',
+  copy: 'Una canción inédita de mi nuevo álbum, "Periwinkle", es tuya al unirte.',
   placeholder: "tu correo electrónico",
   emailAria: "Tu correo electrónico",
   submit: "ENVÍAME LA CANCIÓN",
