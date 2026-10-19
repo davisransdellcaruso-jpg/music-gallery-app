@@ -23,7 +23,17 @@ export default function ExploreMenu() {
   const { lang } = useLang();
   const c = COPY[lang === "es" ? "es" : "en"];
   const [open, setOpen] = useState(false);
+  const [small, setSmall] = useState(false); // phones
   const boxRef = useRef<HTMLDivElement | null>(null);
+
+  // Phones get a compact button; desktop keeps the big one
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setSmall(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   // Close on outside click / Escape
   useEffect(() => {
@@ -56,7 +66,7 @@ export default function ExploreMenu() {
       ref={boxRef}
       style={{
         position: "fixed",
-        top: 22,
+        top: small ? 16 : 22,
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 2000,
@@ -72,8 +82,8 @@ export default function ExploreMenu() {
         aria-expanded={open}
         aria-label={c.aria}
         style={{
-          width: "min(230px, 42vw)",
-          height: "min(230px, 42vw)",
+          width: small ? 52 : "min(230px, 42vw)",
+          height: small ? 52 : "min(230px, 42vw)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -86,7 +96,7 @@ export default function ExploreMenu() {
           backdropFilter: "blur(6px)",
         }}
       >
-        <svg width="50%" height="50%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
+        <svg width={small ? 26 : "50%"} height={small ? 26 : "50%"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
           {open ? (
             <>
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -106,7 +116,7 @@ export default function ExploreMenu() {
         <div
           role="menu"
           style={{
-            marginTop: 8,
+            marginTop: small ? 6 : 8,
             minWidth: "min(320px, 80vw)",
             borderRadius: 14,
             overflow: "hidden",
@@ -122,12 +132,12 @@ export default function ExploreMenu() {
               role="menuitem"
               style={{
                 display: "block",
-                padding: "18px 20px",
+                padding: small ? "14px 18px" : "18px 20px",
                 color: "#715a99",
                 textDecoration: "none",
                 textAlign: "center",
                 whiteSpace: "nowrap",
-                fontSize: 19,
+                fontSize: small ? 17 : 19,
                 borderTop: i ? "1px solid rgba(212,173,86,0.35)" : "none",
               }}
             >

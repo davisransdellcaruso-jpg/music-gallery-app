@@ -279,62 +279,6 @@ export default function Gallery() {
                   </a>
 
                   <a
-                    href="https://www.youtube.com/@dav_wav"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon youtube">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M23.5 6.2s-.2-1.7-.8-2.4c-.8-.9-1.7-.9-2.1-1C17.7 2.5 12 2.5 12 2.5s-5.7 0-8.6.3c-.4.1-1.3.1-2.1 1-.6.7-.8 2.4-.8 2.4S0 8.1 0 10v2c0 1.9.2 3.8.2 3.8s.2 1.7.8 2.4c.8.9 1.9.9 2.4 1 1.7.2 7.1.3 8.6.3s5.7 0 8.6-.3c.4-.1 1.3-.1 2.1-1 .6-.7.8-2.4.8-2.4s.2-1.9.2-3.8v-2c0-1.9-.2-3.8-.2-3.8zM9.6 14.8V7.8l6.4 3.5-6.4 3.5z" />
-                      </svg>
-                    </span>
-                    <span className="social-name">YouTube</span>
-                  </a>
-
-                  <a
-                    href="https://davisransdellcaruso.bandcamp.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon bandcamp">
-                      <svg viewBox="0 0 256 256" fill="currentColor">
-                        <path d="M21 194L112 62c2.3-3.4 6.1-5.4 10.2-5.4H235c6.4 0 10.2 7.2 6.6 12.4L150 201c-2.3 3.4-6.1 5.4-10.2 5.4H27.6C21.2 206.4 17.4 199.2 21 194z" />
-                      </svg>
-                    </span>
-                    <span className="social-name">Bandcamp</span>
-                  </a>
-
-                  <a
-                    href="https://soundcloud.com/davis-ransdell-caruso"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon soundcloud">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M2.5 12.2v3.6" />
-                        <path d="M5 10.8v6.4" />
-                        <path d="M7.5 9.5v7.8" />
-                        <path
-                          d="M10 8.4v9c0 .17.13.3.3.3h8.3a3.4 3.4 0 0 0 .4-6.78 4.1 4.1 0 0 0-7.72-1.9c-.32-.4-.7-.64-1.28-.62Z"
-                          fill="currentColor"
-                          stroke="none"
-                        />
-                      </svg>
-                    </span>
-                    <span className="social-name">SoundCloud</span>
-                  </a>
-
-                  <a
                     href="https://substack.com/@daviscaruso"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -424,6 +368,121 @@ export default function Gallery() {
                       </svg>
                     </span>
                     <span className="social-name">LinkedIn</span>
+                  </a>
+                </div>
+
+                <div className="social-grid music-grid">
+                  <a
+                    href="https://davisransdellcaruso.bandcamp.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon bandcamp">
+                      <svg viewBox="0 0 256 256" fill="currentColor">
+                        <path d="M21 194L112 62c2.3-3.4 6.1-5.4 10.2-5.4H235c6.4 0 10.2 7.2 6.6 12.4L150 201c-2.3 3.4-6.1 5.4-10.2 5.4H27.6C21.2 206.4 17.4 199.2 21 194z" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Bandcamp</span>
+                  </a>
+
+                  <a
+                    href="https://soundcloud.com/davis-ransdell-caruso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon soundcloud">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2.5 12.2v3.6" />
+                        <path d="M5 10.8v6.4" />
+                        <path d="M7.5 9.5v7.8" />
+                        <path
+                          d="M10 8.4v9c0 .17.13.3.3.3h8.3a3.4 3.4 0 0 0 .4-6.78 4.1 4.1 0 0 0-7.72-1.9c-.32-.4-.7-.64-1.28-.62Z"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                      </svg>
+                    </span>
+                    <span className="social-name">SoundCloud</span>
+                  </a>
+
+                  <a
+                    href="https://www.youtube.com/@dav_wav"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon youtube">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.5 6.2s-.2-1.7-.8-2.4c-.8-.9-1.7-.9-2.1-1C17.7 2.5 12 2.5 12 2.5s-5.7 0-8.6.3c-.4.1-1.3.1-2.1 1-.6.7-.8 2.4-.8 2.4S0 8.1 0 10v2c0 1.9.2 3.8.2 3.8s.2 1.7.8 2.4c.8.9 1.9.9 2.4 1 1.7.2 7.1.3 8.6.3s5.7 0 8.6-.3c.4-.1 1.3-.1 2.1-1 .6-.7.8-2.4.8-2.4s.2-1.9.2-3.8v-2c0-1.9-.2-3.8-.2-3.8zM9.6 14.8V7.8l6.4 3.5-6.4 3.5z" />
+                      </svg>
+                    </span>
+                    <span className="social-name">YouTube</span>
+                  </a>
+
+                  <a
+                    href="https://open.spotify.com/artist/1farxYUoZYKb4pzsSA1Si1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon spotify">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M6.5 9.2c3.6-1.1 7.6-.8 11 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.9" strokeLinecap="round" />
+                        <path d="M7.2 12.7c3-.8 6.1-.5 8.8 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.7" strokeLinecap="round" />
+                        <path d="M8 16c2.4-.6 4.6-.4 6.6.7" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Spotify</span>
+                  </a>
+
+                  <a
+                    href="https://music.apple.com/us/artist/davis-caruso/1669967306"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon apple">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 17.5V6.2l10-2v11.3" />
+                        <circle cx="6.8" cy="17.6" r="2.3" fill="currentColor" />
+                        <circle cx="16.8" cy="15.6" r="2.3" fill="currentColor" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Apple Music</span>
+                  </a>
+
+                  <a
+                    href="https://www.deezer.com/mx/artist/200375387"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                  >
+                    <span className="social-icon deezer">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        {[1, 2, 3, 3, 4].map((n, col) =>
+                          Array.from({ length: n }).map((_, i) => (
+                            <rect
+                              key={`${col}-${i}`}
+                              x={1.2 + col * 4.6}
+                              y={20 - (i + 1) * 3.6 + 0.6}
+                              width="3.6"
+                              height="3"
+                            />
+                          ))
+                        )}
+                      </svg>
+                    </span>
+                    <span className="social-name">Deezer</span>
                   </a>
                 </div>
 
@@ -676,6 +735,10 @@ export default function Gallery() {
               margin: clamp(2.8rem, 6vw, 4rem) auto 0;
             }
 
+            .music-grid {
+              margin-top: 2rem;
+            }
+
             .social-link {
               display: flex;
               flex-direction: column;
@@ -721,6 +784,12 @@ export default function Gallery() {
 
             .social-icon.bandcamp svg {
               width: 33px;
+            }
+
+            .social-icon.spotify svg,
+            .social-icon.deezer svg {
+              width: 31px;
+              height: 31px;
             }
 
             .social-icon.soundcloud svg {

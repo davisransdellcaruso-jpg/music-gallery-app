@@ -70,6 +70,23 @@ const ghostBtn: CSSProperties = {
   border: "2px solid #3b0a8c",
 };
 
+const roundBtn: CSSProperties = {
+  width: 44,
+  height: 44,
+  padding: 0,
+  borderRadius: "50%",
+  border: "2px solid #3b0a8c",
+  background: "#f3eee6",
+  color: "#3b0a8c",
+  fontSize: 14,
+  fontWeight: 700,
+  cursor: "pointer",
+  boxShadow: "2px 2px 0 #3b0a8c",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
 const bigBtn: CSSProperties = {
   ...primaryBtn,
   padding: "12px 22px",
@@ -167,6 +184,20 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
   const [search, setSearch] = useState("");
   const [focus, setFocus] = useState<Focus>(null);
 
+  // Phone layout state
+  const [isMobile, setIsMobile] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [keyOpen, setKeyOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(true);
+  const [touchY, setTouchY] = useState<number | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   const goNext = () => router.push(nextHref);
 
   // 🔹 Load public data (anonymous clusters + approved fan pins)
@@ -232,6 +263,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
       /* ignore */
     }
     setMine(pin);
+    setSheetOpen(true);
     flyToPin(pin);
   }
 
@@ -240,7 +272,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
   return (
     <div
       style={{
-        height: "100vh",
+        height: isMobile ? "100dvh" : "100vh",
         width: "100%",
         background:
           "#f3eee6",
@@ -266,6 +298,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
         }}
       />
 
+      {!isMobile && (
       <h1
         style={{
           position: "absolute",
@@ -288,6 +321,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
       >
         {t.title}
       </h1>
+      )}
 
       <MapView
         clusters={clusters}
@@ -299,6 +333,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
       />
 
       {/* Controls: language, search, add yourself, find my pin */}
+      {!isMobile && (
       <div
         style={{
           position: "absolute",
@@ -398,8 +433,10 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
           </button>
         )}
       </div>
+      )}
 
-      {/* Bottom row: map key (always) + welcome banner (signup flow only).
+      {!isMobile && (
+      <div>{/* Bottom row: map key (always) + welcome banner (signup flow only).
           Sits just above the OpenStreetMap attribution strip. */}
       <div
         style={{
@@ -492,6 +529,337 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
         {/* Invisible spacer so the welcome card stays centered */}
         <div style={{ flex: "1 1 170px", maxWidth: 260, visibility: "hidden" }} />
       </div>
+      </div>
+      )}
+
+
+      {/* ───────── Phone layout: calm, full-bleed map ───────── */}
+      {isMobile && (
+        <>
+          {searchOpen ? (
+            <div style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 1000 }}>
+              <div style={{ position: "relative" }}>
+                <input
+                  autoFocus
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t.searchPlaceholder}
+                  style={{
+                    ...overlayBtn,
+                    width: "100%",
+                    boxSizing: "border-box",
+                    fontSize: 16,
+                    fontWeight: 400,
+                    cursor: "text",
+                    outline: "none",
+                    padding: "13px 46px 13px 14px",
+                    boxShadow: "3px 3px 0 #3b0a8c",
+                  }}
+                />
+                <button
+                  aria-label="Close search"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setSearch("");
+                  }}
+                  style={{
+                    position: "absolute",
+                    right: 6,
+                    top: 6,
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    border: "none",
+                    background: "transparent",
+                    color: "#3b0a8c",
+                    fontSize: 18,
+                    cursor: "pointer",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              {matches.length > 0 && (
+                <div
+                  style={{
+                    marginTop: 6,
+                    background: "#f3eee6",
+                    border: "2px solid #3b0a8c",
+                    borderRadius: 12,
+                    overflow: "hidden",
+                  }}
+                >
+                  {matches.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        flyToPin(p);
+                        setSearch("");
+                        setSearchOpen(false);
+                      }}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "13px 14px",
+                        background: "transparent",
+                        border: "none",
+                        color: "#3b0a8c",
+                        fontSize: 16,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <b>{p.display_name}</b>
+                      <span style={{ opacity: 0.7 }}> · {p.city}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <h1
+                style={{
+                  position: "absolute",
+                  top: 12,
+                  left: 12,
+                  right: 68,
+                  margin: 0,
+                  textAlign: "center",
+                  color: "#3b0a8c",
+                  background: "#f3eee6",
+                  border: "2px solid #3b0a8c",
+                  boxShadow: "3px 3px 0 #3b0a8c",
+                  borderRadius: 12,
+                  padding: "9px 10px",
+                  fontFamily: "Trocchi, serif",
+                  fontWeight: "bold",
+                  fontSize: "1.05rem",
+                  zIndex: 1000,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {t.title}
+              </h1>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: 12,
+                  right: 12,
+                  zIndex: 1000,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
+                }}
+              >
+                <button
+                  onClick={() => setLang(lang === "en" ? "es" : "en")}
+                  aria-label="Language"
+                  style={roundBtn}
+                >
+                  {lang === "en" ? "ES" : "EN"}
+                </button>
+                <button
+                  onClick={() => {
+                    setSearchOpen(true);
+                    setKeyOpen(false);
+                  }}
+                  aria-label={t.searchPlaceholder}
+                  style={roundBtn}
+                >
+                  🔍
+                </button>
+                <button
+                  onClick={() => setKeyOpen((k) => !k)}
+                  aria-label="Map key"
+                  aria-expanded={keyOpen}
+                  style={{ ...roundBtn, fontFamily: "Georgia, serif", fontStyle: "italic" }}
+                >
+                  i
+                </button>
+              </div>
+
+              {keyOpen && (
+                <div
+                  onClick={() => setKeyOpen(false)}
+                  style={{
+                    position: "absolute",
+                    top: 120,
+                    right: 12,
+                    zIndex: 1000,
+                    padding: "8px 12px",
+                    borderRadius: 12,
+                    background: "#f3eee6",
+                    border: "2px solid #3b0a8c",
+                    boxShadow: "3px 3px 0 #3b0a8c",
+                    color: "#3b0a8c",
+                    fontSize: 14,
+                  }}
+                >
+                  <LegendRow swatch={<span style={faintSwatch} />} text={t.legendListeners} />
+                  <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
+                  {mine && (
+                    <LegendRow
+                      swatch={<span style={approvedMine ? mineSwatch : pendingSwatch} />}
+                      text={approvedMine ? t.legendMe : t.legendPending}
+                    />
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Bottom: welcome sheet (signup flow) or a simple button row */}
+          {!searchOpen && (
+            <div
+              style={{
+                position: "absolute",
+                left: 12,
+                right: 12,
+                bottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)",
+                zIndex: 1000,
+                display: "flex",
+                justifyContent: "center",
+                pointerEvents: "none",
+              }}
+            >
+              {flow && sheetOpen ? (
+                <div
+                  style={{
+                    ...card,
+                    width: "100%",
+                    maxWidth: 420,
+                    padding: "6px 16px 16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <button
+                    aria-label="Hide"
+                    onClick={() => setSheetOpen(false)}
+                    onTouchStart={(e) => setTouchY(e.touches[0].clientY)}
+                    onTouchEnd={(e) => {
+                      if (touchY !== null && e.changedTouches[0].clientY - touchY > 30) {
+                        setSheetOpen(false);
+                      }
+                      setTouchY(null);
+                    }}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "10px 0 8px",
+                      border: "none",
+                      background: "transparent",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "block",
+                        width: 44,
+                        height: 4,
+                        margin: "0 auto",
+                        borderRadius: 2,
+                        background: "#3b0a8c",
+                        opacity: 0.35,
+                      }}
+                    />
+                  </button>
+                  <div style={{ fontWeight: 700, fontSize: 18 }}>
+                    {mine ? t.flowDoneTitle : t.flowTitle}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      lineHeight: 1.4,
+                      margin: "6px 0 14px",
+                      color: "#5a2bd0",
+                    }}
+                  >
+                    {mine ? t.flowDoneBody : t.flowBody}
+                  </div>
+                  {mine ? (
+                    <button onClick={goNext} style={{ ...bigBtn, width: "100%" }}>
+                      {t.flowContinue}
+                    </button>
+                  ) : (
+                    <>
+                      <button onClick={() => setShowForm(true)} style={{ ...bigBtn, width: "100%" }}>
+                        {t.flowAdd}
+                      </button>
+                      <button onClick={goNext} style={{ ...skipBtn, fontSize: 14, marginTop: 8 }}>
+                        {t.flowSkip}
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                    pointerEvents: "auto",
+                  }}
+                >
+                  {flow ? (
+                    <>
+                      <button
+                        aria-label="Show"
+                        onClick={() => setSheetOpen(true)}
+                        style={{ ...roundBtn, width: 44, height: 44 }}
+                      >
+                        ▴
+                      </button>
+                      {mine ? (
+                        <button onClick={goNext} style={{ ...bigBtn, boxShadow: "3px 3px 0 #3b0a8c" }}>
+                          {t.flowContinue}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => setShowForm(true)}
+                            style={{ ...bigBtn, boxShadow: "3px 3px 0 #3b0a8c" }}
+                          >
+                            {t.flowAdd}
+                          </button>
+                          <button
+                            onClick={goNext}
+                            style={{ ...skipBtn, background: "#f3eee6", borderRadius: 10, padding: "8px 10px" }}
+                          >
+                            {t.flowSkip}
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowForm(true)}
+                        style={{ ...bigBtn, boxShadow: "3px 3px 0 #3b0a8c" }}
+                      >
+                        {t.addYourself}
+                      </button>
+                      {mine && (
+                        <button
+                          onClick={() => flyToPin(mine)}
+                          style={{ ...ghostBtn, padding: "12px 16px", fontSize: 15, background: "#f3eee6" }}
+                        >
+                          {t.findMyPin}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
 
       {showForm && (
         <FanPinForm

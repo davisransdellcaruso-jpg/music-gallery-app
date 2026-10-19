@@ -5,7 +5,7 @@
 // Needs:  npm i maplibre-gl
 // Base map: OpenFreeMap (free, no API key). Terrain: free AWS elevation tiles.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Strings } from "./i18n";
@@ -171,6 +171,19 @@ export default function MapView({
   const pinMarkerRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const spinRef = useRef(true);
 
+  // Phones: edge-to-edge map, no frame, no zoom buttons (pinch works)
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setCompact(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    mapRef.current?.resize();
+  }, [compact]);
+
   // ── Create the map once ───────────────────────────────────────────────
   useEffect(() => {
     if (!boxRef.current) return;
@@ -188,10 +201,24 @@ export default function MapView({
     });
     mapRef.current = map;
 
-    map.addControl(
-      new maplibregl.NavigationControl({ visualizePitch: true }),
-      "top-left"
-    );
+    const phone = window.matchMedia("(max-width: 640px)").matches;
+    if (!phone) {
+      map.addControl(
+        new maplibregl.NavigationControl({ visualizePitch: true }),
+        "top-left"
+      );
+    } else {
+      // keep the credit available, but tucked into its small (i) button
+      map.on("load", () => {
+        try {
+          const a = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
+          a?.classList.remove("maplibregl-compact-show");
+          a?.removeAttribute("open");
+        } catch {
+          /* cosmetic only */
+        }
+      });
+    }
 
     // Subtle real relief: only visible once the visitor tilts the map
     map.on("load", () => {
@@ -303,13 +330,17 @@ export default function MapView({
       <style>{css}</style>
       <div
         className="dc-frame"
-        style={{
-          height: "90vh",
-          width: "90vw",
-          borderRadius: "10px",
-          boxShadow: "6px 6px 0 #3b0a8c",
-          zIndex: 1,
-        }}
+        style={
+          compact
+            ? { height: "100dvh", width: "100vw", border: "none", borderRadius: 0, zIndex: 1 }
+            : {
+                height: "90vh",
+                width: "90vw",
+                borderRadius: "10px",
+                boxShadow: "6px 6px 0 #3b0a8c",
+                zIndex: 1,
+              }
+        }
       >
         <div ref={boxRef} className="dc-map" />
       </div>
