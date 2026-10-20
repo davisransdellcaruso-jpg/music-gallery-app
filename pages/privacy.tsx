@@ -13,7 +13,7 @@ const COPY = {
     title: "Privacy",
     back: "← Back to the gallery",
     intro:
-      "I'm Davis Caruso, an independent artist, and I run this site myself. Here is, in plain words, what it collects and why. I don't sell your information and I don't run ads.",
+      "I'm Davis Caruso, an independent artist, and I run this site myself. Here is, in plain words, what it collects and why. I don't sell your information.",
     updated: "Last updated",
     sections: [
       {
@@ -50,6 +50,13 @@ const COPY = {
         ],
       },
       {
+        h: "Ads for my music",
+        p: [
+          "I may advertise my music on platforms like Instagram, Facebook, TikTok and YouTube. Those platforms run the ads and have their own privacy rules, and I don't get your personal details from them. I only see totals, such as how many people saw an ad or clicked it.",
+          "Right now this site doesn't use advertising trackers. If I add them, which is how an ad platform can tell that someone who saw an ad later visited my site, I'll ask your permission first where the law requires it, give you a clear way to say no, and update this page before it starts.",
+        ],
+      },
+      {
         h: "Your choices",
         p: [
           `Want to see, fix or delete what I have about you, including your map pin or email? Write to ${EMAIL} and I'll take care of it.`,
@@ -62,7 +69,7 @@ const COPY = {
     title: "Privacidad",
     back: "← Volver a la galería",
     intro:
-      "Soy Davis Caruso, artista independiente, y manejo este sitio yo mismo. Aquí te explico con palabras sencillas qué recopila y por qué. No vendo tu información y no pongo anuncios.",
+      "Soy Davis Caruso, artista independiente, y manejo este sitio yo mismo. Aquí te explico con palabras sencillas qué recopila y por qué. No vendo tu información.",
     updated: "Última actualización",
     sections: [
       {
@@ -96,6 +103,13 @@ const COPY = {
         h: "Quién ayuda a mantener el sitio",
         p: [
           "Vercel aloja el sitio. Supabase guarda la base de datos y los archivos. Servicios de confianza envían los correos. Manejan tu información solo para que el sitio funcione.",
+        ],
+      },
+      {
+        h: "Anuncios de mi música",
+        p: [
+          "Es posible que anuncie mi música en plataformas como Instagram, Facebook, TikTok y YouTube. Esas plataformas muestran los anuncios y tienen sus propias reglas de privacidad; yo no recibo tus datos personales de ellas. Solo veo totales, como cuántas personas vieron un anuncio o hicieron clic.",
+          "Por ahora este sitio no usa rastreadores de publicidad. Si los agrego, que es la forma en que una plataforma de anuncios puede saber que alguien que vio un anuncio luego visitó mi sitio, primero te pediré permiso donde la ley lo exija, te daré una forma clara de decir que no y actualizaré esta página antes de que empiece.",
         ],
       },
       {
