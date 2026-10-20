@@ -592,6 +592,10 @@ export default function Gallery() {
                     </span>
                   </button>
                 </div>
+
+                <p className="privacy-link">
+                  <a href="/privacy">Privacy</a>
+                </p>
               </div>
             </section>
           </main>
@@ -961,6 +965,23 @@ export default function Gallery() {
             .sound-circle svg {
               width: 22px;
               height: 22px;
+            }
+
+            .privacy-link {
+              margin: 2.2rem 0 0;
+              text-align: center;
+              font-size: 0.72rem;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+            }
+
+            .privacy-link a {
+              color: var(--lavender);
+              text-decoration: none;
+            }
+
+            .privacy-link a:hover {
+              color: var(--pink);
             }
 
             .page-border {
