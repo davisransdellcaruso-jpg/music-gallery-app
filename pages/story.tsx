@@ -132,12 +132,12 @@ export default function Story() {
                       Friday nights at Sweetwaters in A2
                     </li>
                     <li>
-                      Interested in learning how to sew and make custom clothes...
+                      Currently booking local venues and house shows, reach out by email if interested in hosting...
                     </li>
                   </ul>
 
                   <p>
-                    In the meantime we'll build online spaces that foster more community and provide a sense of belonging... thanks for being here :)
+                    In the meantime we're building online spaces that foster more community and provide a sense of belonging... thanks for being here :)
                   </p>
 
                   <p className="contact-line">
