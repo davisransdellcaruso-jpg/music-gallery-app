@@ -1,10 +1,10 @@
 // Shared logic for the business playlist links.
-// /play/<slug>  → Spotify      /apple/<slug> → Apple Music
+// /play/<slug> → Spotify    /apple/<slug> → Apple Music    /tidal/<slug> → Tidal
 // Logs one tap (business + platform), then redirects straight to that platform's playlist.
 import type { GetServerSideProps } from "next";
 import { supabaseAdmin } from "./supabaseAdmin";
 
-export type Platform = "spotify" | "apple";
+export type Platform = "spotify" | "apple" | "tidal";
 
 // Link previews (iMessage, Slack, Instagram DMs, etc.) "visit" the link too.
 // Skip counting those so the numbers reflect real taps.
@@ -14,6 +14,14 @@ const PREVIEW_BOTS =
 const DEFAULTS: Record<Platform, () => string> = {
   spotify: () => process.env.SPOTIFY_PLAYLIST_URL || "https://open.spotify.com",
   apple: () => process.env.APPLE_MUSIC_PLAYLIST_URL || "https://music.apple.com",
+  tidal: () => process.env.TIDAL_PLAYLIST_URL || "https://tidal.com",
+};
+
+// Per-business override column for each platform
+const OVERRIDE_COLUMN: Record<Platform, "spotify_url" | "apple_music_url" | "tidal_url"> = {
+  spotify: "spotify_url",
+  apple: "apple_music_url",
+  tidal: "tidal_url",
 };
 
 export function playlistRedirect(platform: Platform): GetServerSideProps {
@@ -27,11 +35,11 @@ export function playlistRedirect(platform: Platform): GetServerSideProps {
     try {
       const { data: business } = await supabaseAdmin
         .from("playlist_businesses")
-        .select("spotify_url, apple_music_url, active")
+        .select("spotify_url, apple_music_url, tidal_url, active")
         .eq("slug", slug)
         .maybeSingle();
 
-      const override = platform === "apple" ? business?.apple_music_url : business?.spotify_url;
+      const override = business?.[OVERRIDE_COLUMN[platform]];
       if (override) destination = override;
 
       const userAgent = req.headers["user-agent"] ?? "";
