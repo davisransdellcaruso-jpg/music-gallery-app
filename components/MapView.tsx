@@ -88,7 +88,7 @@ const css = `
   }
 
   /* Fan pins: cream dot, indigo outline, pink pulse */
-  .fan-pin { position: relative; width: 26px; height: 26px; cursor: pointer; }
+    .fan-pin { width: 26px; height: 26px; cursor: pointer; }
   .fan-pin .dot {
     position: absolute; top: 50%; left: 50%;
     width: 24px; height: 24px; margin: -12px 0 0 -12px;
