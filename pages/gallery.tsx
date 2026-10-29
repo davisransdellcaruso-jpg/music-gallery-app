@@ -282,7 +282,7 @@ export default function Gallery() {
                   onClick={trackLinkClick("Social Click")}
                 >
                   <a
-                    href="https://www.instagram.com/dav_wav_/"
+                    href="https://www.instagram.com/daviscaruso_/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
@@ -311,7 +311,7 @@ export default function Gallery() {
                   </a>
 
                   <a
-                    href="https://www.tiktok.com/@dav_wav_?_t=ZT-90R8qRubZ2E&_r=1"
+                    href="https://www.tiktok.com/@daviscaruso_"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
