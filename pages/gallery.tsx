@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import { getCurrentRelease } from "../lib/releases";
 import WelcomePopup from "../components/WelcomePopup";
 import ExploreMenu from "../components/ExploreMenu";
 import MoodCheckIn from "../components/MoodCheckIn";
+import { trackRedditCustom } from "../lib/redditPixel";
 
 const HERO_VIDEO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.mp4";
@@ -207,6 +208,15 @@ export default function Gallery() {
     setIsMuted(nextMuted);
   };
 
+  // Reddit Pixel: one handler per icon row. It reads the label under the
+  // clicked icon (e.g. "Instagram") and sends "Social Click - Instagram".
+  const trackLinkClick =
+    (prefix: string) => (e: MouseEvent<HTMLDivElement>) => {
+      const link = (e.target as Element).closest("a");
+      const name = link?.querySelector(".social-name")?.textContent?.trim();
+      if (name) trackRedditCustom(`${prefix} - ${name}`);
+    };
+
   if (!mounted) return null;
 
   return (
@@ -267,7 +277,10 @@ export default function Gallery() {
                   <span className="ornament-line" />
                 </div>
 
-                <div className="social-grid">
+                <div
+                  className="social-grid"
+                  onClick={trackLinkClick("Social Click")}
+                >
                   <a
                     href="https://www.instagram.com/dav_wav_/"
                     target="_blank"
@@ -418,7 +431,10 @@ export default function Gallery() {
                   </a>
                 </div>
 
-                <div className="social-grid music-grid">
+                <div
+                  className="social-grid music-grid"
+                  onClick={trackLinkClick("Music Click")}
+                >
                   <a
                     href="https://davisransdellcaruso.bandcamp.com/"
                     target="_blank"
