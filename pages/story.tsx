@@ -131,9 +131,7 @@ export default function Story() {
                       Curating a{" "}
                       <a
                         className="inline-link"
-                        href="https://open.spotify.com/playlist/0hJLYz915N9gNhfEiUONDV"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="/local-playlist"
                       >
                         local playlist
                       </a>{" "}
