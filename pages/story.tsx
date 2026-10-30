@@ -118,7 +118,7 @@ export default function Story() {
 
                 <div className="mission-copy">
                   <ul className="updates-list">
-                    <li>&ldquo;Periwinkle&rdquo; coming soon</li>
+                    <li>Rolling out new music every two weeks</li>
                     <li>
                       Stucchi &amp; The Shepherd are cooking up &ldquo;Home Is
                       The Way&rdquo;
@@ -128,8 +128,16 @@ export default function Story() {
                       we sound v nice :)
                     </li>
                     <li>
-                      Dan, Austin and Me, aka Fresh Berries, are rockin&rsquo;
-                      Friday nights at Sweetwaters in A2
+                      Curating a{" "}
+                      <a
+                        className="inline-link"
+                        href="https://open.spotify.com/playlist/0hJLYz915N9gNhfEiUONDV"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        local playlist
+                      </a>{" "}
+                      to connect singer-songwriters with local businesses
                     </li>
                     <li>
                       Currently booking local venues and house shows, reach out by email if interested in hosting...
@@ -163,6 +171,19 @@ export default function Story() {
                 <p className="eyebrow">UPCOMING</p>
 
                 <h2>shows</h2>
+
+                <article className="show">
+                  <div className="date">
+                    <span className="month">MAR</span>
+                    <span className="day">20</span>
+                  </div>
+
+                  <div className="show-info">
+                    <h3>Northstar Lounge</h3>
+                    <p className="city">Kerrytown, Ann Arbor</p>
+                    <p className="time">SAT · 6:30 PM · 2027</p>
+                  </div>
+                </article>
 
                 <article className="show">
                   <div className="date">
@@ -459,6 +480,18 @@ export default function Story() {
               font-style: italic;
             }
 
+            .inline-link {
+              color: var(--pink);
+              text-decoration: underline;
+              text-decoration-color: rgba(225, 109, 153, 0.45);
+              text-underline-offset: 0.25em;
+              transition: color 0.2s ease;
+            }
+
+            .inline-link:hover {
+              color: var(--lavender);
+            }
+
             .mission-copy .contact-line {
               margin-top: -0.6rem;
             }
@@ -570,7 +603,7 @@ export default function Story() {
               border-bottom: 1px solid rgba(150, 128, 184, 0.32);
             }
 
-            .weekly-show {
+            .show + .show {
               border-top: 0;
             }
 
