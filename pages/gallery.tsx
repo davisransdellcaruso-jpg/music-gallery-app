@@ -5,6 +5,7 @@ import WelcomePopup from "../components/WelcomePopup";
 import ExploreMenu from "../components/ExploreMenu";
 import MoodCheckIn from "../components/MoodCheckIn";
 import { trackRedditCustom } from "../lib/redditPixel";
+import { useLang } from "../components/i18n";
 
 const HERO_VIDEO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.mp4";
@@ -16,6 +17,7 @@ const HERO_POSTER_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
 
 export default function Gallery() {
+  const { lang } = useLang();
   const audioRef = useRef<HTMLAudioElement>(null);
   const heroRef = useRef<HTMLVideoElement>(null);
   const [videoFailed, setVideoFailed] = useState(false);
@@ -243,40 +245,136 @@ export default function Gallery() {
           <div className="grain-overlay" aria-hidden="true" />
 
           <main className={`gallery-page ${fadeIn ? "fade-in" : ""}`}>
-            <section className="photo-section">
-              {videoFailed ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={HERO_POSTER_URL}
-                  alt="Davis Caruso"
-                  className="hero-photo"
-                />
-              ) : (
-                <video
-                  ref={heroRef}
-                  src={HERO_VIDEO_URL}
-                  poster={HERO_POSTER_URL}
-                  className="hero-photo"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  disablePictureInPicture
-                  aria-label="Davis Caruso"
-                  onError={() => setVideoFailed(true)}
-                />
-              )}
-            </section>
+            <section className="links-bar" aria-label="Music and social links">
+              <div className="links-group">
+                <span className="links-label">{lang === "es" ? "ESCUCHA" : "LISTEN"}</span>
+                <div
+                  className="social-grid music-grid"
+                  onClick={trackLinkClick("Music Click")}
+                >
+                  <a
+                    href="https://davisransdellcaruso.bandcamp.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    title="Bandcamp"
+                  >
+                    <span className="social-icon bandcamp">
+                      <svg viewBox="0 0 256 256" fill="currentColor">
+                        <path d="M21 194L112 62c2.3-3.4 6.1-5.4 10.2-5.4H235c6.4 0 10.2 7.2 6.6 12.4L150 201c-2.3 3.4-6.1 5.4-10.2 5.4H27.6C21.2 206.4 17.4 199.2 21 194z" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Bandcamp</span>
+                  </a>
 
-            <section className="famiglia-section">
-              <div className="famiglia-inner">
-                <div className="ornament ornament-top">
-                  <span className="ornament-line" />
-                  <span className="star">✦</span>
-                  <span className="ornament-line" />
+                  <a
+                    href="https://soundcloud.com/davis-ransdell-caruso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    title="SoundCloud"
+                  >
+                    <span className="social-icon soundcloud">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2.5 12.2v3.6" />
+                        <path d="M5 10.8v6.4" />
+                        <path d="M7.5 9.5v7.8" />
+                        <path
+                          d="M10 8.4v9c0 .17.13.3.3.3h8.3a3.4 3.4 0 0 0 .4-6.78 4.1 4.1 0 0 0-7.72-1.9c-.32-.4-.7-.64-1.28-.62Z"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                      </svg>
+                    </span>
+                    <span className="social-name">SoundCloud</span>
+                  </a>
+
+                  <a
+                    href="https://www.youtube.com/@dav_wav"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    title="YouTube"
+                  >
+                    <span className="social-icon youtube">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.5 6.2s-.2-1.7-.8-2.4c-.8-.9-1.7-.9-2.1-1C17.7 2.5 12 2.5 12 2.5s-5.7 0-8.6.3c-.4.1-1.3.1-2.1 1-.6.7-.8 2.4-.8 2.4S0 8.1 0 10v2c0 1.9.2 3.8.2 3.8s.2 1.7.8 2.4c.8.9 1.9.9 2.4 1 1.7.2 7.1.3 8.6.3s5.7 0 8.6-.3c.4-.1 1.3-.1 2.1-1 .6-.7.8-2.4.8-2.4s.2-1.9.2-3.8v-2c0-1.9-.2-3.8-.2-3.8zM9.6 14.8V7.8l6.4 3.5-6.4 3.5z" />
+                      </svg>
+                    </span>
+                    <span className="social-name">YouTube</span>
+                  </a>
+
+                  <a
+                    href="https://open.spotify.com/artist/1farxYUoZYKb4pzsSA1Si1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    title="Spotify"
+                  >
+                    <span className="social-icon spotify">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M6.5 9.2c3.6-1.1 7.6-.8 11 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.9" strokeLinecap="round" />
+                        <path d="M7.2 12.7c3-.8 6.1-.5 8.8 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.7" strokeLinecap="round" />
+                        <path d="M8 16c2.4-.6 4.6-.4 6.6.7" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Spotify</span>
+                  </a>
+
+                  <a
+                    href="https://music.apple.com/us/artist/davis-caruso/1669967306"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    title="Apple Music"
+                  >
+                    <span className="social-icon apple">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 17.5V6.2l10-2v11.3" />
+                        <circle cx="6.8" cy="17.6" r="2.3" fill="currentColor" />
+                        <circle cx="16.8" cy="15.6" r="2.3" fill="currentColor" />
+                      </svg>
+                    </span>
+                    <span className="social-name">Apple Music</span>
+                  </a>
+
+                  <a
+                    href="https://www.deezer.com/mx/artist/200375387"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    title="Deezer"
+                  >
+                    <span className="social-icon deezer">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        {[1, 2, 3, 3, 4].map((n, col) =>
+                          Array.from({ length: n }).map((_, i) => (
+                            <rect
+                              key={`${col}-${i}`}
+                              x={1.2 + col * 4.6}
+                              y={20 - (i + 1) * 3.6 + 0.6}
+                              width="3.6"
+                              height="3"
+                            />
+                          ))
+                        )}
+                      </svg>
+                    </span>
+                    <span className="social-name">Deezer</span>
+                  </a>
                 </div>
+              </div>
 
+              <div className="links-group">
+                <span className="links-label">{lang === "es" ? "SÍGUEME" : "FOLLOW"}</span>
                 <div
                   className="social-grid"
                   onClick={trackLinkClick("Social Click")}
@@ -286,6 +384,7 @@ export default function Gallery() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    title="Instagram"
                   >
                     <span className="social-icon">
                       <svg
@@ -315,6 +414,7 @@ export default function Gallery() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    title="TikTok"
                   >
                     <span className="social-icon">
                       <svg viewBox="0 0 256 256" fill="currentColor">
@@ -329,6 +429,7 @@ export default function Gallery() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    title="Facebook"
                   >
                     <span className="social-icon">
                       <svg viewBox="0 0 24 24" fill="currentColor">
@@ -343,6 +444,7 @@ export default function Gallery() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    title="Substack"
                   >
                     <span className="social-icon">
                       <svg viewBox="0 0 24 24" fill="currentColor">
@@ -359,6 +461,7 @@ export default function Gallery() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    title="Reddit"
                   >
                     <span className="social-icon">
                       <svg
@@ -404,6 +507,7 @@ export default function Gallery() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    title="LinkedIn"
                   >
                     <span className="social-icon">
                       <svg viewBox="0 0 24 24" fill="currentColor">
@@ -430,125 +534,37 @@ export default function Gallery() {
                     <span className="social-name">LinkedIn</span>
                   </a>
                 </div>
+              </div>
+            </section>
 
-                <div
-                  className="social-grid music-grid"
-                  onClick={trackLinkClick("Music Click")}
-                >
-                  <a
-                    href="https://davisransdellcaruso.bandcamp.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon bandcamp">
-                      <svg viewBox="0 0 256 256" fill="currentColor">
-                        <path d="M21 194L112 62c2.3-3.4 6.1-5.4 10.2-5.4H235c6.4 0 10.2 7.2 6.6 12.4L150 201c-2.3 3.4-6.1 5.4-10.2 5.4H27.6C21.2 206.4 17.4 199.2 21 194z" />
-                      </svg>
-                    </span>
-                    <span className="social-name">Bandcamp</span>
-                  </a>
+            <section className="photo-section">
+              {videoFailed ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={HERO_POSTER_URL}
+                  alt="Davis Caruso"
+                  className="hero-photo"
+                />
+              ) : (
+                <video
+                  ref={heroRef}
+                  src={HERO_VIDEO_URL}
+                  poster={HERO_POSTER_URL}
+                  className="hero-photo"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  disablePictureInPicture
+                  aria-label="Davis Caruso"
+                  onError={() => setVideoFailed(true)}
+                />
+              )}
+            </section>
 
-                  <a
-                    href="https://soundcloud.com/davis-ransdell-caruso"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon soundcloud">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M2.5 12.2v3.6" />
-                        <path d="M5 10.8v6.4" />
-                        <path d="M7.5 9.5v7.8" />
-                        <path
-                          d="M10 8.4v9c0 .17.13.3.3.3h8.3a3.4 3.4 0 0 0 .4-6.78 4.1 4.1 0 0 0-7.72-1.9c-.32-.4-.7-.64-1.28-.62Z"
-                          fill="currentColor"
-                          stroke="none"
-                        />
-                      </svg>
-                    </span>
-                    <span className="social-name">SoundCloud</span>
-                  </a>
-
-                  <a
-                    href="https://www.youtube.com/@dav_wav"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon youtube">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M23.5 6.2s-.2-1.7-.8-2.4c-.8-.9-1.7-.9-2.1-1C17.7 2.5 12 2.5 12 2.5s-5.7 0-8.6.3c-.4.1-1.3.1-2.1 1-.6.7-.8 2.4-.8 2.4S0 8.1 0 10v2c0 1.9.2 3.8.2 3.8s.2 1.7.8 2.4c.8.9 1.9.9 2.4 1 1.7.2 7.1.3 8.6.3s5.7 0 8.6-.3c.4-.1 1.3-.1 2.1-1 .6-.7.8-2.4.8-2.4s.2-1.9.2-3.8v-2c0-1.9-.2-3.8-.2-3.8zM9.6 14.8V7.8l6.4 3.5-6.4 3.5z" />
-                      </svg>
-                    </span>
-                    <span className="social-name">YouTube</span>
-                  </a>
-
-                  <a
-                    href="https://open.spotify.com/artist/1farxYUoZYKb4pzsSA1Si1"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon spotify">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M6.5 9.2c3.6-1.1 7.6-.8 11 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.9" strokeLinecap="round" />
-                        <path d="M7.2 12.7c3-.8 6.1-.5 8.8 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.7" strokeLinecap="round" />
-                        <path d="M8 16c2.4-.6 4.6-.4 6.6.7" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                    </span>
-                    <span className="social-name">Spotify</span>
-                  </a>
-
-                  <a
-                    href="https://music.apple.com/us/artist/davis-caruso/1669967306"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon apple">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M9 17.5V6.2l10-2v11.3" />
-                        <circle cx="6.8" cy="17.6" r="2.3" fill="currentColor" />
-                        <circle cx="16.8" cy="15.6" r="2.3" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="social-name">Apple Music</span>
-                  </a>
-
-                  <a
-                    href="https://www.deezer.com/mx/artist/200375387"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                  >
-                    <span className="social-icon deezer">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        {[1, 2, 3, 3, 4].map((n, col) =>
-                          Array.from({ length: n }).map((_, i) => (
-                            <rect
-                              key={`${col}-${i}`}
-                              x={1.2 + col * 4.6}
-                              y={20 - (i + 1) * 3.6 + 0.6}
-                              width="3.6"
-                              height="3"
-                            />
-                          ))
-                        )}
-                      </svg>
-                    </span>
-                    <span className="social-name">Deezer</span>
-                  </a>
-                </div>
-
+            <section className="famiglia-section">
+              <div className="famiglia-inner">
                 <div className="ornament ornament-bottom">
                   <span className="ornament-line" />
                   <span className="star">✦</span>
@@ -662,6 +678,11 @@ export default function Gallery() {
               --bandana-red: #c85765;
               --bandana-soft: #e9b9b8;
               --bandana-light: #f3d7d3;
+
+              /* Space kept free at the top for the round menu button */
+              --menu-clearance: 300px;
+              /* Room for the round menu button between LISTEN and FOLLOW */
+              --menu-gap: 300px;
 
               position: relative;
               width: 100%;
@@ -780,13 +801,44 @@ export default function Gallery() {
               line-height: 1;
             }
 
-            .ornament-top {
-              margin-bottom: 2.1rem;
+            .ornament-bottom {
+              margin-top: 0;
+              margin-bottom: 2.2rem;
             }
 
-            .ornament-bottom {
-              margin-top: clamp(3.3rem, 7vw, 5.5rem);
-              margin-bottom: 2.2rem;
+            /* Music + social links, at the very top so nobody has to scroll */
+            .links-bar {
+              position: relative;
+              z-index: 2;
+
+              display: flex;
+              justify-content: center;
+              align-items: flex-start;
+              flex-wrap: wrap;
+
+              gap: 1.4rem var(--menu-gap);
+              /* Lines the two groups up with the middle of the menu button */
+              padding: 112px 1.5rem 1.8rem;
+
+              background: var(--cream);
+            }
+
+            .links-group {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+
+              gap: 0.85rem;
+            }
+
+            .links-label {
+              color: var(--pink);
+
+              font-family: "Fraunces", Georgia, serif;
+              font-size: 0.68rem;
+              font-weight: 600;
+
+              letter-spacing: 0.24em;
             }
 
             .social-grid {
@@ -794,16 +846,7 @@ export default function Gallery() {
               flex-wrap: nowrap;
 
               justify-content: center;
-
-              gap: 1.6rem;
-
-              width: min(100%, 960px);
-
-              margin: clamp(2.8rem, 6vw, 4rem) auto 0;
-            }
-
-            .music-grid {
-              margin-top: 2rem;
+              gap: 0.9rem;
             }
 
             .social-link {
@@ -814,7 +857,7 @@ export default function Gallery() {
               gap: 0.6rem;
 
               flex: 0 0 auto;
-              width: 78px;
+              width: 44px;
 
               color: var(--lavender);
 
@@ -864,7 +907,12 @@ export default function Gallery() {
             }
 
             .social-name {
-              width: 100%;
+              position: absolute;
+              width: 1px;
+              height: 1px;
+              overflow: hidden;
+              clip: rect(0 0 0 0);
+              white-space: nowrap;
 
               font-family: "Fraunces", Georgia, serif;
               font-size: 0.72rem;
@@ -1027,14 +1075,13 @@ export default function Gallery() {
               background-size: 300px 300px;
             }
 
-            @media (max-width: 850px) {
-              .social-grid {
-                flex-wrap: wrap;
-                gap: 1.9rem 1rem;
-              }
-
-              .social-link {
-                width: 74px;
+            /* Too narrow to fit both groups beside the menu: stack them below it */
+            @media (max-width: 1100px) {
+              .links-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.4rem;
+                padding-top: var(--menu-clearance);
               }
             }
 
@@ -1046,17 +1093,40 @@ export default function Gallery() {
                   2.4rem;
               }
 
-              .social-grid {
-                gap: 1.6rem 0.75rem;
+              .gallery-page {
+                --menu-clearance: 250px;
               }
 
+              .links-bar {
+                gap: 1.3rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-bottom: 1.4rem;
+              }
+
+              .social-grid {
+                gap: 0.35rem;
+              }
+
+              /* Icons only on phones so each row fits on one line.
+                 The name stays in the page for screen readers and tracking. */
               .social-link {
-                width: 72px;
+                width: 46px;
+                gap: 0;
+              }
+
+              .social-icon {
+                width: 44px;
+                height: 44px;
               }
 
               .social-name {
-                font-size: 0.62rem;
-                letter-spacing: 0.04em;
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
               }
 
               .monogram {

@@ -1,6 +1,7 @@
 // components/WelcomePopup.tsx
 import { useEffect, useState } from "react";
 import { useLang, type Lang } from "./i18n";
+import { trackRedditCustom } from "../lib/redditPixel";
 
 const STORAGE_KEY = "dc_welcome_seen";
 
@@ -71,11 +72,16 @@ export default function WelcomePopup({ location = "" }: Props) {
     try {
       if (localStorage.getItem(STORAGE_KEY)) return;
     } catch {}
-    const t = setTimeout(() => setOpen(true), 1800);
+    const t = setTimeout(() => {
+      setOpen(true);
+      trackRedditCustom("Popup Shown");
+    }, 1800);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
+    // Closed without signing up
+    if (status !== "done") trackRedditCustom("Popup Dismissed");
     setOpen(false);
     try {
       localStorage.setItem(STORAGE_KEY, "1");
@@ -103,6 +109,7 @@ export default function WelcomePopup({ location = "" }: Props) {
       }
 
       setStatus("done");
+      trackRedditCustom("Email Signup");
       try {
         localStorage.setItem(STORAGE_KEY, "1");
         // Tells the map form this device already signed up, so it skips the email field
