@@ -12,7 +12,7 @@ export default function Document() {
         {/* Reddit Pixel */}
         <Script id="reddit-pixel" strategy="afterInteractive">
           {`
-            !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_dlt528w43ns9",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+            try{var s=location.search;if(/notrack=1/.test(s))localStorage.dc_no_track=1;if(/notrack=0/.test(s))delete localStorage.dc_no_track;if(localStorage.dc_no_track)window.rdt=function(){}}catch(e){};!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_dlt528w43ns9",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
             rdt('init','a2_dlt528w43ns9');
             rdt('track', 'PageVisit');
           `}
