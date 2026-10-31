@@ -1,10 +1,19 @@
 // components/ExploreMenu.tsx
 // A small three-line (hamburger) dropdown, centered at the top of the gallery page:
-// Updates and upcoming shows (/story), Map of La Famiglia.
+// Updates and upcoming shows (/story), Map of La Famiglia, then any event flyer
+// marked show_in_menu in the Supabase `flyers` table (e.g. Morning Movement).
 // Usage (in pages/gallery.tsx):  import ExploreMenu from "../components/ExploreMenu";
 //                                 ...then render <ExploreMenu /> anywhere in the page.
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "../lib/supabase";
 import { useLang } from "./i18n";
+
+type MenuFlyer = {
+  slug: string;
+  menu_label: string | null;
+  menu_label_es: string | null;
+  title: string;
+};
 
 const COPY = {
   en: {
@@ -25,6 +34,26 @@ export default function ExploreMenu() {
   const [open, setOpen] = useState(false);
   const [small, setSmall] = useState(false); // phones
   const boxRef = useRef<HTMLDivElement | null>(null);
+  const [flyers, setFlyers] = useState<MenuFlyer[]>([]);
+
+  // Event flyers: add a row in Supabase with show_in_menu = true and
+  // published = true, and it appears here. No code change needed.
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("flyers")
+      .select("slug, menu_label, menu_label_es, title")
+      .eq("show_in_menu", true)
+      .eq("published", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!cancelled && data) setFlyers(data as MenuFlyer[]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Phones get a compact button; desktop keeps the big one
   useEffect(() => {
@@ -59,6 +88,11 @@ export default function ExploreMenu() {
   const links = [
     { href: `/story?lang=${lang}`, label: c.story },
     { href: `/welcome-map?lang=${lang}`, label: c.map },
+    ...flyers.map((f) => ({
+      href: `/events/${f.slug}?lang=${lang}`,
+      label:
+        (lang === "es" && f.menu_label_es) || f.menu_label || f.title,
+    })),
   ];
 
   return (

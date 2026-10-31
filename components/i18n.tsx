@@ -50,22 +50,30 @@ const en = {
   storyLabel: "Tell me the first lyrics that pop into your head...!",
   storyPlaceholder: "la la la… whatever comes to mind",
   moodLabel: "Pick an emoji for your mood",
+  emailLabel: "Email (optional)",
+  emailPlaceholder: "you@example.com",
+  emailHint:
+    "Didn't grab your song yet? Add your email and I'll send you one from Periwinkle. Never shown on the map.",
   submit: "Add my pin",
   sending: "Sending…",
   cancel: "Cancel",
   publicNote:
-    "Your name, lyrics and emoji will be public once approved. Please leave out links and email addresses.",
+    "Your name, lyrics and emoji will be public once approved (your email never is). Please keep links and email addresses out of your lyrics.",
   thanksTitle: "Thank you!",
   thanksBody:
     "I read every pin before it goes live. In the meantime you'll see a dashed pin of your own on the map (just on this device).",
   backToMap: "Back to the map",
   stayOnMap: "Stay on the map",
+  emailSent: "📬 Check your inbox to confirm your email and get your song.",
+  emailFailed:
+    "Your pin is in, but the email didn't go through. You can try again from the gallery page.",
 
   // Form errors
   errName: "Please add a first name or nickname.",
   errCity: "Please pick your city from the suggestions.",
   errStory: "Please share a few words of lyrics.",
   errMood: "Please pick an emoji for your mood.",
+  errEmail: "That email doesn't look quite right. Fix it or leave it blank.",
   errLinks: "Please leave links and email addresses out.",
   errRate: "Too many submissions. Please try again later.",
   errServer: "Something went wrong. Please try again.",
@@ -79,6 +87,7 @@ export type ErrKey =
   | "errCity"
   | "errStory"
   | "errMood"
+  | "errEmail"
   | "errLinks"
   | "errRate"
   | "errServer"
@@ -123,21 +132,29 @@ const es: Strings = {
   storyLabel: "Dime la primera letra que te venga a la cabeza...!",
   storyPlaceholder: "la la la… lo que se te ocurra",
   moodLabel: "Elige un emoji para tu estado de ánimo",
+  emailLabel: "Correo electrónico (opcional)",
+  emailPlaceholder: "tu@ejemplo.com",
+  emailHint:
+    "¿Todavía no recibiste tu canción? Deja tu correo y te mando una de Periwinkle. Nunca se muestra en el mapa.",
   submit: "Agregar mi pin",
   sending: "Enviando…",
   cancel: "Cancelar",
   publicNote:
-    "Tu nombre, la letra y tu emoji serán públicos una vez aprobados. Por favor, no incluyas enlaces ni correos electrónicos.",
+    "Tu nombre, la letra y tu emoji serán públicos una vez aprobados (tu correo nunca). Por favor, no incluyas enlaces ni correos en la letra.",
   thanksTitle: "¡Gracias!",
   thanksBody:
     "Reviso cada pin antes de publicarlo. Mientras tanto, verás tu propio pin con línea punteada en el mapa (solo en este dispositivo).",
   backToMap: "Volver al mapa",
   stayOnMap: "Quedarme en el mapa",
+  emailSent: "📬 Revisa tu correo para confirmarlo y recibir tu canción.",
+  emailFailed:
+    "Tu pin ya está, pero el correo no se pudo registrar. Puedes intentarlo de nuevo desde la galería.",
 
   errName: "Agrega tu nombre o un apodo.",
   errCity: "Elige tu ciudad de las sugerencias.",
   errStory: "Comparte unas palabras de la letra, por favor.",
   errMood: "Elige un emoji para tu estado de ánimo, por favor.",
+  errEmail: "Ese correo no parece correcto. Corrígelo o déjalo en blanco.",
   errLinks: "Por favor, no incluyas enlaces ni correos electrónicos.",
   errRate: "Demasiados envíos. Inténtalo de nuevo más tarde.",
   errServer: "Algo salió mal. Inténtalo de nuevo.",

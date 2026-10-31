@@ -105,6 +105,8 @@ export default function WelcomePopup({ location = "" }: Props) {
       setStatus("done");
       try {
         localStorage.setItem(STORAGE_KEY, "1");
+        // Tells the map form this device already signed up, so it skips the email field
+        localStorage.setItem("dc_subscribed", "1");
       } catch {}
     } catch {
       setErrKey("errServer");

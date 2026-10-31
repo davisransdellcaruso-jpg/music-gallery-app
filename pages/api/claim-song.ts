@@ -89,11 +89,21 @@ export default async function handler(
     song_index: songIndex,
   };
 
-  const { error: saveError } = existing
-    ? await supabaseAdmin.from("mailing_list").update(fields).eq("email", email)
+  const updateExisting = () =>
+    supabaseAdmin.from("mailing_list").update(fields).eq("email", email);
+
+  let { error: saveError } = existing
+    ? await updateExisting()
     : await supabaseAdmin.from("mailing_list").insert([
         { email, location, location_detected: location, ...fields },
       ]);
+
+  // 23505 = unique violation: the same address was inserted a moment ago
+  // (double-tap, or the gallery popup and the map at once). The database's
+  // unique rule on `email` blocked a duplicate row, so just update that row.
+  if (saveError?.code === "23505") {
+    ({ error: saveError } = await updateExisting());
+  }
 
   if (saveError) {
     console.error(saveError);

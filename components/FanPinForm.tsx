@@ -18,6 +18,19 @@ const placeLabel = (p: Place) =>
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+// Same endpoint the gallery's "A song for you" popup uses, so map emails land
+// in the same list, get the same confirmation email, and share one duplicate
+// check (pages/api/claim-song.ts).
+const SIGNUP_ENDPOINT = "/api/claim-song";
+// Set on this device once someone has signed up, so we don't ask twice.
+const SUBSCRIBED_KEY = "dc_subscribed";
+
+// Trim + lowercase so "Dav@Gmail.com " and "dav@gmail.com" are the same person
+const normalizeEmail = (s: string) => s.trim().toLowerCase();
+const looksLikeEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+
+type EmailResult = "sent" | "failed" | null;
+
 // Error codes sent back by /api/fan-pins -> translated message keys
 const SERVER_ERRORS: Record<string, ErrKey> = {
   name: "errName",
@@ -130,6 +143,37 @@ export default function FanPinForm({
   const [sending, setSending] = useState(false);
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
   const [done, setDone] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailResult, setEmailResult] = useState<EmailResult>(null);
+  // Hide the email field for people this device already signed up
+  const [askEmail, setAskEmail] = useState(true);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SUBSCRIBED_KEY)) setAskEmail(false);
+    } catch {
+      /* storage unavailable: just show the field */
+    }
+  }, []);
+
+  // Runs after the pin is saved. A failure here never undoes the pin.
+  async function subscribe(addr: string, where: string): Promise<EmailResult> {
+    try {
+      const r = await fetch(SIGNUP_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: addr, lang, location: where }),
+      });
+      if (!r.ok) return "failed";
+      try {
+        localStorage.setItem(SUBSCRIBED_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      return "sent";
+    } catch {
+      return "failed";
+    }
+  }
 
   // City autocomplete (Open-Meteo geocoding: free, no API key).
   // `language` makes city/country names come back in English or Spanish.
@@ -159,6 +203,8 @@ export default function FanPinForm({
     if (!name.trim()) return setErrKey("errName");
     if (picked && story.trim().length < 2) return setErrKey("errStory");
     if (picked && !mood) return setErrKey("errMood");
+    const addr = askEmail ? normalizeEmail(email) : "";
+    if (addr && !looksLikeEmail(addr)) return setErrKey("errEmail");
 
     setSending(true);
     try {
@@ -229,6 +275,7 @@ export default function FanPinForm({
           /* ignore */
         }
       }
+      if (addr) setEmailResult(await subscribe(addr, placeLabel(place)));
       setDone(true);
     } catch {
       setErrKey("errNetwork");
@@ -272,6 +319,17 @@ export default function FanPinForm({
             <div style={{ fontSize: 40 }}>💜</div>
             <h2 style={{ margin: "8px 0", fontSize: 22 }}>{t.thanksTitle}</h2>
             <p style={{ color: "#5a2bd0", lineHeight: 1.5 }}>{t.thanksBody}</p>
+            {emailResult && (
+              <p
+                style={{
+                  color: emailResult === "failed" ? "#e8261b" : "#3b0a8c",
+                  lineHeight: 1.5,
+                  fontWeight: 600,
+                }}
+              >
+                {emailResult === "sent" ? t.emailSent : t.emailFailed}
+              </p>
+            )}
             {onContinue ? (
               <div
                 style={{
@@ -389,7 +447,12 @@ export default function FanPinForm({
             <div
               role="radiogroup"
               aria-label={t.moodLabel}
-              style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
+              // Always two even rows of 7; buttons shrink a little on phones
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(7, minmax(0, 48px))",
+                gap: 8,
+              }}
             >
               {MOODS.map((m) => (
                 <button
@@ -399,9 +462,10 @@ export default function FanPinForm({
                   aria-checked={mood === m}
                   onClick={() => setMood(m)}
                   style={{
-                    width: 48,
-                    height: 48,
-                    fontSize: 26,
+                    width: "100%",
+                    aspectRatio: "1 / 1",
+                    padding: 0,
+                    fontSize: "clamp(20px, 5.5vw, 26px)",
                     lineHeight: 1,
                     borderRadius: 12,
                     cursor: "pointer",
@@ -416,6 +480,29 @@ export default function FanPinForm({
                 </button>
               ))}
             </div>
+
+            {askEmail && (
+              <>
+                <label style={labelStyle} htmlFor="fan-email">
+                  {t.emailLabel}
+                </label>
+                <input
+                  id="fan-email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  maxLength={254}
+                  style={field}
+                  value={email}
+                  placeholder={t.emailPlaceholder}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <div style={hint}>{t.emailHint}</div>
+              </>
+            )}
 
             {/* Honeypot (hidden from people, tempting to bots) */}
             <input
