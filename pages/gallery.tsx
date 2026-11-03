@@ -56,14 +56,11 @@ export default function Gallery() {
       setShowPopup(true);
     }, Math.max(0, POPUP_DELAY_MS - msOnSite()));
 
-    fetch("https://ipapi.co/json/")
+    // Approximate location from Vercel's own servers (see pages/api/geo.ts)
+    fetch("/api/geo")
       .then((res) => res.json())
       .then((data) => {
-        const detected = [data.city, data.region, data.country_name]
-          .filter(Boolean)
-          .join(", ");
-
-        setLocationDetected(detected);
+        if (data?.location) setLocationDetected(String(data.location));
       })
       .catch(() => {});
 
