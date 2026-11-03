@@ -6,6 +6,7 @@ import ExploreMenu from "../components/ExploreMenu";
 import MoodCheckIn from "../components/MoodCheckIn";
 import { trackRedditCustom } from "../lib/redditPixel";
 import { useLang } from "../components/i18n";
+import { msOnSite } from "../lib/visitTimer";
 
 const HERO_VIDEO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.mp4";
@@ -16,7 +17,8 @@ const HERO_VIDEO_URL =
 const HERO_POSTER_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
 
-// How long a visitor is on the page before the email popup appears
+// How long a visitor is on the site (any pages, this visit) before the
+// email popup appears on the home page
 const POPUP_DELAY_MS = 20000;
 
 export default function Gallery() {
@@ -47,9 +49,12 @@ export default function Gallery() {
       setFadeIn(true);
     }, 100);
 
+    // Counts time since they first arrived this visit, so browsing the
+    // story or the map counts too. If the time is already up when they
+    // come back here, the popup shows right away.
     const popupTimer = setTimeout(() => {
       setShowPopup(true);
-    }, POPUP_DELAY_MS);
+    }, Math.max(0, POPUP_DELAY_MS - msOnSite()));
 
     fetch("https://ipapi.co/json/")
       .then((res) => res.json())
