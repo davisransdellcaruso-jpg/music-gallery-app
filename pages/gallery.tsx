@@ -16,6 +16,9 @@ const HERO_VIDEO_URL =
 const HERO_POSTER_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
 
+// How long a visitor is on the page before the email popup appears
+const POPUP_DELAY_MS = 20000;
+
 export default function Gallery() {
   const { lang } = useLang();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -27,6 +30,9 @@ export default function Gallery() {
   const [fadeIn, setFadeIn] = useState(false);
 
   const [locationDetected, setLocationDetected] = useState("");
+
+  // The email popup only mounts after POPUP_DELAY_MS on the page
+  const [showPopup, setShowPopup] = useState(false);
 
   const [isMuted, setIsMuted] = useState(true);
   const [musicStarted, setMusicStarted] = useState(false);
@@ -41,6 +47,10 @@ export default function Gallery() {
       setFadeIn(true);
     }, 100);
 
+    const popupTimer = setTimeout(() => {
+      setShowPopup(true);
+    }, POPUP_DELAY_MS);
+
     fetch("https://ipapi.co/json/")
       .then((res) => res.json())
       .then((data) => {
@@ -54,6 +64,7 @@ export default function Gallery() {
 
     return () => {
       clearTimeout(fadeTimer);
+      clearTimeout(popupTimer);
 
       if (fadeIntervalRef.current) {
         clearInterval(fadeIntervalRef.current);
@@ -635,7 +646,7 @@ export default function Gallery() {
           <ExploreMenu />
           <MoodCheckIn />
 
-          <WelcomePopup location={locationDetected} />
+          {showPopup && <WelcomePopup location={locationDetected} />}
 
           <style jsx global>{`
             html,
@@ -691,7 +702,7 @@ export default function Gallery() {
               opacity: 0;
               background: var(--cream);
 
-              transition: opacity 1.4s ease;
+              transition: opacity 0.7s ease;
             }
 
             .gallery-page.fade-in {
@@ -1073,6 +1084,21 @@ export default function Gallery() {
                 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 
               background-size: 300px 300px;
+            }
+
+            /* Desktop: smaller menu, icons at the top, video shows sooner */
+            @media (min-width: 1101px) {
+              .gallery-page {
+                --menu-gap: 170px;
+              }
+
+              .links-bar {
+                padding: 30px 1.5rem 1rem;
+              }
+
+              .links-group {
+                gap: 0.6rem;
+              }
             }
 
             /* Too narrow to fit both groups beside the menu: stack them below it */

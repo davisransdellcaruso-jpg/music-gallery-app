@@ -33,6 +33,7 @@ export default function ExploreMenu() {
   const c = COPY[lang === "es" ? "es" : "en"];
   const [open, setOpen] = useState(false);
   const [small, setSmall] = useState(false); // phones
+  const [wide, setWide] = useState(false); // desktop
   const boxRef = useRef<HTMLDivElement | null>(null);
   const [flyers, setFlyers] = useState<MenuFlyer[]>([]);
 
@@ -55,13 +56,21 @@ export default function ExploreMenu() {
     };
   }, []);
 
-  // Phones get a compact button; desktop keeps the big one
+  // Phones get a compact button, desktop a medium one, tablets keep the big one
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setSmall(mq.matches);
+    const phone = window.matchMedia("(max-width: 640px)");
+    const desk = window.matchMedia("(min-width: 1101px)");
+    const update = () => {
+      setSmall(phone.matches);
+      setWide(desk.matches);
+    };
     update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    phone.addEventListener("change", update);
+    desk.addEventListener("change", update);
+    return () => {
+      phone.removeEventListener("change", update);
+      desk.removeEventListener("change", update);
+    };
   }, []);
 
   // Close on outside click / Escape
@@ -95,6 +104,8 @@ export default function ExploreMenu() {
     })),
   ];
 
+  const buttonSize = small ? 52 : wide ? 96 : "min(230px, 42vw)";
+
   return (
     <div
       ref={boxRef}
@@ -116,8 +127,8 @@ export default function ExploreMenu() {
         aria-expanded={open}
         aria-label={c.aria}
         style={{
-          width: small ? 52 : "min(230px, 42vw)",
-          height: small ? 52 : "min(230px, 42vw)",
+          width: buttonSize,
+          height: buttonSize,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

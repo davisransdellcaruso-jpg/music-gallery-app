@@ -6,15 +6,23 @@ import { trackRedditCustom } from "../lib/redditPixel";
 const STORAGE_KEY = "dc_welcome_seen";
 
 const en = {
-  title: "A song for you",
-  copy: 'An unreleased song from my new album, "Periwinkle", is yours when you join.',
+  // Step 1: the ask
+  title: "Would you care to stay in touch?",
+  copy: "Every so often I'll send new music, shows, and stories.",
   placeholder: "your email",
   emailAria: "Your email",
-  submit: "SEND ME THE SONG",
-  fine: "Plus occasional news. Unsubscribe anytime.",
+  submit: "STAY IN TOUCH",
+  fine: "Unsubscribe anytime.",
+  // Step 2: the gift
+  offerTitle: "Thank you",
+  offerCopy: 'Would you like an unreleased song from my new album, "Periwinkle", as a welcome gift?',
+  offerYes: "YES, SEND IT",
+  offerNo: "No thanks",
+  // Step 3: check your inbox
   doneTitle: "Check your inbox",
   doneBefore: "I just sent a confirmation link to ",
-  doneAfter: ". Tap it and your song is waiting.",
+  doneAfterSong: ". Tap it and your song will be waiting.",
+  doneAfterPlain: ". Tap it to confirm and you're all set.",
   doneFine: "Nothing there? Check your spam or promotions folder.",
   close: "CLOSE",
   closeAria: "Close",
@@ -27,15 +35,20 @@ type Copy = typeof en;
 type ErrKey = "errEmail" | "errSend" | "errServer";
 
 const es: Copy = {
-  title: "Una canción para ti",
-  copy: 'Una canción inédita de mi nuevo álbum, "Periwinkle", es tuya al unirte.',
+  title: "¿Te gustaría seguir en contacto?",
+  copy: "De vez en cuando te enviaré música nueva, conciertos e historias.",
   placeholder: "tu correo electrónico",
   emailAria: "Tu correo electrónico",
-  submit: "ENVÍAME LA CANCIÓN",
-  fine: "Además, noticias de vez en cuando. Puedes darte de baja cuando quieras.",
+  submit: "SEGUIR EN CONTACTO",
+  fine: "Puedes darte de baja cuando quieras.",
+  offerTitle: "Gracias",
+  offerCopy: '¿Te gustaría recibir una canción inédita de mi nuevo álbum, "Periwinkle", como regalo de bienvenida?',
+  offerYes: "SÍ, ENVÍAMELA",
+  offerNo: "No, gracias",
   doneTitle: "Revisa tu bandeja de entrada",
   doneBefore: "Te acabo de enviar un enlace de confirmación a ",
-  doneAfter: ". Tócalo y tu canción te estará esperando.",
+  doneAfterSong: ". Tócalo y tu canción te estará esperando.",
+  doneAfterPlain: ". Tócalo para confirmar y listo.",
   doneFine: "¿No lo ves? Revisa tu carpeta de spam o de promociones.",
   close: "CERRAR",
   closeAria: "Cerrar",
@@ -64,7 +77,11 @@ export default function WelcomePopup({ location = "" }: Props) {
 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
+  // idle -> (email sent) -> offer -> done
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "offer" | "opting" | "done"
+  >("idle");
+  const [wantsSong, setWantsSong] = useState(false);
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
 
   // Show once per visitor, after the gallery's fade-in has settled
@@ -80,8 +97,10 @@ export default function WelcomePopup({ location = "" }: Props) {
   }, []);
 
   const close = () => {
-    // Closed without signing up
-    if (status !== "done") trackRedditCustom("Popup Dismissed");
+    // Closed without giving an email
+    if (status === "idle" || status === "loading") {
+      trackRedditCustom("Popup Dismissed");
+    }
     setOpen(false);
     try {
       localStorage.setItem(STORAGE_KEY, "1");
@@ -108,7 +127,9 @@ export default function WelcomePopup({ location = "" }: Props) {
         return;
       }
 
-      setStatus("done");
+      // The email is saved and the confirmation is on its way, so even if
+      // they close now they're on the list. Next, offer the song.
+      setStatus("offer");
       trackRedditCustom("Email Signup");
       try {
         localStorage.setItem(STORAGE_KEY, "1");
@@ -119,6 +140,38 @@ export default function WelcomePopup({ location = "" }: Props) {
       setErrKey("errServer");
       setStatus("idle");
     }
+  };
+
+  const acceptSong = async () => {
+    setErrKey(null);
+    setStatus("opting");
+
+    try {
+      const res = await fetch("/api/song-opt-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        setErrKey("errServer");
+        setStatus("offer");
+        return;
+      }
+
+      setWantsSong(true);
+      setStatus("done");
+      trackRedditCustom("Song Opt-In");
+    } catch {
+      setErrKey("errServer");
+      setStatus("offer");
+    }
+  };
+
+  const declineSong = () => {
+    setErrKey(null);
+    setWantsSong(false);
+    setStatus("done");
   };
 
   if (!open) return null;
@@ -162,7 +215,7 @@ export default function WelcomePopup({ location = "" }: Props) {
             <span className="line" />
           </div>
 
-          {status !== "done" ? (
+          {status === "idle" || status === "loading" ? (
             <>
               <h2 id="welcome-title">{c.title}</h2>
               <p className="welcome-copy">{c.copy}</p>
@@ -186,13 +239,38 @@ export default function WelcomePopup({ location = "" }: Props) {
 
               <p className="welcome-fine">{c.fine}</p>
             </>
+          ) : status === "offer" || status === "opting" ? (
+            <>
+              <h2 id="welcome-title">{c.offerTitle}</h2>
+              <p className="welcome-copy">{c.offerCopy}</p>
+
+              <button
+                type="button"
+                className="welcome-done"
+                onClick={acceptSong}
+                disabled={status === "opting"}
+              >
+                {status === "opting" ? "..." : c.offerYes}
+              </button>
+
+              <button
+                type="button"
+                className="welcome-skip"
+                onClick={declineSong}
+                disabled={status === "opting"}
+              >
+                {c.offerNo}
+              </button>
+
+              {errKey && <p className="welcome-error">{c[errKey]}</p>}
+            </>
           ) : (
             <>
               <h2 id="welcome-title">{c.doneTitle}</h2>
               <p className="welcome-copy">
                 {c.doneBefore}
                 <strong>{email}</strong>
-                {c.doneAfter}
+                {wantsSong ? c.doneAfterSong : c.doneAfterPlain}
               </p>
               <p className="welcome-fine">{c.doneFine}</p>
               <button type="button" className="welcome-done" onClick={close}>
@@ -361,6 +439,23 @@ export default function WelcomePopup({ location = "" }: Props) {
           cursor: pointer;
         }
 
+        .welcome-skip {
+          display: block;
+          margin: 0.9rem auto 0;
+          padding: 0.4rem 0.8rem;
+          border: 0;
+          background: none;
+          color: #9680b8;
+          font-family: inherit;
+          font-size: 0.9rem;
+          font-style: italic;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          cursor: pointer;
+        }
+
+        .welcome-done:disabled,
+        .welcome-skip:disabled,
         form button:disabled {
           opacity: 0.6;
           cursor: default;

@@ -21,18 +21,21 @@ const EMAIL_COPY: Record<
     ignore: string;
   }
 > = {
+  // Sent as soon as someone gives their email, before they choose whether
+  // they want the song, so it doesn't promise one. The confirm page shows
+  // the song to those who said yes (wants_song in mailing_list).
   en: {
-    subject: "Your unreleased song from Davis Caruso",
+    subject: "Please confirm your email - Davis Caruso",
     heading: "Welcome to la famiglia",
-    body: "Confirm your email to get your unreleased song",
-    button: "GET MY SONG",
+    body: "Tap below to confirm your email and stay in touch",
+    button: "CONFIRM MY EMAIL",
     ignore: "If you didn't ask for this, you can ignore this message.",
   },
   es: {
-    subject: "Tu canción inédita de Davis Caruso",
+    subject: "Confirma tu correo - Davis Caruso",
     heading: "Te doy la bienvenida a la famiglia",
-    body: "Confirma tu correo para recibir tu canción inédita",
-    button: "QUIERO MI CANCIÓN",
+    body: "Toca abajo para confirmar tu correo y seguir en contacto",
+    button: "CONFIRMAR MI CORREO",
     ignore: "Si no lo solicitaste, puedes ignorar este mensaje.",
   },
 };
