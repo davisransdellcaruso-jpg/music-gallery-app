@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useLang } from "./i18n";
+import { trackRedditCustom } from "../lib/redditPixel";
 
 type MenuFlyer = {
   slug: string;
@@ -40,7 +41,7 @@ const COPY = {
 } as const;
 
 export default function ExploreMenu() {
-  const { lang } = useLang();
+  const { lang, setLang } = useLang();
   const c = COPY[lang === "es" ? "es" : "en"];
   const [open, setOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -216,7 +217,11 @@ export default function ExploreMenu() {
             role="menuitem"
             aria-expanded={aboutOpen}
             aria-controls="explore-menu-bio"
-            onClick={() => setAboutOpen((a) => !a)}
+            onClick={() => {
+              // Reddit Pixel: count opens only, not closes
+              if (!aboutOpen) trackRedditCustom("About View");
+              setAboutOpen(!aboutOpen);
+            }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -280,6 +285,56 @@ export default function ExploreMenu() {
               ))}
             </div>
           )}
+
+          {/* Language switch */}
+          <div
+            role="group"
+            aria-label="Language / Idioma"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 10,
+              padding: small ? "12px 18px" : "14px 20px",
+              borderTop: divider,
+              fontSize: small ? 15 : 16,
+              letterSpacing: "0.04em",
+            }}
+          >
+            {(["en", "es"] as const).map((l, i) => {
+              const active = lang === l;
+              return (
+                <span key={l} style={{ display: "contents" }}>
+                  {i > 0 && (
+                    <span aria-hidden="true" style={{ color: "rgba(212,173,86,0.9)" }}>
+                      ·
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    lang={l}
+                    aria-pressed={active}
+                    onClick={() => setLang(l)}
+                    style={{
+                      padding: "2px 4px",
+                      border: "none",
+                      background: "none",
+                      fontFamily: "inherit",
+                      fontSize: "inherit",
+                      letterSpacing: "inherit",
+                      cursor: active ? "default" : "pointer",
+                      color: active ? "#e16d99" : "#9680b8",
+                      fontWeight: active ? 600 : 400,
+                      textDecoration: active ? "underline" : "none",
+                      textUnderlineOffset: 4,
+                    }}
+                  >
+                    {l === "en" ? "English" : "Español"}
+                  </button>
+                </span>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

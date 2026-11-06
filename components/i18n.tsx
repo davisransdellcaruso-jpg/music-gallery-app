@@ -164,6 +164,9 @@ const es: Strings = {
 export const STRINGS: Record<Lang, Strings> = { en, es };
 
 const STORAGE_KEY = "dc_lang";
+// Fired whenever someone switches language, so every part of the page that
+// uses useLang (menu, links labels, popup, map) switches together.
+const CHANGE_EVENT = "dc-lang-change";
 
 export function useLang() {
   const [lang, setLangState] = useState<Lang>("en");
@@ -182,12 +185,30 @@ export function useLang() {
     } catch {
       /* storage / navigator unavailable: stay on English */
     }
+
+    const onChange = (e: Event) => {
+      const l = (e as CustomEvent<Lang>).detail;
+      if (l === "en" || l === "es") setLangState(l);
+    };
+    window.addEventListener(CHANGE_EVENT, onChange);
+    return () => window.removeEventListener(CHANGE_EVENT, onChange);
   }, []);
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
     try {
       localStorage.setItem(STORAGE_KEY, l);
+      // If the address already says ?lang=, update it so a refresh keeps the choice
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("lang")) {
+        url.searchParams.set("lang", l);
+        window.history.replaceState(window.history.state, "", url.toString());
+      }
+    } catch {
+      /* ignore */
+    }
+    try {
+      window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: l }));
     } catch {
       /* ignore */
     }
