@@ -1,7 +1,8 @@
 // components/ExploreMenu.tsx
 // A small three-line (hamburger) dropdown, centered at the top of the gallery page:
-// Updates and upcoming shows (/story), Map of La Famiglia, then any event flyer
-// marked show_in_menu in the Supabase `flyers` table (e.g. Morning Movement).
+// Updates and upcoming shows (/story), Map of La Famiglia, any event flyer
+// marked show_in_menu in the Supabase `flyers` table (e.g. Morning Movement),
+// and an "About" item that opens a short bio right inside the menu.
 // Usage (in pages/gallery.tsx):  import ExploreMenu from "../components/ExploreMenu";
 //                                 ...then render <ExploreMenu /> anywhere in the page.
 import { useEffect, useRef, useState } from "react";
@@ -19,12 +20,22 @@ const COPY = {
   en: {
     story: "Updates and upcoming shows",
     map: "Map of La Famiglia",
+    about: "About",
     aria: "Menu",
+    bio: [
+      "Davis Caruso is a lover of art and creativity, inspired to build community around his passions for music and dance. Currently producing music across a variety of genres and collaborating locally and abroad, Davis is building musical worlds rooted in a practice of empathy and deep listening. He describes his sound as “ambient world soul”: music that often exists in big, open spaces while keeping a feeling of intimacy.",
+      "Through his work, Davis hopes to help others unlock their creative potential and build lives they feel truly energized to live, imagining our worlds becoming more beautiful and harmonious as we meet our needs doing what we love.",
+    ],
   },
   es: {
     story: "Novedades y próximos shows",
     map: "Mapa de La Famiglia",
+    about: "Sobre Davis",
     aria: "Menú",
+    bio: [
+      "Davis Caruso es un amante del arte y la creatividad, inspirado a construir comunidad en torno a sus pasiones: la música y el baile. Actualmente produce música de diversos géneros y colabora tanto a nivel local como en el extranjero, creando mundos musicales arraigados en la práctica de la empatía y la escucha profunda. Él describe su sonido como “ambient world soul”: una música que suele habitar grandes espacios abiertos sin perder la intimidad.",
+      "A través de su trabajo, Davis espera ayudar a otros a descubrir su potencial creativo y construir vidas que de verdad les llenen de energía, imaginando que nuestros mundos se vuelven más bellos y armoniosos a medida que satisfacemos nuestras necesidades haciendo lo que amamos.",
+    ],
   },
 } as const;
 
@@ -32,6 +43,7 @@ export default function ExploreMenu() {
   const { lang } = useLang();
   const c = COPY[lang === "es" ? "es" : "en"];
   const [open, setOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [small, setSmall] = useState(false); // phones
   const [wide, setWide] = useState(false); // desktop
   const boxRef = useRef<HTMLDivElement | null>(null);
@@ -73,6 +85,11 @@ export default function ExploreMenu() {
     };
   }, []);
 
+  // The bio folds back up whenever the menu closes
+  useEffect(() => {
+    if (!open) setAboutOpen(false);
+  }, [open]);
+
   // Close on outside click / Escape
   useEffect(() => {
     if (!open) return;
@@ -105,6 +122,9 @@ export default function ExploreMenu() {
   ];
 
   const buttonSize = small ? 52 : wide ? 96 : "min(230px, 42vw)";
+  const rowPadding = small ? "14px 18px" : "18px 20px";
+  const rowFont = small ? 17 : 19;
+  const divider = "1px solid rgba(212,173,86,0.35)";
 
   return (
     <div
@@ -163,6 +183,7 @@ export default function ExploreMenu() {
           style={{
             marginTop: small ? 6 : 8,
             minWidth: "min(320px, 80vw)",
+            maxWidth: "min(440px, 88vw)",
             borderRadius: 14,
             overflow: "hidden",
             border: "1px solid rgba(212,173,86,0.75)",
@@ -177,18 +198,88 @@ export default function ExploreMenu() {
               role="menuitem"
               style={{
                 display: "block",
-                padding: small ? "14px 18px" : "18px 20px",
+                padding: rowPadding,
                 color: "#715a99",
                 textDecoration: "none",
                 textAlign: "center",
                 whiteSpace: "nowrap",
-                fontSize: small ? 17 : 19,
-                borderTop: i ? "1px solid rgba(212,173,86,0.35)" : "none",
+                fontSize: rowFont,
+                borderTop: i ? divider : "none",
               }}
             >
               {l.label}
             </a>
           ))}
+
+          <button
+            type="button"
+            role="menuitem"
+            aria-expanded={aboutOpen}
+            aria-controls="explore-menu-bio"
+            onClick={() => setAboutOpen((a) => !a)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              width: "100%",
+              padding: rowPadding,
+              color: "#715a99",
+              background: "none",
+              border: "none",
+              borderTop: divider,
+              textAlign: "center",
+              fontSize: rowFont,
+              fontFamily: "inherit",
+              cursor: "pointer",
+            }}
+          >
+            {c.about}
+            <span
+              aria-hidden="true"
+              style={{
+                display: "inline-block",
+                fontSize: "0.7em",
+                color: "#e16d99",
+                transition: "transform 0.2s ease",
+                transform: aboutOpen ? "rotate(180deg)" : "none",
+              }}
+            >
+              ▾
+            </span>
+          </button>
+
+          {aboutOpen && (
+            <div
+              id="explore-menu-bio"
+              style={{
+                maxHeight: "55vh",
+                overflowY: "auto",
+                padding: small ? "4px 20px 18px" : "6px 26px 22px",
+                color: "#715a99",
+                fontSize: small ? 15 : 16,
+                lineHeight: 1.6,
+                textAlign: "left",
+              }}
+            >
+              <div
+                aria-hidden="true"
+                style={{
+                  textAlign: "center",
+                  color: "#e16d99",
+                  fontSize: 14,
+                  margin: "0 0 10px",
+                }}
+              >
+                ✦
+              </div>
+              {c.bio.map((p, i) => (
+                <p key={i} style={{ margin: i ? "12px 0 0" : 0 }}>
+                  {p}
+                </p>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
