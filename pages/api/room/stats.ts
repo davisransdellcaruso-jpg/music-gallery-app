@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (p.played_at > row.last) row.last = p.played_at;
     people.set(p.email, row);
   }
-  const bySupporter = [...people.values()]
+  const bySupporter = Array.from(people.values())
     .map((r) => ({ ...r, minutes: Math.round(r.minutes) }))
     .sort((a, b) => b.minutes - a.minutes);
 

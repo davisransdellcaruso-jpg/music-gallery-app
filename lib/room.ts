@@ -37,7 +37,7 @@ export function readToken(token: string | undefined, kind: Kind): string | null 
   if (!body || !sig) return null;
   const a = Buffer.from(sig);
   const b = Buffer.from(sign(body));
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  if (a.length !== b.length || !crypto.timingSafeEqual(new Uint8Array(a), new Uint8Array(b))) return null;
   try {
     const p = JSON.parse(Buffer.from(body, "base64url").toString());
     if (p.k !== kind || typeof p.e !== "string" || p.x < Date.now() / 1000) return null;
