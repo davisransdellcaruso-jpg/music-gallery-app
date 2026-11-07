@@ -6,6 +6,7 @@
 // Usage (in pages/gallery.tsx):  import ExploreMenu from "../components/ExploreMenu";
 //                                 ...then render <ExploreMenu /> anywhere in the page.
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { supabase } from "../lib/supabase";
 import { useLang } from "./i18n";
 import { trackRedditCustom } from "../lib/redditPixel";
@@ -23,8 +24,9 @@ const COPY = {
     map: "Map of La Famiglia",
     about: "About",
     aria: "Menu",
+    photoAlt: "Davis Caruso smiling beside a sunflower",
     bio: [
-      "Davis Caruso is a lover of art and creativity, inspired to build community around his passions for music and dance. Currently producing music across a variety of genres and collaborating locally and abroad, Davis is building musical worlds rooted in a practice of empathy and deep listening. He describes his sound as “ambient world soul”: music that often exists in big, open spaces while keeping a feeling of intimacy.",
+      "Davis Caruso is a lover of art and creativity, inspired to build community around his passions for music and dance. Davis has been songwriting since childhood and more recently started to record, produce and perform with his growing network. His musical expression is rooted in empathy and deep listening, describing his sound as “ambient world soul”: music that often exists in open spaces while preserving a sense of intimacy.",
       "Through his work, Davis hopes to help others unlock their creative potential and build lives they feel truly energized to live, imagining our worlds becoming more beautiful and harmonious as we meet our needs doing what we love.",
     ],
   },
@@ -33,6 +35,7 @@ const COPY = {
     map: "Mapa de La Famiglia",
     about: "Sobre Davis",
     aria: "Menú",
+    photoAlt: "Davis Caruso sonriendo junto a un girasol",
     bio: [
       "Davis Caruso es un amante del arte y la creatividad, inspirado a construir comunidad en torno a sus pasiones: la música y el baile. Actualmente produce música de diversos géneros y colabora tanto a nivel local como en el extranjero, creando mundos musicales arraigados en la práctica de la empatía y la escucha profunda. Él describe su sonido como “ambient world soul”: una música que suele habitar grandes espacios abiertos sin perder la intimidad.",
       "A través de su trabajo, Davis espera ayudar a otros a descubrir su potencial creativo y construir vidas que de verdad les llenen de energía, imaginando que nuestros mundos se vuelven más bellos y armoniosos a medida que satisfacemos nuestras necesidades haciendo lo que amamos.",
@@ -283,6 +286,26 @@ export default function ExploreMenu() {
                   {p}
                 </p>
               ))}
+
+              {/* Portrait underneath the bio (public/images/about.jpg) */}
+              <div
+                style={{
+                  marginTop: 18,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                  border: "1px solid rgba(212,173,86,0.55)",
+                  boxShadow: "0 6px 18px rgba(113,90,153,0.18)",
+                }}
+              >
+                <Image
+                  src="/images/about.jpg"
+                  alt={c.photoAlt}
+                  width={1080}
+                  height={1350}
+                  sizes="(max-width: 640px) 80vw, 390px"
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </div>
             </div>
           )}
 
