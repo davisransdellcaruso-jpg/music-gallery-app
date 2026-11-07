@@ -24,7 +24,6 @@ const COPY = {
     map: "Map of La Famiglia",
     about: "About",
     aria: "Menu",
-    live: "● Live now",
     photoAlt: "Davis Caruso smiling beside a sunflower",
     bio: [
       "Davis Caruso is a lover of art and creativity, inspired to build community around his passions for music and dance. Davis has been songwriting since childhood and more recently started to record, produce and perform with his growing network. His musical expression is rooted in empathy and deep listening, describing his sound as “ambient world soul”: music that often exists in open spaces while preserving a sense of intimacy.",
@@ -36,10 +35,9 @@ const COPY = {
     map: "Mapa de La Famiglia",
     about: "Sobre Davis",
     aria: "Menú",
-    live: "● En vivo ahora",
     photoAlt: "Davis Caruso sonriendo junto a un girasol",
     bio: [
-      "Davis Caruso es un amante del arte y la creatividad, inspirado a construir comunidad en torno a sus pasiones: la música y el baile. Davis compone canciones desde niño y, más recientemente, comenzó a grabar, producir y presentarse en vivo junto a su creciente red de colaboradores. Su expresión musical está arraigada en la empatía y la escucha profunda, y describe su sonido como “ambient world soul”: una música que suele habitar espacios abiertos sin perder una sensación de intimidad.",
+      "Davis Caruso es un amante del arte y la creatividad, inspirado a construir comunidad en torno a sus pasiones: la música y el baile. Actualmente produce música de diversos géneros y colabora tanto a nivel local como en el extranjero, creando mundos musicales arraigados en la práctica de la empatía y la escucha profunda. Él describe su sonido como “ambient world soul”: una música que suele habitar grandes espacios abiertos sin perder la intimidad.",
       "A través de su trabajo, Davis espera ayudar a otros a descubrir su potencial creativo y construir vidas que de verdad les llenen de energía, imaginando que nuestros mundos se vuelven más bellos y armoniosos a medida que satisfacemos nuestras necesidades haciendo lo que amamos.",
     ],
   },
@@ -54,27 +52,6 @@ export default function ExploreMenu() {
   const [wide, setWide] = useState(false); // desktop
   const boxRef = useRef<HTMLDivElement | null>(null);
   const [flyers, setFlyers] = useState<MenuFlyer[]>([]);
-  const [liveNow, setLiveNow] = useState(false);
-
-  // "Live now" link: shows only while live_stream.is_live is true (re-checked every minute)
-  useEffect(() => {
-    let cancelled = false;
-    const check = () =>
-      supabase
-        .from("live_stream")
-        .select("is_live, youtube_video_id")
-        .eq("id", 1)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (!cancelled) setLiveNow(!!data?.is_live && !!data?.youtube_video_id);
-        });
-    check();
-    const t = setInterval(check, 60_000);
-    return () => {
-      cancelled = true;
-      clearInterval(t);
-    };
-  }, []);
 
   // Event flyers: add a row in Supabase with show_in_menu = true and
   // published = true, and it appears here. No code change needed.
@@ -139,7 +116,6 @@ export default function ExploreMenu() {
   }, [open]);
 
   const links = [
-    ...(liveNow ? [{ href: `/live?lang=${lang}`, label: c.live }] : []),
     { href: `/story?lang=${lang}`, label: c.story },
     { href: `/welcome-map?lang=${lang}`, label: c.map },
     ...flyers.map((f) => ({

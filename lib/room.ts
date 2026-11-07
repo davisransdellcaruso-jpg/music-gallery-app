@@ -51,9 +51,9 @@ export function sessionCookie(token: string, maxAgeSeconds: number) {
   return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSeconds}`;
 }
 
-// Case-insensitive lookup that returns the email exactly as stored in the table.
-export async function findSupporter(email: string): Promise<string | null> {
-  const clean = email.trim().replace(/[\\%_]/g, (c) => `\\${c}`);
+// Case-insensitive lookup only: returns the email exactly as stored, or null. Never adds anyone.
+export async function lookupSupporter(email: string): Promise<string | null> {
+  const clean = (email || "").trim().replace(/[\\%_]/g, (c) => `\\${c}`);
   if (!clean) return null;
   const { data } = await roomDb
     .from("supporters")
@@ -64,10 +64,34 @@ export async function findSupporter(email: string): Promise<string | null> {
   return data?.email ?? null;
 }
 
-// The signed-in supporter's email, or null.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Open door: returns the supporter's stored email, adding them to `supporters` if they're new.
+// Existing supporters are left as-is, so there are never duplicates.
+export async function ensureSupporter(email: string): Promise<string | null> {
+  const clean = (email || "").trim().toLowerCase();
+  if (!EMAIL_RE.test(clean) || clean.length > 254) return null;
+
+  const existing = await lookupSupporter(clean);
+  if (existing) return existing;
+
+  const { error } = await roomDb.from("supporters").insert({ email: clean });
+  // 23505 = already exists (two signups at once), which is fine
+  if (error && error.code !== "23505") {
+    console.error("ensureSupporter insert failed:", error);
+    return null;
+  }
+  return (await lookupSupporter(clean)) ?? clean;
+}
+
+// The signup route calls this when someone asks for a link.
+// It now adds new emails to `supporters`, so anyone who signs up gets in.
+export const findSupporter = ensureSupporter;
+
+// The signed-in supporter's email, or null. Lookup only.
 export async function getSupporter(req: NextApiRequest): Promise<string | null> {
   const email = readToken(req.cookies[COOKIE], "session");
-  return email ? findSupporter(email) : null;
+  return email ? lookupSupporter(email) : null;
 }
 
 export function isStudio(email: string | null) {
