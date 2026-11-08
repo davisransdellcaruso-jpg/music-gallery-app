@@ -17,6 +17,11 @@ const PLATFORMS = [
     name: "Tidal",
     url: "https://tidal.com/playlist/5934d097-3a49-48e4-8003-7508b1138420",
   },
+  {
+    id: "youtube",
+    name: "YouTube",
+    url: "https://www.youtube.com/playlist?list=PLcgVTLuhdauw",
+  },
 ];
 
 const COPY = {

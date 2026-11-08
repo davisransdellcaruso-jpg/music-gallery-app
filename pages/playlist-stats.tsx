@@ -16,6 +16,7 @@ type Row = {
   spotify_taps_30d: number;
   apple_taps_30d: number;
   tidal_taps_30d: number;
+  youtube_taps_30d?: number; // 0 until the playlist_stats view has this column
   last_tap: string | null;
 };
 
@@ -89,7 +90,7 @@ export default function PlaylistStats({ rows, unknown }: Props) {
                 <th>Days played (30d)</th>
                 <th>Taps 7d</th>
                 <th>Taps 30d</th>
-                <th>Spotify / Apple / Tidal</th>
+                <th>Spotify / Apple / Tidal / YouTube</th>
                 <th>All-time taps</th>
                 <th>All-time days</th>
                 <th>Last tap</th>
@@ -107,7 +108,7 @@ export default function PlaylistStats({ rows, unknown }: Props) {
                   <td>{r.taps_7d}</td>
                   <td>{r.taps_30d}</td>
                   <td>
-                    {r.spotify_taps_30d} / {r.apple_taps_30d} / {r.tidal_taps_30d}
+                    {r.spotify_taps_30d} / {r.apple_taps_30d} / {r.tidal_taps_30d} / {r.youtube_taps_30d ?? 0}
                   </td>
                   <td>{r.total_taps}</td>
                   <td>{r.active_days}</td>
