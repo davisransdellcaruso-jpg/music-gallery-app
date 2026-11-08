@@ -1,20 +1,22 @@
-// POST { email, lang } → emails a sign-in link if the address is on the supporters list.
-// Always answers "ok" so the form never reveals who is or isn't invited.
+// POST { email, lang } → adds the email to the supporters list if it's new, then emails a sign-in link.
+// Always answers "ok" so the form never reveals anything about the list.
 import type { NextApiRequest, NextApiResponse } from "next";
 import { findSupporter, makeToken, parseBody, siteUrl } from "../../../lib/room";
+
+const LINK_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 const COPY = {
   en: {
     subject: "Your way into the listening room",
     hi: "Here's your private link to the listening room.",
     button: "Enter the listening room",
-    note: "This link works for 30 minutes. If you didn't ask for it, you can ignore this email.",
+    note: "This link works for 7 days. If you didn't ask for it, you can ignore this email.",
   },
   es: {
     subject: "Tu entrada a la sala de escucha",
     hi: "Aquí tienes tu enlace privado a la sala de escucha.",
     button: "Entrar a la sala de escucha",
-    note: "Este enlace funciona durante 30 minutos. Si no lo pediste, puedes ignorar este correo.",
+    note: "Este enlace funciona durante 7 días. Si no lo pediste, puedes ignorar este correo.",
   },
 };
 
@@ -27,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const stored = await findSupporter(email);
   if (stored) {
-    const link = `${siteUrl()}/api/room/verify?t=${encodeURIComponent(makeToken(stored, "link", 60 * 30))}`;
+    const link = `${siteUrl()}/api/room/verify?t=${encodeURIComponent(makeToken(stored, "link", LINK_TTL_SECONDS))}`;
     const t = COPY[lang];
     const html = `
       <div style="font-family:Georgia,serif;background:#1c1410;color:#efe6d8;padding:40px 24px;text-align:center">
