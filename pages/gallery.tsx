@@ -7,6 +7,7 @@ import MoodCheckIn from "../components/MoodCheckIn";
 import { trackRedditCustom } from "../lib/redditPixel";
 import { useLang } from "../components/i18n";
 import { msOnSite } from "../lib/visitTimer";
+import { logSignupEvent, OPEN_SIGNUP_EVENT } from "../lib/signupTracking";
 
 const HERO_VIDEO_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.mp4";
@@ -18,8 +19,9 @@ const HERO_POSTER_URL =
   "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/daviscaruso%20presents%20edit.jpg";
 
 // How long a visitor is on the site (any pages, this visit) before the
-// email popup appears on the home page
-const POPUP_DELAY_MS = 20000;
+// email popup appears on the home page. Most visitors from social media
+// leave within 15 seconds, so 20 seconds meant most never saw it.
+const POPUP_DELAY_MS = 8000;
 
 export default function Gallery() {
   const { lang } = useLang();
@@ -35,6 +37,10 @@ export default function Gallery() {
 
   // The email popup only mounts after POPUP_DELAY_MS on the page
   const [showPopup, setShowPopup] = useState(false);
+  // Opened on purpose with the "Get the song" button (shows even if seen before)
+  const [popupForced, setPopupForced] = useState(false);
+  // Hide the button for people who already signed up on this device
+  const [subscribed, setSubscribed] = useState(false);
 
   const [isMuted, setIsMuted] = useState(true);
   const [musicStarted, setMusicStarted] = useState(false);
@@ -56,6 +62,17 @@ export default function Gallery() {
       setShowPopup(true);
     }, Math.max(0, POPUP_DELAY_MS - msOnSite()));
 
+    try {
+      setSubscribed(Boolean(localStorage.getItem("dc_subscribed")));
+    } catch {}
+
+    // Any "Get the song" button on the page opens the popup right away
+    const openFromButton = () => {
+      setPopupForced(true);
+      setShowPopup(true);
+    };
+    window.addEventListener(OPEN_SIGNUP_EVENT, openFromButton);
+
     // Approximate location from Vercel's own servers (see pages/api/geo.ts)
     fetch("/api/geo")
       .then((res) => res.json())
@@ -67,6 +84,7 @@ export default function Gallery() {
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(popupTimer);
+      window.removeEventListener(OPEN_SIGNUP_EVENT, openFromButton);
 
       if (fadeIntervalRef.current) {
         clearInterval(fadeIntervalRef.current);
@@ -550,6 +568,26 @@ export default function Gallery() {
               </div>
             </section>
 
+            {!subscribed && (
+              <div className="song-cta">
+                <button
+                  type="button"
+                  className="song-cta-button"
+                  onClick={() => {
+                    logSignupEvent("button");
+                    trackRedditCustom("Get Song Button");
+                    setPopupForced(true);
+                    setShowPopup(true);
+                  }}
+                >
+                  <span className="song-cta-star" aria-hidden="true">✦</span>
+                  {lang === "es"
+                    ? "CANCIÓN INÉDITA GRATIS"
+                    : "GET AN UNRELEASED SONG"}
+                </button>
+              </div>
+            )}
+
             <section className="photo-section">
               {videoFailed ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -648,7 +686,20 @@ export default function Gallery() {
           <ExploreMenu />
           <MoodCheckIn />
 
-          {showPopup && <WelcomePopup location={locationDetected} />}
+          {showPopup && (
+            <WelcomePopup
+              key={popupForced ? "forced" : "timed"}
+              location={locationDetected}
+              forceOpen={popupForced}
+              onClose={() => {
+                setShowPopup(false);
+                setPopupForced(false);
+                try {
+                  setSubscribed(Boolean(localStorage.getItem("dc_subscribed")));
+                } catch {}
+              }}
+            />
+          )}
 
           <style jsx global>{`
             html,
@@ -834,6 +885,43 @@ export default function Gallery() {
               padding: 112px 1.5rem 1.8rem;
 
               background: var(--cream);
+            }
+
+            /* "Get the song" button, right under the links so it's always in view */
+            .song-cta {
+              position: relative;
+              z-index: 2;
+              display: flex;
+              justify-content: center;
+              padding: 0 1.5rem 1.6rem;
+              background: var(--cream);
+            }
+
+            .song-cta-button {
+              display: inline-flex;
+              align-items: center;
+              gap: 0.6rem;
+              padding: 0.8rem 1.4rem;
+              border: 1px solid var(--lavender);
+              border-radius: 3px;
+              background: linear-gradient(135deg, #a08bc0, #8068a7);
+              color: #fffaf7;
+              font-family: "Fraunces", Georgia, serif;
+              font-size: 0.8rem;
+              font-weight: 600;
+              letter-spacing: 0.18em;
+              cursor: pointer;
+              box-shadow: 0 8px 24px rgba(60, 40, 80, 0.18);
+              transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .song-cta-button:hover {
+              transform: translateY(-1px);
+              box-shadow: 0 12px 28px rgba(60, 40, 80, 0.24);
+            }
+
+            .song-cta-star {
+              color: var(--gold);
             }
 
             .links-group {

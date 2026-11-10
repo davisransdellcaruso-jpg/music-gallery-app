@@ -4,38 +4,46 @@ import { randomUUID } from "crypto";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { sendEmail } from "../../lib/sendEmail";
 import { SONGS } from "../../lib/songs";
+import { cleanSource } from "../../lib/signupTracking";
+import { recordSignupEvent } from "../../lib/signupEventsServer";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_MS = 60_000;
 
 type Lang = "en" | "es";
 
-// Confirmation email wording, per language
+// Confirmation email wording, per language.
+// The song is the reason people sign up, so the email leads with it: the
+// subject says the song is here, and the one button takes them to it.
+// (Tapping it is also what confirms their address.)
 const EMAIL_COPY: Record<
   Lang,
   {
     subject: string;
+    preview: string;
     heading: string;
     body: string;
     button: string;
+    after: string;
     ignore: string;
   }
 > = {
-  // Sent as soon as someone gives their email, before they choose whether
-  // they want the song, so it doesn't promise one. The confirm page shows
-  // the song to those who said yes (wants_song in mailing_list).
   en: {
-    subject: "Please confirm your email - Davis Caruso",
+    subject: "Your unreleased Periwinkle song is here 🎧",
+    preview: "One tap and it's yours.",
     heading: "Welcome to la famiglia",
-    body: "Tap below to confirm your email and stay in touch",
-    button: "CONFIRM MY EMAIL",
+    body: "Here's the unreleased song from Periwinkle I promised you. Tap below to get it",
+    button: "GET MY SONG",
+    after: "Every so often I'll send new music, shows, and stories. — Davis",
     ignore: "If you didn't ask for this, you can ignore this message.",
   },
   es: {
-    subject: "Confirma tu correo - Davis Caruso",
+    subject: "Tu canción inédita de Periwinkle está aquí 🎧",
+    preview: "Un toque y es tuya.",
     heading: "Te doy la bienvenida a la famiglia",
-    body: "Toca abajo para confirmar tu correo y seguir en contacto",
-    button: "CONFIRMAR MI CORREO",
+    body: "Aquí está la canción inédita de Periwinkle que te prometí. Toca abajo para recibirla",
+    button: "QUIERO MI CANCIÓN",
+    after: "De vez en cuando te enviaré música nueva, conciertos e historias. — Davis",
     ignore: "Si no lo solicitaste, puedes ignorar este mensaje.",
   },
 };
@@ -52,6 +60,9 @@ export default async function handler(
   const location = String(req.body?.location || "").trim() || null;
   // Only ever "es" or "en" (anything else falls back to English)
   const lang: Lang = req.body?.lang === "es" ? "es" : "en";
+  // Where they came from (?src=ig, ?src=tt, ...) so /signup-stats can
+  // show which links bring people who actually sign up
+  const source = cleanSource(req.body?.source) ?? "direct";
 
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return res
@@ -90,6 +101,8 @@ export default async function handler(
     verify_token: token,
     token_sent_at: now,
     song_index: songIndex,
+    // The song now comes with every signup, so everyone who confirms gets it
+    wants_song: true,
   };
 
   const updateExisting = () =>
@@ -121,19 +134,21 @@ export default async function handler(
   );
   // lang rides along in the link so the confirm page (and the map after it)
   // stay in the same language as the email
-  const confirmUrl = `${siteUrl}/api/verify?token=${token}&lang=${lang}`;
+  const confirmUrl = `${siteUrl}/api/verify?token=${token}&lang=${lang}&src=${source}`;
   const c = EMAIL_COPY[lang];
 
   try {
     await sendEmail({
       to: email,
       subject: c.subject,
-      text: `${c.heading}.\n\n${c.body}:\n${confirmUrl}\n\n${c.ignore}`,
+      text: `${c.heading}.\n\n${c.body}:\n${confirmUrl}\n\n${c.after}\n\n${c.ignore}`,
       html: `
+        <div style="display:none;max-height:0;overflow:hidden">${c.preview}</div>
         <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#715a99;background:#fbf5f0;border:1px solid #d4ad56;text-align:center">
           <h2 style="font-style:italic;margin:0 0 12px">${c.heading}</h2>
           <p style="line-height:1.6;margin:0 0 24px">${c.body}.</p>
-          <a href="${confirmUrl}" style="display:inline-block;padding:14px 22px;background:#8068a7;color:#fffaf7;text-decoration:none;letter-spacing:0.15em;font-size:14px">${c.button}</a>
+          <a href="${confirmUrl}" style="display:block;padding:18px 22px;background:#8068a7;color:#fffaf7;text-decoration:none;letter-spacing:0.15em;font-size:16px;font-weight:bold">${c.button}</a>
+          <p style="line-height:1.6;margin:24px 0 0;font-style:italic">${c.after}</p>
           <p style="font-size:12px;opacity:0.75;margin:24px 0 0">${c.ignore}</p>
         </div>`,
     });
@@ -144,6 +159,14 @@ export default async function handler(
       code: "send",
     });
   }
+
+  await recordSignupEvent({
+    event: "submitted",
+    source,
+    visitorId: req.body?.visitorId,
+    page: req.body?.page,
+    country: (req.headers["x-vercel-ip-country"] as string) || null,
+  });
 
   return res.status(200).json({ ok: true });
 }

@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { SONG_BUCKET, SONGS, songTitle } from "../../lib/songs";
+import { recordSignupEvent } from "../../lib/signupEventsServer";
 
 const TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 const DOWNLOAD_LINK_SECONDS = 60 * 60; // each download link works for 1 hour
@@ -32,7 +33,7 @@ const COPY: Record<
     almostP:
       "Your email is confirmed, but the song isn't available right now. Please check back soon.",
     welcomeH1: "Welcome to la famiglia",
-    confirmed: "Your email is confirmed. Your song:",
+    confirmed: "You're in. Here's your unreleased song from Periwinkle:",
     download: "DOWNLOAD YOUR SONG",
     next: "Continue to the listener map",
   },
@@ -45,7 +46,7 @@ const COPY: Record<
     almostP:
       "Tu correo está confirmado, pero la canción no está disponible en este momento. Vuelve a intentarlo pronto.",
     welcomeH1: "Te doy la bienvenida a la famiglia",
-    confirmed: "Tu correo está confirmado. Tu canción:",
+    confirmed: "Ya estás dentro. Aquí está tu canción inédita de Periwinkle:",
     download: "DESCARGAR MI CANCIÓN",
     next: "Continuar al mapa de oyentes",
   },
@@ -113,7 +114,7 @@ export default async function handler(
 
   const { data: row } = await supabaseAdmin
     .from("mailing_list")
-    .select("email, token_sent_at, song_index")
+    .select("email, token_sent_at, song_index, verified")
     .eq("verify_token", token)
     .maybeSingle();
 
@@ -129,6 +130,16 @@ export default async function handler(
     .from("mailing_list")
     .update({ verified: true, verified_at: new Date().toISOString() })
     .eq("verify_token", token);
+
+  // Count each address once, the first time it's confirmed
+  if (!row.verified) {
+    await recordSignupEvent({
+      event: "confirmed",
+      source: req.query.src,
+      country: (req.headers["x-vercel-ip-country"] as string) || null,
+      page: "/api/verify",
+    });
+  }
 
   const file = SONGS[(row.song_index ?? 0) % SONGS.length];
 
@@ -149,6 +160,14 @@ export default async function handler(
     );
   }
 
+  // A second link without the download flag, so the song plays right here
+  const { data: stream } = await supabaseAdmin.storage
+    .from(SONG_BUCKET)
+    .createSignedUrl(file, DOWNLOAD_LINK_SECONDS);
+  const player = stream?.signedUrl
+    ? `<audio controls autoplay preload="auto" src="${stream.signedUrl}" style="width:100%;margin:0 0 20px"></audio>`
+    : "";
+
   // After the download, the next step is the listener map (which leads on to /story)
   return res.status(200).send(
     page(
@@ -157,6 +176,7 @@ export default async function handler(
       `<h1>${c.welcomeH1}</h1>
        <p>${c.confirmed}</p>
        <p class="song">${songTitle(file)}</p>
+       ${player}
        <a class="btn" href="${signed.signedUrl}">${c.download}</a>
        <p style="margin:24px 0 0"><a class="home" href="/welcome-map?lang=${lang}">${c.next}</a></p>`,
       redditConfirmScript(token)

@@ -2,28 +2,24 @@
 import { useEffect, useState } from "react";
 import { useLang, type Lang } from "./i18n";
 import { trackRedditCustom } from "../lib/redditPixel";
+import { getSource, logSignupEvent } from "../lib/signupTracking";
 
 const STORAGE_KEY = "dc_welcome_seen";
 
 const en = {
-  // Step 1: the ask
-  title: "Would you care to stay in touch?",
-  copy: "Every so often I'll send new music, shows, and stories.",
+  // Step 1: the offer (the song leads, staying in touch comes with it)
+  kicker: "A SONG FOR YOU",
+  title: "Hear an unreleased song from Periwinkle",
+  copy: "Tell me where to send it. Every so often I'll also send new music, shows, and stories.",
   placeholder: "your email",
   emailAria: "Your email",
-  submit: "STAY IN TOUCH",
-  fine: "Unsubscribe anytime.",
-  // Step 2: the gift
-  offerTitle: "Thank you",
-  offerCopy: 'Would you like an unreleased song from my new album, "Periwinkle", as a welcome gift?',
-  offerYes: "YES, SEND IT",
-  offerNo: "No thanks",
-  // Step 3: check your inbox
+  submit: "SEND ME THE SONG",
+  fine: "No spam. Unsubscribe anytime.",
+  // Step 2: check your inbox
   doneTitle: "Check your inbox",
-  doneBefore: "I just sent a confirmation link to ",
-  doneAfterSong: ". Tap it and your song will be waiting.",
-  doneAfterPlain: ". Tap it to confirm and you're all set.",
-  doneFine: "Nothing there? Check your spam or promotions folder.",
+  doneBefore: "Your song is on its way to ",
+  doneAfter: '. Open the email and tap "Get my song".',
+  doneFine: "Nothing there in a minute? Check your spam or promotions folder.",
   close: "CLOSE",
   closeAria: "Close",
   errEmail: "Please enter a valid email.",
@@ -35,21 +31,17 @@ type Copy = typeof en;
 type ErrKey = "errEmail" | "errSend" | "errServer";
 
 const es: Copy = {
-  title: "¿Te gustaría seguir en contacto?",
-  copy: "De vez en cuando te enviaré música nueva, conciertos e historias.",
+  kicker: "UNA CANCIÓN PARA TI",
+  title: "Escucha una canción inédita de Periwinkle",
+  copy: "Dime a dónde enviártela. De vez en cuando también te enviaré música nueva, conciertos e historias.",
   placeholder: "tu correo electrónico",
   emailAria: "Tu correo electrónico",
-  submit: "SEGUIR EN CONTACTO",
-  fine: "Puedes darte de baja cuando quieras.",
-  offerTitle: "Gracias",
-  offerCopy: '¿Te gustaría recibir una canción inédita de mi nuevo álbum, "Periwinkle", como regalo de bienvenida?',
-  offerYes: "SÍ, ENVÍAMELA",
-  offerNo: "No, gracias",
+  submit: "ENVÍAME LA CANCIÓN",
+  fine: "Nada de spam. Puedes darte de baja cuando quieras.",
   doneTitle: "Revisa tu bandeja de entrada",
-  doneBefore: "Te acabo de enviar un enlace de confirmación a ",
-  doneAfterSong: ". Tócalo y tu canción te estará esperando.",
-  doneAfterPlain: ". Tócalo para confirmar y listo.",
-  doneFine: "¿No lo ves? Revisa tu carpeta de spam o de promociones.",
+  doneBefore: "Tu canción va en camino a ",
+  doneAfter: '. Abre el correo y toca "Quiero mi canción".',
+  doneFine: "¿No llega en un minuto? Revisa tu carpeta de spam o de promociones.",
   close: "CERRAR",
   closeAria: "Cerrar",
   errEmail: "Escribe un correo electrónico válido.",
@@ -69,42 +61,72 @@ const ERROR_CODES: Record<string, ErrKey> = {
 type Props = {
   // Pass in locationDetected from gallery.tsx so location is still captured
   location?: string;
+  // "popup": shows once per visitor over the page (the gallery).
+  // "inline": always-visible card for a page of its own (/song).
+  variant?: "popup" | "inline";
+  // Popup only: open right away, even if they've seen it before
+  // (used when someone taps the "Get the song" button)
+  forceOpen?: boolean;
+  onClose?: () => void;
 };
 
-export default function WelcomePopup({ location = "" }: Props) {
+function visitorId(): string | null {
+  try {
+    return localStorage.getItem("dc_visitor_id");
+  } catch {
+    return null;
+  }
+}
+
+export default function WelcomePopup({
+  location = "",
+  variant = "popup",
+  forceOpen = false,
+  onClose,
+}: Props) {
   const { lang, setLang } = useLang();
   const c = COPY[lang];
+  const inline = variant === "inline";
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(inline || forceOpen);
   const [email, setEmail] = useState("");
-  // idle -> (email sent) -> offer -> done
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "offer" | "opting" | "done"
-  >("idle");
-  const [wantsSong, setWantsSong] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
 
-  // Show once per visitor, after the gallery's fade-in has settled
+  // Popup: show once per visitor, after the gallery's fade-in has settled
   useEffect(() => {
+    if (inline) {
+      logSignupEvent("shown");
+      return;
+    }
+    if (forceOpen) {
+      logSignupEvent("shown");
+      trackRedditCustom("Popup Shown");
+      return;
+    }
     try {
       if (localStorage.getItem(STORAGE_KEY)) return;
+      if (localStorage.getItem("dc_subscribed")) return;
     } catch {}
     const t = setTimeout(() => {
       setOpen(true);
+      logSignupEvent("shown");
       trackRedditCustom("Popup Shown");
-    }, 1800);
+    }, 400);
     return () => clearTimeout(t);
-  }, []);
+  }, [inline, forceOpen]);
 
   const close = () => {
     // Closed without giving an email
-    if (status === "idle" || status === "loading") {
+    if (status !== "done") {
+      logSignupEvent("dismissed");
       trackRedditCustom("Popup Dismissed");
     }
     setOpen(false);
     try {
       localStorage.setItem(STORAGE_KEY, "1");
     } catch {}
+    onClose?.();
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -117,7 +139,14 @@ export default function WelcomePopup({ location = "" }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // lang decides which language the confirmation email is written in
-        body: JSON.stringify({ email, location, lang }),
+        body: JSON.stringify({
+          email,
+          location,
+          lang,
+          source: getSource(),
+          visitorId: visitorId(),
+          page: window.location.pathname,
+        }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -127,9 +156,8 @@ export default function WelcomePopup({ location = "" }: Props) {
         return;
       }
 
-      // The email is saved and the confirmation is on its way, so even if
-      // they close now they're on the list. Next, offer the song.
-      setStatus("offer");
+      // The email is saved and the song email is on its way
+      setStatus("done");
       trackRedditCustom("Email Signup");
       try {
         localStorage.setItem(STORAGE_KEY, "1");
@@ -142,47 +170,20 @@ export default function WelcomePopup({ location = "" }: Props) {
     }
   };
 
-  const acceptSong = async () => {
-    setErrKey(null);
-    setStatus("opting");
-
-    try {
-      const res = await fetch("/api/song-opt-in", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!res.ok) {
-        setErrKey("errServer");
-        setStatus("offer");
-        return;
-      }
-
-      setWantsSong(true);
-      setStatus("done");
-      trackRedditCustom("Song Opt-In");
-    } catch {
-      setErrKey("errServer");
-      setStatus("offer");
-    }
-  };
-
-  const declineSong = () => {
-    setErrKey(null);
-    setWantsSong(false);
-    setStatus("done");
-  };
-
   if (!open) return null;
 
   return (
     <>
-      <div className="welcome-backdrop" onClick={close}>
+      {/* styled-jsx only styles elements written inside this return,
+          so the card lives here and only the wrapper changes */}
+      <div
+        className={inline ? "welcome-inline-wrap" : "welcome-backdrop"}
+        onClick={inline ? undefined : close}
+      >
         <div
-          className="welcome-card"
-          role="dialog"
-          aria-modal="true"
+          className={inline ? "welcome-card inline" : "welcome-card"}
+          role={inline ? undefined : "dialog"}
+          aria-modal={inline ? undefined : true}
           aria-labelledby="welcome-title"
           onClick={(e) => e.stopPropagation()}
         >
@@ -200,14 +201,16 @@ export default function WelcomePopup({ location = "" }: Props) {
             ))}
           </div>
 
-          <button
-            type="button"
-            className="welcome-close"
-            onClick={close}
-            aria-label={c.closeAria}
-          >
-            ×
-          </button>
+          {!inline && (
+            <button
+              type="button"
+              className="welcome-close"
+              onClick={close}
+              aria-label={c.closeAria}
+            >
+              ×
+            </button>
+          )}
 
           <div className="welcome-ornament" aria-hidden="true">
             <span className="line" />
@@ -215,14 +218,16 @@ export default function WelcomePopup({ location = "" }: Props) {
             <span className="line" />
           </div>
 
-          {status === "idle" || status === "loading" ? (
+          {status !== "done" ? (
             <>
+              <p className="welcome-kicker">{c.kicker}</p>
               <h2 id="welcome-title">{c.title}</h2>
               <p className="welcome-copy">{c.copy}</p>
 
               <form onSubmit={submit}>
                 <input
                   type="email"
+                  inputMode="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={c.placeholder}
@@ -239,43 +244,20 @@ export default function WelcomePopup({ location = "" }: Props) {
 
               <p className="welcome-fine">{c.fine}</p>
             </>
-          ) : status === "offer" || status === "opting" ? (
-            <>
-              <h2 id="welcome-title">{c.offerTitle}</h2>
-              <p className="welcome-copy">{c.offerCopy}</p>
-
-              <button
-                type="button"
-                className="welcome-done"
-                onClick={acceptSong}
-                disabled={status === "opting"}
-              >
-                {status === "opting" ? "..." : c.offerYes}
-              </button>
-
-              <button
-                type="button"
-                className="welcome-skip"
-                onClick={declineSong}
-                disabled={status === "opting"}
-              >
-                {c.offerNo}
-              </button>
-
-              {errKey && <p className="welcome-error">{c[errKey]}</p>}
-            </>
           ) : (
             <>
               <h2 id="welcome-title">{c.doneTitle}</h2>
               <p className="welcome-copy">
                 {c.doneBefore}
                 <strong>{email}</strong>
-                {wantsSong ? c.doneAfterSong : c.doneAfterPlain}
+                {c.doneAfter}
               </p>
               <p className="welcome-fine">{c.doneFine}</p>
-              <button type="button" className="welcome-done" onClick={close}>
-                {c.close}
-              </button>
+              {!inline && (
+                <button type="button" className="welcome-done" onClick={close}>
+                  {c.close}
+                </button>
+              )}
             </>
           )}
         </div>
@@ -307,6 +289,20 @@ export default function WelcomePopup({ location = "" }: Props) {
           box-shadow: 0 24px 70px rgba(60, 40, 80, 0.35);
           font-family: "Fraunces", Georgia, serif;
           color: #715a99;
+        }
+
+        .welcome-inline-wrap {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+        }
+
+        .welcome-kicker {
+          margin: 0 0 0.5rem;
+          color: #e16d99;
+          font-size: 0.7rem;
+          font-weight: 600;
+          letter-spacing: 0.24em;
         }
 
         .welcome-close {
@@ -471,6 +467,16 @@ export default function WelcomePopup({ location = "" }: Props) {
           margin: 1.1rem 0 0;
           font-size: 0.76rem;
           opacity: 0.75;
+        }
+
+        @media (max-width: 420px) {
+          .welcome-card {
+            padding: 2.4rem 1.4rem 1.5rem;
+          }
+
+          h2 {
+            font-size: 1.45rem;
+          }
         }
 
         @keyframes welcomeFade {
