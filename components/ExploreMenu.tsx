@@ -1,6 +1,6 @@
 // components/ExploreMenu.tsx
 // A small three-line (hamburger) dropdown, centered at the top of the gallery page:
-// Updates and upcoming shows (/story), Map of La Famiglia, any event flyer
+// Updates and upcoming shows (/story), Release rollout (/releases), Map of La Famiglia, any event flyer
 // marked show_in_menu in the Supabase `flyers` table (e.g. Morning Movement),
 // and an "About" item that opens a short bio right inside the menu.
 // Usage (in pages/gallery.tsx):  import ExploreMenu from "../components/ExploreMenu";
@@ -21,6 +21,7 @@ type MenuFlyer = {
 const COPY = {
   en: {
     story: "Updates and upcoming shows",
+    releases: "Release rollout",
     map: "Map of La Famiglia",
     about: "About",
     aria: "Menu",
@@ -32,6 +33,7 @@ const COPY = {
   },
   es: {
     story: "Novedades y próximos shows",
+    releases: "Calendario de lanzamientos",
     map: "Mapa de La Famiglia",
     about: "Sobre Davis",
     aria: "Menú",
@@ -117,6 +119,7 @@ export default function ExploreMenu() {
 
   const links = [
     { href: `/story?lang=${lang}`, label: c.story },
+    { href: `/releases?lang=${lang}`, label: c.releases },
     { href: `/welcome-map?lang=${lang}`, label: c.map },
     ...flyers.map((f) => ({
       href: `/events/${f.slug}?lang=${lang}`,

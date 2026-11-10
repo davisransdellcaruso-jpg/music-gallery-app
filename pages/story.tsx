@@ -1,21 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  PROJECTS,
-  getCurrentRelease,
-  todayInDetroit,
-} from "../lib/releases";
+import { getCurrentRelease } from "../lib/releases";
 
-const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-
-// "2026-11-25" -> "NOV 25"
-const shortDate = (d: string) => {
-  const [, m, day] = d.split("-");
-  return `${MONTHS[Number(m) - 1]} ${Number(day)}`;
-};
-
-// "2027-03-18" -> "MAR 18, 2027"
-const longDate = (d: string) => `${shortDate(d)}, ${d.slice(0, 4)}`;
 
 export default function Story() {
   const [mounted, setMounted] = useState(false);
@@ -26,7 +12,6 @@ export default function Story() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const [release] = useState(getCurrentRelease);
-  const [today] = useState(todayInDetroit);
 
   useEffect(() => {
     setMounted(true);
@@ -177,77 +162,6 @@ export default function Story() {
                   <span className="star">✦</span>
                   <span className="line" />
                 </div>
-              </div>
-            </section>
-
-            <section className="rollout-section">
-              <div className="shows-inner">
-                <p className="eyebrow">RELEASE</p>
-
-                <h2>rollout</h2>
-
-                <p className="rollout-intro">
-                  A new song every other Wednesday
-                </p>
-
-                {PROJECTS.map((project) => {
-                  const fullOut = project.fullReleaseDate <= today;
-
-                  return (
-                    <article className="project" key={project.name}>
-                      <header className="project-head">
-                        <h3>{project.name}</h3>
-                        <p className="project-meta">
-                          {fullOut
-                            ? `FULL ${project.kind.toUpperCase()} OUT NOW`
-                            : `FULL ${project.kind.toUpperCase()} · ${longDate(project.fullReleaseDate)}`}
-                        </p>
-                      </header>
-
-                      <ol className="tracklist">
-                        {project.tracks.map((track, i) => {
-                          const isOut =
-                            !!track.releaseDate && track.releaseDate <= today;
-                          const isNow =
-                            isOut &&
-                            track.title === release.title &&
-                            track.releaseDate === release.releaseDate;
-
-                          const status = isNow
-                            ? "playing"
-                            : isOut
-                              ? "out"
-                              : track.releaseDate
-                                ? "soon"
-                                : "note";
-
-                          return (
-                            <li
-                              key={`${project.name}-${i}`}
-                              className={`track-row ${status}`}
-                            >
-                              <span className="track-num">
-                                {String(i + 1).padStart(2, "0")}
-                              </span>
-
-                              <span className="track-title">
-                                {track.title}
-                              </span>
-
-                              <span className="track-when">
-                                {status === "playing" && "NOW PLAYING"}
-                                {status === "out" && "OUT"}
-                                {status === "soon" &&
-                                  shortDate(track.releaseDate as string)}
-                                {status === "note" && track.note}
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ol>
-                    </article>
-                  );
-                })}
               </div>
             </section>
 
