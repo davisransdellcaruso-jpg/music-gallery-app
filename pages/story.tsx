@@ -259,6 +259,21 @@ export default function Story() {
 
                 <article className="show">
                   <div className="date">
+                    <span className="month">JAN</span>
+                    <span className="day">15</span>
+                  </div>
+
+                  <div className="show-info">
+                    <h3>The Ark</h3>
+                    <p className="city">
+                      The Folk Fest Cover Sessions, with local songwriters
+                    </p>
+                    <p className="time">FRI · TIME TBA · 2027</p>
+                  </div>
+                </article>
+
+                <article className="show">
+                  <div className="date">
                     <span className="month">MAR</span>
                     <span className="day">20</span>
                   </div>
