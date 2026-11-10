@@ -16,6 +16,7 @@ type Counts = {
 };
 
 type Props = {
+  statsKey: string;
   days: number;
   rows: Counts[];
   total: Counts;
@@ -95,6 +96,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
 
   return {
     props: {
+      statsKey: String(query.key),
       days,
       rows,
       total,
@@ -110,7 +112,22 @@ function pct(n: number, d: number) {
   return `${Math.round((n / d) * 100)}%`;
 }
 
+function plural(n: number, one: string, many: string) {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
+// The one sentence that says what's going on and what to look at
+function verdict(t: Counts): string {
+  if (t.shown === 0) return "No one has seen the offer yet in this period.";
+  if (t.submitted === 0)
+    return "People are seeing the offer but no one has signed up yet. Give it more visitors before changing anything.";
+  if (t.confirmed < t.submitted * 0.6)
+    return "A lot of people sign up but don't confirm. The email may be landing in spam or Promotions.";
+  return "Most people who sign up go on to confirm. To grow the list, focus on getting more people to see the offer.";
+}
+
 export default function SignupStats({
+  statsKey,
   days,
   rows,
   total,
@@ -118,6 +135,29 @@ export default function SignupStats({
   listConfirmed,
   tableMissing,
 }: Props) {
+  const steps = [
+    {
+      label: "Saw the song offer",
+      hint: "People who saw the popup, the /song page, or tapped the button",
+      n: total.shown,
+      rate: "",
+    },
+    {
+      label: "Gave their email",
+      hint: "Typed their email and sent it",
+      n: total.submitted,
+      rate: total.shown ? `${pct(total.submitted, total.shown)} of people who saw it` : "",
+    },
+    {
+      label: "Confirmed",
+      hint: "Tapped the link in the email and got the song",
+      n: total.confirmed,
+      rate: total.submitted ? `${pct(total.confirmed, total.submitted)} of people who gave an email` : "",
+    },
+  ];
+  const max = Math.max(1, total.shown, total.submitted, total.confirmed);
+  const link = (d: number) => `?key=${encodeURIComponent(statsKey)}&days=${d}`;
+
   return (
     <>
       <Head>
@@ -125,143 +165,261 @@ export default function SignupStats({
         <meta name="robots" content="noindex" />
       </Head>
       <main className="wrap">
-        <h1>Email Signups</h1>
-        <p className="sub">Last {days} days</p>
+        <header>
+          <h1>Email signups</h1>
+          <nav className="range">
+            {[7, 30, 90].map((d) => (
+              <a key={d} href={link(d)} className={d === days ? "on" : ""}>
+                {d} days
+              </a>
+            ))}
+          </nav>
+        </header>
 
         {tableMissing && (
           <p className="warn">
-            The signup_events table isn&apos;t set up yet. Run
-            supabase/signup_events.sql in the Supabase SQL Editor and numbers
-            will start appearing here.
+            Tracking isn&apos;t set up yet. Run supabase/signup_events.sql in
+            the Supabase SQL Editor and numbers will start appearing here.
           </p>
         )}
 
-        <section className="cards">
-          <div className="card">
-            <span className="big">{total.shown}</span>
-            <span>saw the offer</span>
-          </div>
-          <div className="card">
-            <span className="big">{total.submitted}</span>
-            <span>gave an email ({pct(total.submitted, total.shown)})</span>
-          </div>
-          <div className="card">
-            <span className="big">{total.confirmed}</span>
-            <span>confirmed ({pct(total.confirmed, total.submitted)})</span>
-          </div>
+        <p className="verdict">{verdict(total)}</p>
+
+        <section className="funnel">
+          {steps.map((step, i) => (
+            <div key={step.label} className="step">
+              <div className="step-top">
+                <span className="num">{i + 1}</span>
+                <span className="label">{step.label}</span>
+                <span className="count">{step.n}</span>
+              </div>
+              <div className="bar">
+                <span style={{ width: `${(step.n / max) * 100}%` }} />
+              </div>
+              <p className="hint">
+                {step.hint}
+                {step.rate && <strong> · {step.rate}</strong>}
+              </p>
+            </div>
+          ))}
         </section>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Source</th>
-              <th>Saw offer</th>
-              <th>Tapped button</th>
-              <th>Closed it</th>
-              <th>Gave email</th>
-              <th>Confirmed</th>
-              <th>Signup rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
+        <h2>Where they came from</h2>
+        <div className="table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={7} className="none">
-                  Nothing yet.
-                </td>
+                <th>Link</th>
+                <th>Saw offer</th>
+                <th>Gave email</th>
+                <th>Confirmed</th>
+                <th>Signup rate</th>
               </tr>
-            )}
-            {rows.map((r) => (
-              <tr key={r.source}>
-                <td>{SOURCE_NAMES[r.source] ?? r.source}</td>
-                <td>{r.shown}</td>
-                <td>{r.button}</td>
-                <td>{r.dismissed}</td>
-                <td>{r.submitted}</td>
-                <td>{r.confirmed}</td>
-                <td>{pct(r.submitted, r.shown)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="none">
+                    Nothing yet.
+                  </td>
+                </tr>
+              )}
+              {rows.map((r) => (
+                <tr key={r.source}>
+                  <td className="src">{SOURCE_NAMES[r.source] ?? r.source}</td>
+                  <td>{r.shown}</td>
+                  <td>{r.submitted}</td>
+                  <td>{r.confirmed}</td>
+                  <td>{pct(r.submitted, r.shown)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <p className="foot">
-          Whole mailing list: {listTotal ?? "?"} addresses, {listConfirmed ?? "?"} confirmed.
-          <br />
-          &ldquo;Signup rate&rdquo; is emails given ÷ people who saw the offer.
-          Low &ldquo;confirmed&rdquo; compared with &ldquo;gave email&rdquo; means
-          the email is landing in spam or not getting opened.
-        </p>
+        <section className="extra">
+          <p>
+            <strong>{plural(total.dismissed, "person", "people")}</strong>{" "}
+            closed the popup without signing up.
+          </p>
+          <p>
+            <strong>{plural(total.button, "tap", "taps")}</strong> on the
+            &ldquo;Get an unreleased song&rdquo; button.
+          </p>
+          <p>
+            Your whole mailing list:{" "}
+            <strong>{listTotal ?? "?"} addresses</strong>,{" "}
+            {listConfirmed ?? "?"} confirmed (all time).
+          </p>
+        </section>
       </main>
+
+      <style jsx global>{`
+        html,
+        body {
+          background: #f7efe9 !important;
+          color: #3d2f55 !important;
+        }
+      `}</style>
 
       <style jsx>{`
         .wrap {
-          max-width: 860px;
+          max-width: 760px;
           margin: 0 auto;
-          padding: 40px 16px;
+          padding: 40px 16px 64px;
           font-family: Georgia, serif;
           color: #3d2f55;
         }
+        header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
         h1 {
           margin: 0;
+          font-size: 2rem;
+          color: #715a99;
         }
-        .sub {
-          margin: 4px 0 24px;
-          opacity: 0.7;
+        .range {
+          display: flex;
+          gap: 6px;
+        }
+        .range a {
+          padding: 6px 12px;
+          border: 1px solid #cbbde0;
+          border-radius: 999px;
+          color: #715a99;
+          font-size: 0.85rem;
+          text-decoration: none;
+          background: #fff;
+        }
+        .range a.on {
+          background: #715a99;
+          border-color: #715a99;
+          color: #fff;
         }
         .warn {
           padding: 12px 16px;
           border: 1px solid #e16d99;
           background: #fdf0f4;
+          border-radius: 6px;
         }
-        .cards {
+        .verdict {
+          margin: 0 0 24px;
+          padding: 14px 18px;
+          border-left: 4px solid #e16d99;
+          background: #fff;
+          border-radius: 4px;
+          font-size: 1.05rem;
+          line-height: 1.5;
+        }
+        .funnel {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 12px;
-          margin-bottom: 28px;
+          gap: 18px;
+          padding: 22px;
+          background: #fff;
+          border: 1px solid #e6dcef;
+          border-radius: 8px;
+          margin-bottom: 36px;
         }
-        .card {
+        .step-top {
           display: flex;
-          flex-direction: column;
-          gap: 4px;
-          padding: 16px;
-          border: 1px solid #d9cfe6;
-          background: #fbf8fd;
+          align-items: baseline;
+          gap: 10px;
         }
-        .big {
-          font-size: 2rem;
+        .num {
+          display: inline-grid;
+          place-items: center;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #efe8f6;
+          color: #715a99;
+          font-size: 0.8rem;
+          font-weight: bold;
+        }
+        .label {
+          flex: 1;
+          font-size: 1.1rem;
+        }
+        .count {
+          font-size: 1.8rem;
           font-weight: bold;
           color: #715a99;
+        }
+        .bar {
+          height: 10px;
+          margin: 8px 0 6px;
+          background: #f1ecf6;
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .bar span {
+          display: block;
+          height: 100%;
+          min-width: 0;
+          background: linear-gradient(90deg, #a08bc0, #8068a7);
+          border-radius: 999px;
+        }
+        .hint {
+          margin: 0;
+          font-size: 0.88rem;
+          color: #6f6283;
+        }
+        .hint strong {
+          color: #3d2f55;
+        }
+        h2 {
+          margin: 0 0 10px;
+          font-size: 1.25rem;
+          color: #715a99;
+        }
+        .table-wrap {
+          overflow-x: auto;
+          background: #fff;
+          border: 1px solid #e6dcef;
+          border-radius: 8px;
         }
         table {
           width: 100%;
           border-collapse: collapse;
-          font-size: 0.92rem;
-          display: block;
-          overflow-x: auto;
+          font-size: 0.95rem;
         }
         th,
         td {
-          padding: 8px 10px;
-          border-bottom: 1px solid #eee;
+          padding: 12px 14px;
           text-align: left;
           white-space: nowrap;
+          border-bottom: 1px solid #f1ecf6;
         }
         th {
           font-size: 0.78rem;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          opacity: 0.7;
+          font-weight: normal;
+          color: #6f6283;
+        }
+        tbody tr:last-child td {
+          border-bottom: 0;
+        }
+        .src {
+          font-weight: bold;
         }
         .none {
-          opacity: 0.6;
+          color: #6f6283;
           font-style: italic;
         }
-        .foot {
-          margin-top: 20px;
-          font-size: 0.85rem;
-          opacity: 0.75;
-          line-height: 1.6;
+        .extra {
+          margin-top: 28px;
+          color: #6f6283;
+          line-height: 1.5;
+        }
+        .extra p {
+          margin: 0 0 6px;
+        }
+        .extra strong {
+          color: #3d2f55;
         }
       `}</style>
     </>
