@@ -1,8 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import {
+  PROJECTS,
+  getCurrentRelease,
+  todayInDetroit,
+} from "../lib/releases";
 
-const AUDIO_URL =
-  "https://bzllhepdcooxjekehkvc.supabase.co/storage/v1/object/public/Login%20page%20video/Denim%20Blues%20mp3.mp3";
+const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+// "2026-11-25" -> "NOV 25"
+const shortDate = (d: string) => {
+  const [, m, day] = d.split("-");
+  return `${MONTHS[Number(m) - 1]} ${Number(day)}`;
+};
+
+// "2027-03-18" -> "MAR 18, 2027"
+const longDate = (d: string) => `${shortDate(d)}, ${d.slice(0, 4)}`;
 
 export default function Story() {
   const [mounted, setMounted] = useState(false);
@@ -11,6 +24,9 @@ export default function Story() {
   const [musicStarted, setMusicStarted] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  const [release] = useState(getCurrentRelease);
+  const [today] = useState(todayInDetroit);
 
   useEffect(() => {
     setMounted(true);
@@ -99,7 +115,7 @@ export default function Story() {
 
       {createPortal(
         <>
-          <audio ref={audioRef} src={AUDIO_URL} loop preload="auto" />
+          <audio ref={audioRef} src={release.audioUrl} loop preload="auto" />
 
           <div className="page-border" aria-hidden="true" />
 
@@ -164,6 +180,77 @@ export default function Story() {
               </div>
             </section>
 
+            <section className="rollout-section">
+              <div className="shows-inner">
+                <p className="eyebrow">RELEASE</p>
+
+                <h2>rollout</h2>
+
+                <p className="rollout-intro">
+                  A new song every other Wednesday
+                </p>
+
+                {PROJECTS.map((project) => {
+                  const fullOut = project.fullReleaseDate <= today;
+
+                  return (
+                    <article className="project" key={project.name}>
+                      <header className="project-head">
+                        <h3>{project.name}</h3>
+                        <p className="project-meta">
+                          {fullOut
+                            ? `FULL ${project.kind.toUpperCase()} OUT NOW`
+                            : `FULL ${project.kind.toUpperCase()} · ${longDate(project.fullReleaseDate)}`}
+                        </p>
+                      </header>
+
+                      <ol className="tracklist">
+                        {project.tracks.map((track, i) => {
+                          const isOut =
+                            !!track.releaseDate && track.releaseDate <= today;
+                          const isNow =
+                            isOut &&
+                            track.title === release.title &&
+                            track.releaseDate === release.releaseDate;
+
+                          const status = isNow
+                            ? "playing"
+                            : isOut
+                              ? "out"
+                              : track.releaseDate
+                                ? "soon"
+                                : "note";
+
+                          return (
+                            <li
+                              key={`${project.name}-${i}`}
+                              className={`track-row ${status}`}
+                            >
+                              <span className="track-num">
+                                {String(i + 1).padStart(2, "0")}
+                              </span>
+
+                              <span className="track-title">
+                                {track.title}
+                              </span>
+
+                              <span className="track-when">
+                                {status === "playing" && "NOW PLAYING"}
+                                {status === "out" && "OUT"}
+                                {status === "soon" &&
+                                  shortDate(track.releaseDate as string)}
+                                {status === "note" && track.note}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
             <section className="shows-section">
               <div className="shows-inner">
                 <p className="eyebrow">UPCOMING</p>
@@ -219,7 +306,7 @@ export default function Story() {
 
                 <div className="now-playing">
                   <span className="now-label">NOW PLAYING</span>
-                  <span className="track">DENIM BLUES</span>
+                  <span className="track">{release.title.toUpperCase()}</span>
                 </div>
 
                 <button
@@ -511,6 +598,147 @@ export default function Story() {
 
             .contact-link:hover {
               color: var(--lavender-dark);
+            }
+
+            .rollout-section {
+              position: relative;
+
+              padding: clamp(5.5rem, 10vw, 8rem) 1.5rem;
+
+              border-top: 1px solid rgba(150, 128, 184, 0.2);
+            }
+
+            .rollout-section h2 {
+              margin-bottom: 0.9rem;
+            }
+
+            .rollout-intro {
+              margin: 0 0 clamp(2.8rem, 6vw, 4rem);
+
+              color: var(--pink);
+
+              text-align: center;
+
+              font-size: 1.15rem;
+              font-style: italic;
+            }
+
+            .project + .project {
+              margin-top: clamp(3.5rem, 7vw, 5rem);
+            }
+
+            .project-head {
+              display: flex;
+              flex-wrap: wrap;
+
+              align-items: baseline;
+              justify-content: space-between;
+
+              gap: 0.4rem 1.5rem;
+
+              padding-bottom: 1.1rem;
+
+              border-bottom: 1px solid rgba(150, 128, 184, 0.32);
+            }
+
+            .project-head h3 {
+              margin: 0;
+
+              color: var(--lavender-dark);
+
+              font-size: clamp(2.2rem, 5vw, 3.2rem);
+              font-weight: 500;
+              font-style: italic;
+
+              line-height: 1;
+            }
+
+            .project-meta {
+              margin: 0;
+
+              color: var(--pink);
+
+              font-size: 0.76rem;
+              font-weight: 600;
+
+              letter-spacing: 0.2em;
+            }
+
+            .tracklist {
+              margin: 0;
+              padding: 0;
+
+              list-style: none;
+            }
+
+            .track-row {
+              display: grid;
+
+              grid-template-columns: 2.6rem 1fr auto;
+
+              gap: 1rem;
+
+              align-items: baseline;
+
+              padding: 1rem 0;
+
+              border-bottom: 1px solid rgba(150, 128, 184, 0.18);
+            }
+
+            .track-num {
+              color: var(--lavender);
+
+              font-size: 0.78rem;
+              font-weight: 600;
+
+              letter-spacing: 0.14em;
+            }
+
+            .track-title {
+              color: var(--lavender-dark);
+
+              font-size: 1.35rem;
+
+              line-height: 1.2;
+            }
+
+            .track-when {
+              color: var(--lavender);
+
+              font-size: 0.74rem;
+              font-weight: 600;
+
+              letter-spacing: 0.16em;
+
+              white-space: nowrap;
+            }
+
+            .track-row.soon .track-title {
+              opacity: 0.62;
+            }
+
+            .track-row.out .track-when {
+              color: var(--pink);
+            }
+
+            .track-row.note .track-when {
+              font-style: italic;
+              font-weight: 400;
+              letter-spacing: 0.04em;
+              text-transform: none;
+            }
+
+            .track-row.playing .track-title {
+              color: var(--pink);
+              font-style: italic;
+            }
+
+            .track-row.playing .track-when {
+              color: var(--gold);
+            }
+
+            .track-row.playing .track-when::before {
+              content: "✦ ";
             }
 
             .shows-section {
@@ -825,8 +1053,18 @@ export default function Story() {
                 font-size: 1.25rem;
               }
 
-              .shows-section {
+              .shows-section,
+              .rollout-section {
                 padding: 5rem 1.5rem;
+              }
+
+              .track-row {
+                grid-template-columns: 2rem 1fr auto;
+                gap: 0.75rem;
+              }
+
+              .track-title {
+                font-size: 1.15rem;
               }
 
               .show {
