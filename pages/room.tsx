@@ -2,7 +2,7 @@
 import Head from "next/head";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type Track = { id: string; title: string; note: string | null; url: string };
+type Track = { id: string; title: string; url: string };
 type Lang = "en" | "es";
 
 const T = {
@@ -268,7 +268,6 @@ export default function Room() {
                         <span style={{ width: 24, color: C.dim, fontVariantNumeric: "tabular-nums" }}>{active ? "♪" : i + 1}</span>
                         <span style={{ flex: 1 }}>
                           <span style={{ fontSize: 18 }}>{tr.title}</span>
-                          {tr.note && <span style={{ display: "block", fontSize: 14, color: C.dim, marginTop: 4, lineHeight: 1.5 }}>{tr.note}</span>}
                         </span>
                       </button>
                     </li>
