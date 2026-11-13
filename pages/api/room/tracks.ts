@@ -1,11 +1,13 @@
 // GET → the live tracks with short-lived private links to the FLAC files (supporters only).
 import type { NextApiRequest, NextApiResponse } from "next";
-import { BUCKET, getSupporter, isStudio, roomDb } from "../../../lib/room";
+import { BUCKET, getSupporter, isStudio, roomDb, touchSupporter } from "../../../lib/room";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader("Cache-Control", "no-store");
   const email = await getSupporter(req);
   if (!email) return res.status(401).json({ error: "signin" });
+  // Every visit to the room resets the 30-day clock.
+  await touchSupporter(res, email);
 
   const { data: tracks, error } = await roomDb
     .from("room_tracks")

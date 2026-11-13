@@ -1,7 +1,7 @@
 // Shared server-side helpers for the supporters' listening room.
 // Server-only: never import this file from a component.
 import crypto from "crypto";
-import type { NextApiRequest } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 
 export const BUCKET = "listening-room";
@@ -24,14 +24,25 @@ function sign(body: string) {
   return crypto.createHmac("sha256", SECRET).update(body).digest("base64url");
 }
 
+// Room access is a rolling 30 days: every visit resets the clock.
+export const IDLE_DAYS = 30;
+export const IDLE_SECONDS = 60 * 60 * 24 * IDLE_DAYS;
+// Emailed links carry a far-off hard expiry; whether they still work is decided by
+// how recently the supporter was last in the room (see linkStillOpen).
+export const LINK_MAX_SECONDS = 60 * 60 * 24 * 365 * 5;
+
 export function makeToken(email: string, kind: Kind, ttlSeconds: number) {
-  const body = Buffer.from(
-    JSON.stringify({ e: email, k: kind, x: Math.floor(Date.now() / 1000) + ttlSeconds })
-  ).toString("base64url");
+  const now = Math.floor(Date.now() / 1000);
+  const body = Buffer.from(JSON.stringify({ e: email, k: kind, i: now, x: now + ttlSeconds })).toString("base64url");
   return `${body}.${sign(body)}`;
 }
 
 export function readToken(token: string | undefined, kind: Kind): string | null {
+  return readTokenFull(token, kind)?.email ?? null;
+}
+
+// Like readToken, but also returns when the token was issued (seconds).
+export function readTokenFull(token: string | undefined, kind: Kind): { email: string; issued: number } | null {
   if (!SECRET || !token) return null;
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
@@ -41,7 +52,9 @@ export function readToken(token: string | undefined, kind: Kind): string | null 
   try {
     const p = JSON.parse(Buffer.from(body, "base64url").toString());
     if (p.k !== kind || typeof p.e !== "string" || p.x < Date.now() / 1000) return null;
-    return p.e;
+    // Links sent before issue times were added lasted 7 days, so back-date from their expiry.
+    const issued = typeof p.i === "number" ? p.i : p.x - 60 * 60 * 24 * 7;
+    return { email: p.e, issued };
   } catch {
     return null;
   }
@@ -49,6 +62,32 @@ export function readToken(token: string | undefined, kind: Kind): string | null 
 
 export function sessionCookie(token: string, maxAgeSeconds: number) {
   return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSeconds}`;
+}
+
+// An emailed link works if the supporter has been in the room (or got the link)
+// within the last 30 days. If the activity column isn't there yet, the link's
+// own issue date is used, so links still work for 30 days after sending.
+export async function linkStillOpen(email: string, issued: number): Promise<boolean> {
+  let last = issued;
+  const { data, error } = await roomDb
+    .from("supporters")
+    .select("room_last_active")
+    .eq("email", email)
+    .maybeSingle();
+  if (!error && data?.room_last_active) {
+    last = Math.max(last, Math.floor(new Date(data.room_last_active).getTime() / 1000));
+  }
+  return Date.now() / 1000 - last <= IDLE_SECONDS;
+}
+
+// Resets the 30-day clock: a fresh session cookie plus a "last in the room" timestamp.
+export async function touchSupporter(res: NextApiResponse, email: string) {
+  res.setHeader("Set-Cookie", sessionCookie(makeToken(email, "session", IDLE_SECONDS), IDLE_SECONDS));
+  const { error } = await roomDb
+    .from("supporters")
+    .update({ room_last_active: new Date().toISOString() })
+    .eq("email", email);
+  if (error) console.error("touchSupporter: couldn't record visit (run supabase/room_link_activity.sql?)", error.message);
 }
 
 // Case-insensitive lookup only: returns the email exactly as stored, or null. Never adds anyone.
