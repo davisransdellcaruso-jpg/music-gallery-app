@@ -10,6 +10,9 @@ const en = {
   // Step 1: the offer (the song leads, staying in touch comes with it)
   kicker: "A SONG FOR YOU",
   title: "Hear an unreleased song from Periwinkle",
+  // Used instead of `title` when a page offers one named song (ad pages)
+  titleSong: (song: string) => `Hear “${song}”, unreleased, before anyone else`,
+  listenNow: "Listen now while the email arrives:",
   copy: "Tell me where to send it. Every so often I'll also send new music, shows, and stories.",
   placeholder: "your email",
   emailAria: "Your email",
@@ -33,6 +36,8 @@ type ErrKey = "errEmail" | "errSend" | "errServer";
 const es: Copy = {
   kicker: "UNA CANCIÓN PARA TI",
   title: "Escucha una canción inédita de Periwinkle",
+  titleSong: (song: string) => `Escucha “${song}”, inédita, antes que nadie`,
+  listenNow: "Escúchala ya mientras llega el correo:",
   copy: "Dime a dónde enviártela. De vez en cuando también te enviaré música nueva, conciertos e historias.",
   placeholder: "tu correo electrónico",
   emailAria: "Tu correo electrónico",
@@ -68,6 +73,10 @@ type Props = {
   // (used when someone taps the "Get the song" button)
   forceOpen?: boolean;
   onClose?: () => void;
+  // Ad pages (/s/<slug>): which ad this is, so the server unlocks its song
+  adSlug?: string;
+  // The song being offered, shown in the title when known
+  songName?: string;
 };
 
 function visitorId(): string | null {
@@ -83,6 +92,8 @@ export default function WelcomePopup({
   variant = "popup",
   forceOpen = false,
   onClose,
+  adSlug,
+  songName,
 }: Props) {
   const { lang, setLang } = useLang();
   const c = COPY[lang];
@@ -92,6 +103,7 @@ export default function WelcomePopup({
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
+  const [listenUrl, setListenUrl] = useState<string | null>(null);
 
   // Popup: show once per visitor, after the gallery's fade-in has settled
   useEffect(() => {
@@ -146,6 +158,7 @@ export default function WelcomePopup({
           source: getSource(),
           visitorId: visitorId(),
           page: window.location.pathname,
+          adSlug,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -157,6 +170,7 @@ export default function WelcomePopup({
       }
 
       // The email is saved and the song email is on its way
+      if (typeof data.listenUrl === "string") setListenUrl(data.listenUrl);
       setStatus("done");
       trackRedditCustom("Email Signup");
       try {
@@ -221,7 +235,9 @@ export default function WelcomePopup({
           {status !== "done" ? (
             <>
               <p className="welcome-kicker">{c.kicker}</p>
-              <h2 id="welcome-title">{c.title}</h2>
+              <h2 id="welcome-title">
+                {songName ? c.titleSong(songName) : c.title}
+              </h2>
               <p className="welcome-copy">{c.copy}</p>
 
               <form onSubmit={submit}>
@@ -252,6 +268,12 @@ export default function WelcomePopup({
                 <strong>{email}</strong>
                 {c.doneAfter}
               </p>
+              {listenUrl && (
+                <div className="welcome-listen">
+                  <p className="welcome-copy">{c.listenNow}</p>
+                  <audio controls autoPlay preload="auto" src={listenUrl} />
+                </div>
+              )}
               <p className="welcome-fine">{c.doneFine}</p>
               {!inline && (
                 <button type="button" className="welcome-done" onClick={close}>
@@ -289,6 +311,11 @@ export default function WelcomePopup({
           box-shadow: 0 24px 70px rgba(60, 40, 80, 0.35);
           font-family: "Fraunces", Georgia, serif;
           color: #715a99;
+        }
+
+        .welcome-listen audio {
+          width: 100%;
+          margin: 0 0 0.9rem;
         }
 
         .welcome-inline-wrap {

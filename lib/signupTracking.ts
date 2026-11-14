@@ -31,12 +31,38 @@ export function captureSource(): void {
   } catch {}
 }
 
+// For pages that are a source in themselves (ad pages): use this name
+// unless a ?src= link or an earlier visit already said where they came from
+export function setSourceIfUnknown(value: string): void {
+  const src = cleanSource(value);
+  if (!src || typeof window === "undefined") return;
+  try {
+    if (!localStorage.getItem(SOURCE_KEY)) {
+      localStorage.setItem(SOURCE_KEY, urlSource() ?? src);
+    }
+  } catch {}
+}
+
 // Where this visitor came from, or "direct" if no link said
+// (Falls back to ?src= in the address bar: a page's first events can fire
+// before _app has saved it, and those used to be counted as "direct".)
 export function getSource(): string {
   try {
-    return cleanSource(localStorage.getItem(SOURCE_KEY)) ?? "direct";
+    return (
+      cleanSource(localStorage.getItem(SOURCE_KEY)) ??
+      urlSource() ??
+      "direct"
+    );
   } catch {
-    return "direct";
+    return urlSource() ?? "direct";
+  }
+}
+
+function urlSource(): string | null {
+  try {
+    return cleanSource(new URLSearchParams(window.location.search).get("src"));
+  } catch {
+    return null;
   }
 }
 

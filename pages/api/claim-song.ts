@@ -3,7 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { randomUUID } from "crypto";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { sendEmail } from "../../lib/sendEmail";
-import { SONGS } from "../../lib/songs";
+import { SONG_BUCKET, SONGS } from "../../lib/songs";
+import { adSongIndex, getAdLanding } from "../../lib/adLandings";
 import { cleanSource } from "../../lib/signupTracking";
 import { recordSignupEvent } from "../../lib/signupEventsServer";
 
@@ -93,8 +94,13 @@ export default async function handler(
   }
 
   const token = randomUUID();
+  // An ad page (/s/<slug>) promises one particular song, so that one wins.
+  // Everywhere else, people keep the song they were given before, or get a random one.
+  const adIndex = req.body?.adSlug
+    ? adSongIndex(await getAdLanding(req.body.adSlug))
+    : null;
   const songIndex =
-    existing?.song_index ?? Math.floor(Math.random() * SONGS.length);
+    adIndex ?? existing?.song_index ?? Math.floor(Math.random() * SONGS.length);
   const now = new Date().toISOString();
 
   const fields = {
@@ -168,5 +174,17 @@ export default async function handler(
     country: (req.headers["x-vercel-ip-country"] as string) || null,
   });
 
-  return res.status(200).json({ ok: true });
+  // Let them hear the song right away while the email (with the download) arrives.
+  // A temporary streaming link only: downloading still needs the confirm email.
+  let listenUrl: string | null = null;
+  try {
+    const { data: stream } = await supabaseAdmin.storage
+      .from(SONG_BUCKET)
+      .createSignedUrl(SONGS[songIndex % SONGS.length], 60 * 60);
+    listenUrl = stream?.signedUrl ?? null;
+  } catch (err) {
+    console.error(err);
+  }
+
+  return res.status(200).json({ ok: true, listenUrl });
 }
