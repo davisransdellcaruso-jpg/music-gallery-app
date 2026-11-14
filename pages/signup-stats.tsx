@@ -251,6 +251,11 @@ export default function SignupStats({
             <strong>{listTotal ?? "?"} addresses</strong>,{" "}
             {listConfirmed ?? "?"} confirmed (all time).
           </p>
+          <p>
+            <a href={`/ad-stats${link(days)}`} style={{ color: "#715a99" }}>
+              Ad pages: listens and click-through →
+            </a>
+          </p>
         </section>
       </main>
 
