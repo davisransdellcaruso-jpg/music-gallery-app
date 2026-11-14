@@ -9,27 +9,56 @@ import { useEffect, useRef, useState } from "react";
 import type { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import WelcomePopup from "../../components/WelcomePopup";
-import { useLang, type Lang } from "../../components/i18n";
-import { setSourceIfUnknown } from "../../lib/signupTracking";
-import { AD_CLIP_BUCKET, getAdLanding } from "../../lib/adLandings";
-import { supabaseAdmin } from "../../lib/supabaseAdmin";
-import { songTitle } from "../../lib/songs";
+import WelcomePopup from "../../../components/WelcomePopup";
+import { useLang, type Lang } from "../../../components/i18n";
+import { setSourceIfUnknown } from "../../../lib/signupTracking";
+import { AD_CLIP_BUCKET, getAdLanding, type AdPlatform } from "../../../lib/adLandings";
+import { trackRedditCustom } from "../../../lib/redditPixel";
+import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { songTitle } from "../../../lib/songs";
 
 type Props = {
   slug: string;
   clipUrl: string;
   songName: string;
   headline: Record<Lang, string>;
+  epName: string | null;
+  // Only the platforms that have a link filled in, in this order
+  streams: AdPlatform[];
 };
 
-const COPY: Record<Lang, { sound: string; soundOn: string; gallery: string }> = {
+const PLATFORM_LABEL: Record<AdPlatform, string> = {
+  spotify: "Spotify",
+  apple: "Apple Music",
+  youtube: "YouTube",
+};
+
+const COPY: Record<
+  Lang,
+  {
+    sound: string;
+    soundOn: string;
+    gallery: string;
+    listenEp: (ep: string) => string;
+    listenAll: string;
+    epNote: string;
+    more: string;
+  }
+> = {
   en: {
+    listenEp: (ep) => `Hear the whole ${ep} EP`,
+    listenAll: "Hear the whole EP",
+    epNote: "5 songs · out now",
+    more: "And if you want one more…",
     sound: "🔊 Tap for sound",
     soundOn: "🔇 Mute",
     gallery: "Explore the gallery →",
   },
   es: {
+    listenEp: (ep) => `Escucha todo el EP ${ep}`,
+    listenAll: "Escucha todo el EP",
+    epNote: "5 canciones · ya disponible",
+    more: "Y si quieres una más…",
     sound: "🔊 Toca para activar el sonido",
     soundOn: "🔇 Silenciar",
     gallery: "Explora la galería →",
@@ -60,11 +89,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params, re
         en: ad.headline_en ?? "",
         es: ad.headline_es ?? ad.headline_en ?? "",
       },
+      epName: ad.ep_name,
+      streams: (["spotify", "apple", "youtube"] as AdPlatform[]).filter((p) =>
+        /^https:\/\//.test(ad[`${p}_url`] ?? "")
+      ),
     },
   };
 };
 
-export default function AdLanding({ slug, clipUrl, songName, headline }: Props) {
+export default function AdLanding({
+  slug,
+  clipUrl,
+  songName,
+  headline,
+  epName,
+  streams,
+}: Props) {
   const { lang } = useLang();
   const c = COPY[lang];
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -135,6 +175,27 @@ export default function AdLanding({ slug, clipUrl, songName, headline }: Props) 
             {muted ? c.sound : c.soundOn}
           </button>
         </div>
+
+        {streams.length > 0 && (
+          <section className="streams">
+            <h2>{epName ? c.listenEp(epName) : c.listenAll}</h2>
+            <p className="ep-note">{c.epNote}</p>
+            <div className="stream-buttons">
+              {streams.map((p) => (
+                <a
+                  key={p}
+                  href={`/s/${slug}/${p}`}
+                  className={`stream ${p}`}
+                  onClick={() => trackRedditCustom("Stream Click", { platform: p })}
+                >
+                  {PLATFORM_LABEL[p]}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {streams.length > 0 && <p className="more">{c.more}</p>}
 
         <WelcomePopup
           variant="inline"
@@ -228,6 +289,60 @@ export default function AdLanding({ slug, clipUrl, songName, headline }: Props) 
           font-size: 0.85rem;
           white-space: nowrap;
           cursor: pointer;
+        }
+
+        .streams {
+          width: 100%;
+          max-width: 440px;
+        }
+
+        .streams h2 {
+          margin: 0.3rem 0 0.2rem;
+          font-size: 1.35rem;
+          font-style: italic;
+          font-weight: 600;
+        }
+
+        .ep-note {
+          margin: 0 0 0.9rem;
+          font-size: 0.85rem;
+          opacity: 0.8;
+        }
+
+        .stream-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+        }
+
+        .stream {
+          display: block;
+          padding: 0.95rem 1rem;
+          border-radius: 4px;
+          color: #fffaf7;
+          text-decoration: none;
+          font-size: 1rem;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+        }
+
+        .stream.spotify {
+          background: #1db954;
+          color: #0b2614;
+        }
+
+        .stream.apple {
+          background: linear-gradient(135deg, #fa5c78, #e8364f);
+        }
+
+        .stream.youtube {
+          background: #e62117;
+        }
+
+        .more {
+          margin: 0.8rem 0 -0.4rem;
+          font-size: 0.95rem;
+          font-style: italic;
         }
 
         .ad-page :global(.gallery-link) {

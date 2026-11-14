@@ -12,7 +12,14 @@ export type AdLanding = {
   song_file: string;
   headline_en: string | null;
   headline_es: string | null;
+  ep_name: string | null;
+  spotify_url: string | null;
+  apple_url: string | null;
+  youtube_url: string | null;
 };
+
+export const AD_PLATFORMS = ["spotify", "apple", "youtube"] as const;
+export type AdPlatform = (typeof AD_PLATFORMS)[number];
 
 const SLUG_RE = /^[a-z0-9-]{1,32}$/;
 
@@ -22,7 +29,8 @@ export async function getAdLanding(slug: unknown): Promise<AdLanding | null> {
   try {
     const { data, error } = await supabaseAdmin
       .from("ad_landings")
-      .select("slug, clip_file, song_file, headline_en, headline_es")
+      // "*" so the page keeps working before the streaming columns are added
+      .select("*")
       .eq("slug", s)
       .eq("active", true)
       .maybeSingle();
@@ -30,7 +38,18 @@ export async function getAdLanding(slug: unknown): Promise<AdLanding | null> {
       console.error("ad_landings lookup failed:", error.message);
       return null;
     }
-    return data ?? null;
+    if (!data) return null;
+    return {
+      slug: data.slug,
+      clip_file: data.clip_file,
+      song_file: data.song_file,
+      headline_en: data.headline_en ?? null,
+      headline_es: data.headline_es ?? null,
+      ep_name: data.ep_name ?? null,
+      spotify_url: data.spotify_url ?? null,
+      apple_url: data.apple_url ?? null,
+      youtube_url: data.youtube_url ?? null,
+    };
   } catch (err) {
     console.error("ad_landings lookup failed:", err);
     return null;
