@@ -1,7 +1,7 @@
 // daviscaruso.com/s/<ad-slug>/spotify (or /apple, /youtube)
 // The streaming buttons on an ad page go through here: one tap is logged in
-// `playlist_taps` (business_slug = the ad's slug, so it shows on
-// /playlist-stats), then the visitor goes straight to that platform.
+// `ad_taps` (kept apart from the business playlist's `playlist_taps`, and
+// shown on /ad-stats), then the visitor goes straight to that platform.
 import type { GetServerSideProps } from "next";
 import { AD_PLATFORMS, type AdPlatform, getAdLanding } from "../../../lib/adLandings";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
@@ -28,13 +28,19 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req, res 
   const userAgent = String(req.headers["user-agent"] ?? "");
   if (!PREVIEW_BOTS.test(userAgent)) {
     try {
-      await supabaseAdmin.from("playlist_taps").insert({
-        business_slug: ad.slug,
+      const tap = {
         platform,
         country: (req.headers["x-vercel-ip-country"] as string) ?? null,
         user_agent: userAgent.slice(0, 300),
         referrer: ((req.headers["referer"] as string) ?? "").slice(0, 300) || null,
-      });
+      };
+      const { error } = await supabaseAdmin.from("ad_taps").insert({ ad_slug: ad.slug, ...tap });
+      // Until supabase/ad_taps.sql has been run the table doesn't exist yet: park the
+      // tap in playlist_taps so it isn't lost (that SQL moves these over when it runs).
+      if (error) {
+        console.error("ad_taps insert failed", error);
+        await supabaseAdmin.from("playlist_taps").insert({ business_slug: ad.slug, ...tap });
+      }
     } catch (err) {
       // Tracking problems should never stop the music
       console.error("ad stream tap logging failed", err);

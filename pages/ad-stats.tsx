@@ -67,10 +67,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
     }
 
     const { data: taps } = await supabaseAdmin
-      .from("playlist_taps")
+      .from("ad_taps")
       .select("platform")
-      .eq("business_slug", slug)
-      .gte("created_at", since)
+      .eq("ad_slug", slug)
+      .gte("tapped_at", since)
       .limit(50000);
 
     const count = (p: string) => (taps ?? []).filter((t) => t.platform === p).length;
