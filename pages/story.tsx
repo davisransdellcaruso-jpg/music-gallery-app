@@ -173,6 +173,19 @@ export default function Story() {
 
                 <article className="show">
                   <div className="date">
+                    <span className="month">NOV</span>
+                    <span className="day">19</span>
+                  </div>
+
+                  <div className="show-info">
+                    <h3>El Limon</h3>
+                    <p className="city">Ann Arbor</p>
+                    <p className="time">THU · 6–8 PM · WITH FRESH BERRIES</p>
+                  </div>
+                </article>
+
+                <article className="show">
+                  <div className="date">
                     <span className="month">JAN</span>
                     <span className="day">15</span>
                   </div>
