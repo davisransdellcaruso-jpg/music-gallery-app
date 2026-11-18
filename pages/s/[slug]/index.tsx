@@ -277,7 +277,7 @@ export default function AdLanding({
         body {
           margin: 0;
           padding: 0;
-          background: #f7efe9;
+          background: #efe6f8;
         }
       `}</style>
 
@@ -292,18 +292,18 @@ export default function AdLanding({
           padding: 1.6rem 1rem 2.5rem;
           background: radial-gradient(
               circle at 50% 0%,
-              rgba(255, 247, 244, 0.7),
+              rgba(250, 243, 255, 0.7),
               transparent 50%
             ),
-            linear-gradient(180deg, #f7efe9 0%, #f3d7d3 100%);
+            linear-gradient(180deg, #efe6f8 0%, #ebdffa 100%);
           font-family: "Fraunces", Georgia, serif;
-          color: #715a99;
+          color: #5e3d92;
           text-align: center;
         }
 
         .name {
           margin: 0;
-          color: #e16d99;
+          color: #c45e22;
           font-size: 0.78rem;
           font-weight: 600;
           letter-spacing: 0.3em;
@@ -322,11 +322,11 @@ export default function AdLanding({
           position: relative;
           width: 100%;
           max-width: 440px;
-          border: 1px solid rgba(212, 173, 86, 0.65);
+          border: 1px solid rgba(219, 164, 60, 0.65);
           border-radius: 4px;
           overflow: hidden;
-          background: #2a2033;
-          box-shadow: 0 18px 50px rgba(60, 40, 80, 0.25);
+          background: #2c1a42;
+          box-shadow: 0 18px 50px rgba(112, 72, 190, 0.25);
         }
 
         video {
@@ -345,9 +345,9 @@ export default function AdLanding({
           padding: 0.5rem 1rem;
           border: 0;
           border-radius: 999px;
-          background: rgba(30, 20, 40, 0.65);
+          background: rgba(35, 18, 58, 0.65);
           backdrop-filter: blur(4px);
-          color: #fffaf7;
+          color: #fdf9ff;
           font-family: inherit;
           font-size: 0.85rem;
           white-space: nowrap;
@@ -382,7 +382,7 @@ export default function AdLanding({
           display: block;
           padding: 0.95rem 1rem;
           border-radius: 4px;
-          color: #fffaf7;
+          color: #fdf9ff;
           text-decoration: none;
           font-size: 1rem;
           font-weight: 600;
@@ -409,7 +409,7 @@ export default function AdLanding({
         }
 
         .ad-page :global(.gallery-link) {
-          color: #9680b8;
+          color: #9b7fd4;
           font-size: 0.9rem;
           text-underline-offset: 3px;
         }

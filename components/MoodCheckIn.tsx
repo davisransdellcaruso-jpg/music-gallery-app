@@ -144,10 +144,10 @@ export default function MoodCheckIn() {
         padding: "18px 18px 14px",
         borderRadius: 18,
         textAlign: "center",
-        border: "1px solid rgba(212,173,86,0.8)",
-        background: "rgba(251,245,240,0.97)",
-        color: "#715a99",
-        boxShadow: "0 10px 34px rgba(113,90,153,0.3)",
+        border: "1px solid rgba(219,164,60,0.8)",
+        background: "rgba(248,242,253,0.97)",
+        color: "#5e3d92",
+        boxShadow: "0 10px 34px rgba(94,61,146,0.3)",
         fontFamily: "inherit",
       }}
     >
@@ -178,8 +178,8 @@ export default function MoodCheckIn() {
                   lineHeight: 1,
                   borderRadius: 12,
                   cursor: "pointer",
-                  border: "1px solid rgba(150,128,184,0.45)",
-                  background: picked === m ? "#f3d7d3" : "#fff",
+                  border: "1px solid rgba(155,127,212,0.45)",
+                  background: picked === m ? "#ebdffa" : "#fff",
                 }}
               >
                 {m}
@@ -193,7 +193,7 @@ export default function MoodCheckIn() {
               marginTop: 12,
               border: 0,
               background: "none",
-              color: "#9680b8",
+              color: "#9b7fd4",
               fontSize: 13,
               textDecoration: "underline",
               cursor: "pointer",
@@ -207,7 +207,7 @@ export default function MoodCheckIn() {
         <div style={{ fontSize: 16, padding: "6px 0" }}>{c.thanks(picked)}</div>
       )}
       {state === "error" && (
-        <div style={{ fontSize: 15, padding: "6px 0", color: "#c85765" }}>
+        <div style={{ fontSize: 15, padding: "6px 0", color: "#a8412a" }}>
           {c.err}
         </div>
       )}

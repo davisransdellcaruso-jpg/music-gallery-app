@@ -131,7 +131,7 @@ export default function ExploreMenu() {
   const buttonSize = small ? 52 : wide ? 96 : "min(230px, 42vw)";
   const rowPadding = small ? "14px 18px" : "18px 20px";
   const rowFont = small ? 17 : 19;
-  const divider = "1px solid rgba(212,173,86,0.35)";
+  const divider = "1px solid rgba(219,164,60,0.35)";
 
   return (
     <div
@@ -160,9 +160,9 @@ export default function ExploreMenu() {
           alignItems: "center",
           justifyContent: "center",
           borderRadius: "50%",
-          border: "1px solid rgba(212,173,86,0.75)",
-          background: "rgba(251,245,240,0.92)",
-          color: "#715a99",
+          border: "1px solid rgba(219,164,60,0.75)",
+          background: "rgba(248,242,253,0.92)",
+          color: "#5e3d92",
           cursor: "pointer",
           padding: 0,
           backdropFilter: "blur(6px)",
@@ -193,9 +193,9 @@ export default function ExploreMenu() {
             maxWidth: "min(440px, 88vw)",
             borderRadius: 14,
             overflow: "hidden",
-            border: "1px solid rgba(212,173,86,0.75)",
-            background: "rgba(251,245,240,0.97)",
-            boxShadow: "0 8px 28px rgba(113,90,153,0.25)",
+            border: "1px solid rgba(219,164,60,0.75)",
+            background: "rgba(248,242,253,0.97)",
+            boxShadow: "0 8px 28px rgba(94,61,146,0.25)",
           }}
         >
           {links.map((l, i) => (
@@ -206,7 +206,7 @@ export default function ExploreMenu() {
               style={{
                 display: "block",
                 padding: rowPadding,
-                color: "#715a99",
+                color: "#5e3d92",
                 textDecoration: "none",
                 textAlign: "center",
                 whiteSpace: "nowrap",
@@ -235,7 +235,7 @@ export default function ExploreMenu() {
               gap: 8,
               width: "100%",
               padding: rowPadding,
-              color: "#715a99",
+              color: "#5e3d92",
               background: "none",
               border: "none",
               borderTop: divider,
@@ -251,7 +251,7 @@ export default function ExploreMenu() {
               style={{
                 display: "inline-block",
                 fontSize: "0.7em",
-                color: "#e16d99",
+                color: "#c45e22",
                 transition: "transform 0.2s ease",
                 transform: aboutOpen ? "rotate(180deg)" : "none",
               }}
@@ -267,7 +267,7 @@ export default function ExploreMenu() {
                 maxHeight: "55vh",
                 overflowY: "auto",
                 padding: small ? "4px 20px 18px" : "6px 26px 22px",
-                color: "#715a99",
+                color: "#5e3d92",
                 fontSize: small ? 15 : 16,
                 lineHeight: 1.6,
                 textAlign: "left",
@@ -277,7 +277,7 @@ export default function ExploreMenu() {
                 aria-hidden="true"
                 style={{
                   textAlign: "center",
-                  color: "#e16d99",
+                  color: "#c45e22",
                   fontSize: 14,
                   margin: "0 0 10px",
                 }}
@@ -296,8 +296,8 @@ export default function ExploreMenu() {
                   marginTop: 18,
                   borderRadius: 10,
                   overflow: "hidden",
-                  border: "1px solid rgba(212,173,86,0.55)",
-                  boxShadow: "0 6px 18px rgba(113,90,153,0.18)",
+                  border: "1px solid rgba(219,164,60,0.55)",
+                  boxShadow: "0 6px 18px rgba(94,61,146,0.18)",
                 }}
               >
                 <Image
@@ -332,7 +332,7 @@ export default function ExploreMenu() {
               return (
                 <span key={l} style={{ display: "contents" }}>
                   {i > 0 && (
-                    <span aria-hidden="true" style={{ color: "rgba(212,173,86,0.9)" }}>
+                    <span aria-hidden="true" style={{ color: "rgba(219,164,60,0.9)" }}>
                       ·
                     </span>
                   )}
@@ -349,7 +349,7 @@ export default function ExploreMenu() {
                       fontSize: "inherit",
                       letterSpacing: "inherit",
                       cursor: active ? "default" : "pointer",
-                      color: active ? "#e16d99" : "#9680b8",
+                      color: active ? "#c45e22" : "#9b7fd4",
                       fontWeight: active ? 600 : 400,
                       textDecoration: active ? "underline" : "none",
                       textUnderlineOffset: 4,

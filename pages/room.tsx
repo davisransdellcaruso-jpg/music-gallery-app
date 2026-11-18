@@ -40,7 +40,7 @@ const T = {
   },
 };
 
-const C = { bg: "#1c1410", panel: "#2a1f19", line: "#3d2e25", gold: "#c9a45c", text: "#efe6d8", dim: "#a8998a" };
+const C = { bg: "#1d1229", panel: "#2b1b3d", line: "#452a60", gold: "#e3a446", text: "#f2eafa", dim: "#ab9ac4" };
 
 type Listen = { trackId: string; playId: string | null; creating: boolean; seconds: number; lastTime: number; completed: boolean };
 

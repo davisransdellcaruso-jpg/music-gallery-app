@@ -303,7 +303,7 @@ export default function Story() {
 
               width: 100%;
 
-              background: #e9b9b8;
+              background: #d8c3f2;
             }
 
             body {
@@ -317,16 +317,16 @@ export default function Story() {
             }
 
             .story-page {
-              --cream: #f7efe9;
-              --cream-light: #fbf5f1;
-              --lavender: #9680b8;
-              --lavender-dark: #715a99;
-              --pink: #e16d99;
-              --pink-soft: #e79ab7;
-              --gold: #d4ad56;
-              --bandana-red: #c85765;
-              --bandana-soft: #e9b9b8;
-              --bandana-light: #f3d7d3;
+              --cream: #efe6f8;
+              --cream-light: #f8f2fd;
+              --lavender: #9b7fd4;
+              --lavender-dark: #5e3d92;
+              --pink: #c45e22;
+              --pink-soft: #e39a48;
+              --gold: #dba43c;
+              --bandana-red: #a8412a;
+              --bandana-soft: #d8c3f2;
+              --bandana-light: #ebdffa;
 
               position: relative;
 
@@ -342,7 +342,7 @@ export default function Story() {
               background:
                 radial-gradient(
                   circle at 50% 0%,
-                  rgba(255, 247, 244, 0.58),
+                  rgba(250, 243, 255, 0.58),
                   transparent 45%
                 ),
                 linear-gradient(
@@ -422,7 +422,7 @@ export default function Story() {
               width: 105px;
               height: 1px;
 
-              background: rgba(150, 128, 184, 0.4);
+              background: rgba(155, 127, 212, 0.4);
             }
 
             .star {
@@ -510,7 +510,7 @@ export default function Story() {
             .inline-link {
               color: var(--pink);
               text-decoration: underline;
-              text-decoration-color: rgba(225, 109, 153, 0.45);
+              text-decoration-color: rgba(196, 94, 34, 0.45);
               text-underline-offset: 0.25em;
               transition: color 0.2s ease;
             }
@@ -532,7 +532,7 @@ export default function Story() {
               overflow-wrap: anywhere;
 
               text-decoration: underline;
-              text-decoration-color: rgba(225, 109, 153, 0.45);
+              text-decoration-color: rgba(196, 94, 34, 0.45);
               text-underline-offset: 0.3em;
 
               transition: color 0.2s ease;
@@ -547,7 +547,7 @@ export default function Story() {
 
               padding: clamp(5.5rem, 10vw, 8rem) 1.5rem;
 
-              border-top: 1px solid rgba(150, 128, 184, 0.2);
+              border-top: 1px solid rgba(155, 127, 212, 0.2);
             }
 
             .rollout-section h2 {
@@ -580,7 +580,7 @@ export default function Story() {
 
               padding-bottom: 1.1rem;
 
-              border-bottom: 1px solid rgba(150, 128, 184, 0.32);
+              border-bottom: 1px solid rgba(155, 127, 212, 0.32);
             }
 
             .project-head h3 {
@@ -624,7 +624,7 @@ export default function Story() {
 
               padding: 1rem 0;
 
-              border-bottom: 1px solid rgba(150, 128, 184, 0.18);
+              border-bottom: 1px solid rgba(155, 127, 212, 0.18);
             }
 
             .track-num {
@@ -690,9 +690,9 @@ export default function Story() {
 
               background: rgba(255, 255, 255, 0.12);
 
-              border-top: 1px solid rgba(150, 128, 184, 0.2);
+              border-top: 1px solid rgba(155, 127, 212, 0.2);
 
-              border-bottom: 1px solid rgba(150, 128, 184, 0.2);
+              border-bottom: 1px solid rgba(155, 127, 212, 0.2);
 
               overflow: hidden;
             }
@@ -766,9 +766,9 @@ export default function Story() {
 
               padding: 2.7rem 0;
 
-              border-top: 1px solid rgba(150, 128, 184, 0.32);
+              border-top: 1px solid rgba(155, 127, 212, 0.32);
 
-              border-bottom: 1px solid rgba(150, 128, 184, 0.32);
+              border-bottom: 1px solid rgba(155, 127, 212, 0.32);
             }
 
             .show + .show {
@@ -781,7 +781,7 @@ export default function Story() {
 
               align-items: center;
 
-              border-right: 1px solid rgba(150, 128, 184, 0.25);
+              border-right: 1px solid rgba(155, 127, 212, 0.25);
             }
 
             .month {
@@ -945,7 +945,7 @@ export default function Story() {
               width: 49px;
               height: 49px;
 
-              border: 1px solid rgba(150, 128, 184, 0.65);
+              border: 1px solid rgba(155, 127, 212, 0.65);
 
               border-radius: 50%;
 
@@ -965,7 +965,7 @@ export default function Story() {
 
               pointer-events: none;
 
-              border: 1px solid rgba(212, 173, 86, 0.55);
+              border: 1px solid rgba(219, 164, 60, 0.55);
             }
 
             @media (max-width: 600px) {

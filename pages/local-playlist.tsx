@@ -130,7 +130,7 @@ export default function LocalPlaylist() {
           margin: 0;
           padding: 0;
           width: 100%;
-          background: #e9b9b8;
+          background: #d8c3f2;
         }
         body {
           overflow-x: hidden;
@@ -143,12 +143,12 @@ export default function LocalPlaylist() {
         }
 
         .picker-page {
-          --lavender: #9680b8;
-          --lavender-dark: #715a99;
-          --pink: #e16d99;
-          --gold: #d4ad56;
-          --bandana-soft: #e9b9b8;
-          --bandana-light: #f3d7d3;
+          --lavender: #9b7fd4;
+          --lavender-dark: #5e3d92;
+          --pink: #c45e22;
+          --gold: #dba43c;
+          --bandana-soft: #d8c3f2;
+          --bandana-light: #ebdffa;
 
           position: relative;
           min-height: 100vh;
@@ -160,7 +160,7 @@ export default function LocalPlaylist() {
           color: var(--lavender-dark);
           font-family: "Fraunces", Georgia, serif;
           background:
-            radial-gradient(circle at 50% 0%, rgba(255, 247, 244, 0.58), transparent 45%),
+            radial-gradient(circle at 50% 0%, rgba(250, 243, 255, 0.58), transparent 45%),
             linear-gradient(180deg, var(--bandana-light) 0%, var(--bandana-soft) 100%);
           transition: opacity 1.35s ease;
         }
@@ -193,7 +193,7 @@ export default function LocalPlaylist() {
           right: 2rem;
           z-index: 2;
           padding: 0.45rem 0.75rem;
-          border: 1px solid rgba(150, 128, 184, 0.55);
+          border: 1px solid rgba(155, 127, 212, 0.55);
           border-radius: 999px;
           background: none;
           color: var(--lavender);
@@ -219,7 +219,7 @@ export default function LocalPlaylist() {
         .line {
           width: 90px;
           height: 1px;
-          background: rgba(150, 128, 184, 0.4);
+          background: rgba(155, 127, 212, 0.4);
         }
 
         .star {
@@ -274,7 +274,7 @@ export default function LocalPlaylist() {
           align-items: baseline;
           gap: 0.75rem;
           padding: 1.15rem 1.5rem;
-          border: 1px solid rgba(150, 128, 184, 0.45);
+          border: 1px solid rgba(155, 127, 212, 0.45);
           border-radius: 999px;
           background: rgba(255, 255, 255, 0.22);
           color: var(--lavender-dark);
@@ -324,7 +324,7 @@ export default function LocalPlaylist() {
           inset: 11px;
           z-index: 9999;
           pointer-events: none;
-          border: 1px solid rgba(212, 173, 86, 0.55);
+          border: 1px solid rgba(219, 164, 60, 0.55);
         }
 
         @media (max-width: 600px) {

@@ -162,23 +162,23 @@ export default function Privacy() {
       <style jsx global>{`
         body {
           margin: 0;
-          background: #f7efe9;
+          background: #efe6f8;
         }
       `}</style>
       <style jsx>{`
         .wrap {
           min-height: 100vh;
           padding: 56px 20px 80px;
-          background: linear-gradient(180deg, #fbf5f0 0%, #f7efe9 60%, #f3d7d3 100%);
+          background: linear-gradient(180deg, #f8f2fd 0%, #efe6f8 60%, #ebdffa 100%);
           font-family: "Fraunces", Georgia, serif;
-          color: #3a2a55;
+          color: #3b2163;
         }
         article {
           max-width: 640px;
           margin: 0 auto;
         }
         .back {
-          color: #715a99;
+          color: #5e3d92;
           text-decoration: none;
           font-size: 15px;
         }
@@ -189,25 +189,25 @@ export default function Privacy() {
         }
         .meta {
           margin: 0 0 22px;
-          color: #9680b8;
+          color: #9b7fd4;
           font-size: 14px;
         }
         .intro {
           font-size: 19px;
           line-height: 1.6;
           font-style: italic;
-          color: #715a99;
+          color: #5e3d92;
         }
         section {
           margin-top: 34px;
           padding-top: 22px;
-          border-top: 1px solid rgba(212, 173, 86, 0.55);
+          border-top: 1px solid rgba(219, 164, 60, 0.55);
         }
         h2 {
           margin: 0 0 10px;
           font-size: 22px;
           font-weight: 600;
-          color: #e16d99;
+          color: #c45e22;
         }
         p {
           font-size: 17px;

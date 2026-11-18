@@ -76,15 +76,15 @@ const css = `
   /* Cream paper frame with an indigo outline and offset shadow */
   .dc-frame {
     position: relative; overflow: hidden;
-    background: #cfe3f2;
-    border: 3px solid #3b0a8c;
+    background: #e3d8f5;
+    border: 3px solid #53288f;
   }
   .dc-map { position: absolute; inset: 0; z-index: 1; }
 
   /* Listener dots: flat red discs */
   .dc-listener {
-    border-radius: 50%; background: rgba(232,38,27,0.78);
-    border: 2px solid #f3eee6;
+    border-radius: 50%; background: rgba(194,74,28,0.78);
+    border: 2px solid #f2eafa;
   }
 
   /* Fan pins: cream dot, indigo outline, pink pulse */
@@ -95,16 +95,16 @@ const css = `
     border-radius: 50%; box-sizing: border-box;
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; line-height: 1;
-    background: #f3eee6; border: 3px solid #3b0a8c;
+    background: #f2eafa; border: 3px solid #53288f;
   }
   .fan-pin .ring {
     position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-    border: 3px solid #ff3d7f;
+    border: 3px solid #e8762c;
     animation: fan-pulse 3.2s ease-out infinite;
   }
-  .fan-pin.mine .dot { background: #ffb59a; border-color: #e8261b; }
-  .fan-pin.mine .ring { border-color: #e8261b; }
-  .fan-pin.pending .dot { background: transparent; border: 3px dashed #3b0a8c; }
+  .fan-pin.mine .dot { background: #f2c27a; border-color: #c24a1c; }
+  .fan-pin.mine .ring { border-color: #c24a1c; }
+  .fan-pin.pending .dot { background: transparent; border: 3px dashed #53288f; }
   .fan-pin.pending .ring { animation: none; opacity: 0; }
   @keyframes fan-pulse {
     0%   { transform: scale(0.5); opacity: 0.95; }
@@ -113,18 +113,18 @@ const css = `
 
   /* Popups + controls: cream paper cards with an indigo outline */
   .dc-map .maplibregl-popup-content {
-    background: #f3eee6; color: #3b0a8c; border-radius: 12px; padding: 14px 16px;
-    border: 2px solid #3b0a8c; box-shadow: 4px 4px 0 #3b0a8c;
+    background: #f2eafa; color: #53288f; border-radius: 12px; padding: 14px 16px;
+    border: 2px solid #53288f; box-shadow: 4px 4px 0 #53288f;
   }
-  .dc-map .maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #3b0a8c; }
-  .dc-map .maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #3b0a8c; }
-  .dc-map .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: #3b0a8c; }
-  .dc-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: #3b0a8c; }
-  .dc-map .maplibregl-popup-close-button { color: #3b0a8c; font-size: 18px; }
-  .dc-map .maplibregl-ctrl-group { background: #f3eee6; border: 2px solid #3b0a8c; border-radius: 10px; box-shadow: none; }
-  .dc-map .maplibregl-ctrl-group button + button { border-top: 1px solid rgba(59,10,140,0.35); }
-  .dc-map .maplibregl-ctrl-attrib { background: rgba(243,238,230,0.85); color: #3b0a8c; }
-  .dc-map .maplibregl-ctrl-attrib a { color: #3b0a8c; }
+  .dc-map .maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #53288f; }
+  .dc-map .maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #53288f; }
+  .dc-map .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: #53288f; }
+  .dc-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: #53288f; }
+  .dc-map .maplibregl-popup-close-button { color: #53288f; font-size: 18px; }
+  .dc-map .maplibregl-ctrl-group { background: #f2eafa; border: 2px solid #53288f; border-radius: 10px; box-shadow: none; }
+  .dc-map .maplibregl-ctrl-group button + button { border-top: 1px solid rgba(83,40,143,0.35); }
+  .dc-map .maplibregl-ctrl-attrib { background: rgba(242,234,250,0.85); color: #53288f; }
+  .dc-map .maplibregl-ctrl-attrib a { color: #53288f; }
 `;
 
 
@@ -135,7 +135,7 @@ function buildPopup(pin: FanPin, note?: string): HTMLElement {
 
   if (note) {
     const n = document.createElement("div");
-    n.style.cssText = "color:#f0abfc;font-size:12px;margin-bottom:4px";
+    n.style.cssText = "color:#d9c2ff;font-size:12px;margin-bottom:4px";
     n.textContent = note;
     root.appendChild(n);
   }
@@ -337,7 +337,7 @@ export default function MapView({
                 height: "90vh",
                 width: "90vw",
                 borderRadius: "10px",
-                boxShadow: "6px 6px 0 #3b0a8c",
+                boxShadow: "6px 6px 0 #53288f",
                 zIndex: 1,
               }
         }

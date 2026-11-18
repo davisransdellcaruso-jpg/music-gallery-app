@@ -352,9 +352,9 @@ export default function Gallery() {
                     <span className="social-icon spotify">
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <circle cx="12" cy="12" r="10" />
-                        <path d="M6.5 9.2c3.6-1.1 7.6-.8 11 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.9" strokeLinecap="round" />
-                        <path d="M7.2 12.7c3-.8 6.1-.5 8.8 1" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.7" strokeLinecap="round" />
-                        <path d="M8 16c2.4-.6 4.6-.4 6.6.7" fill="none" stroke="var(--bandana-light, #f3d7d3)" strokeWidth="1.5" strokeLinecap="round" />
+                        <path d="M6.5 9.2c3.6-1.1 7.6-.8 11 1" fill="none" stroke="var(--bandana-light, #ebdffa)" strokeWidth="1.9" strokeLinecap="round" />
+                        <path d="M7.2 12.7c3-.8 6.1-.5 8.8 1" fill="none" stroke="var(--bandana-light, #ebdffa)" strokeWidth="1.7" strokeLinecap="round" />
+                        <path d="M8 16c2.4-.6 4.6-.4 6.6.7" fill="none" stroke="var(--bandana-light, #ebdffa)" strokeWidth="1.5" strokeLinecap="round" />
                       </svg>
                     </span>
                     <span className="social-name">Spotify</span>
@@ -548,17 +548,17 @@ export default function Gallery() {
                           y="9.7"
                           width="2.9"
                           height="8.3"
-                          fill="var(--bandana-light, #f3d7d3)"
+                          fill="var(--bandana-light, #ebdffa)"
                         />
                         <circle
                           cx="7.75"
                           cy="6.4"
                           r="1.7"
-                          fill="var(--bandana-light, #f3d7d3)"
+                          fill="var(--bandana-light, #ebdffa)"
                         />
                         <path
                           d="M11.6 9.7h2.8v1.3c.5-.85 1.5-1.5 3-1.5 2.5 0 3.3 1.6 3.3 4v4.5h-2.9v-3.95c0-1.05-.35-1.8-1.35-1.8-1 0-1.55.7-1.55 1.8v3.95h-2.9V9.7z"
-                          fill="var(--bandana-light, #f3d7d3)"
+                          fill="var(--bandana-light, #ebdffa)"
                         />
                       </svg>
                     </span>
@@ -707,7 +707,7 @@ export default function Gallery() {
               margin: 0;
               padding: 0;
               width: 100%;
-              background: #f7efe9;
+              background: #efe6f8;
             }
 
             html {
@@ -731,17 +731,17 @@ export default function Gallery() {
             }
 
             .gallery-page {
-              --cream: #f7efe9;
-              --cream-light: #fbf5f0;
-              --lavender: #9680b8;
-              --lavender-dark: #715a99;
-              --lavender-light: #b8a5cd;
-              --pink: #e16d99;
-              --pink-soft: #e79ab7;
-              --gold: #d4ad56;
-              --bandana-red: #c85765;
-              --bandana-soft: #e9b9b8;
-              --bandana-light: #f3d7d3;
+              --cream: #efe6f8;
+              --cream-light: #f8f2fd;
+              --lavender: #9b7fd4;
+              --lavender-dark: #5e3d92;
+              --lavender-light: #c7b2ec;
+              --pink: #c45e22;
+              --pink-soft: #e39a48;
+              --gold: #dba43c;
+              --bandana-red: #a8412a;
+              --bandana-soft: #d8c3f2;
+              --bandana-light: #ebdffa;
 
               /* Space kept free at the top for the round menu button */
               --menu-clearance: 300px;
@@ -753,7 +753,9 @@ export default function Gallery() {
               min-height: 100vh;
 
               opacity: 0;
-              background: var(--cream);
+              background:
+                radial-gradient(ellipse 70% 40% at 50% 0%, rgba(178, 146, 236, 0.35), transparent 70%),
+                var(--cream);
 
               transition: opacity 0.7s ease;
             }
@@ -766,7 +768,7 @@ export default function Gallery() {
               position: relative;
               width: 100%;
               line-height: 0;
-              background: #eee8e4;
+              background: #e6dbf3;
             }
 
             .hero-photo {
@@ -788,7 +790,7 @@ export default function Gallery() {
               background:
                 radial-gradient(
                   circle at 50% 0%,
-                  rgba(255, 247, 244, 0.58),
+                  rgba(250, 243, 255, 0.58),
                   transparent 45%
                 ),
                 linear-gradient(
@@ -847,14 +849,14 @@ export default function Gallery() {
               background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(150, 128, 184, 0.55)
+                rgba(155, 127, 212, 0.55)
               );
             }
 
             .ornament-line:last-child {
               background: linear-gradient(
                 90deg,
-                rgba(150, 128, 184, 0.55),
+                rgba(155, 127, 212, 0.55),
                 transparent
               );
             }
@@ -884,7 +886,7 @@ export default function Gallery() {
               /* Lines the two groups up with the middle of the menu button */
               padding: 112px 1.5rem 1.8rem;
 
-              background: var(--cream);
+              background: transparent;
             }
 
             /* "Get the song" button, right under the links so it's always in view */
@@ -894,7 +896,7 @@ export default function Gallery() {
               display: flex;
               justify-content: center;
               padding: 0 1.5rem 1.6rem;
-              background: var(--cream);
+              background: transparent;
             }
 
             .song-cta-button {
@@ -904,20 +906,20 @@ export default function Gallery() {
               padding: 0.8rem 1.4rem;
               border: 1px solid var(--lavender);
               border-radius: 3px;
-              background: linear-gradient(135deg, #a08bc0, #8068a7);
-              color: #fffaf7;
+              background: linear-gradient(135deg, #b292ec, #7e57c9);
+              color: #fdf9ff;
               font-family: "Fraunces", Georgia, serif;
               font-size: 0.8rem;
               font-weight: 600;
               letter-spacing: 0.18em;
               cursor: pointer;
-              box-shadow: 0 8px 24px rgba(60, 40, 80, 0.18);
+              box-shadow: 0 8px 26px rgba(126, 87, 201, 0.38);
               transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
 
             .song-cta-button:hover {
               transform: translateY(-1px);
-              box-shadow: 0 12px 28px rgba(60, 40, 80, 0.24);
+              box-shadow: 0 12px 34px rgba(126, 87, 201, 0.55);
             }
 
             .song-cta-star {
@@ -1052,7 +1054,7 @@ export default function Gallery() {
               width: 58px;
               height: 58px;
 
-              border: 1px solid rgba(150, 128, 184, 0.66);
+              border: 1px solid rgba(155, 127, 212, 0.66);
               border-radius: 50%;
 
               color: var(--lavender);
@@ -1121,7 +1123,7 @@ export default function Gallery() {
               width: 52px;
               height: 52px;
 
-              border: 1px solid rgba(150, 128, 184, 0.7);
+              border: 1px solid rgba(155, 127, 212, 0.7);
               border-radius: 50%;
 
               color: var(--lavender);
@@ -1157,7 +1159,7 @@ export default function Gallery() {
 
               pointer-events: none;
 
-              border: 1px solid rgba(212, 173, 86, 0.55);
+              border: 1px solid rgba(219, 164, 60, 0.55);
             }
 
             .grain-overlay {

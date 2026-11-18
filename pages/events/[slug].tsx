@@ -47,16 +47,16 @@ export const getServerSideProps: GetServerSideProps<{ flyer: Flyer }> = async ({
 };
 
 // Same palette as the gallery page
-const LAVENDER = "#9680b8";
-const LAVENDER_DARK = "#715a99";
-const PINK = "#e16d99";
-const GOLD = "rgba(212,173,86,0.65)";
-const CREAM = "#fbf5f0";
+const LAVENDER = "#9b7fd4";
+const LAVENDER_DARK = "#5e3d92";
+const PINK = "#c45e22";
+const GOLD = "rgba(219,164,60,0.65)";
+const CREAM = "#f8f2fd";
 
 const pill: CSSProperties = {
   padding: "2px 8px",
   borderRadius: 3,
-  border: "1px solid rgba(150,128,184,0.7)",
+  border: "1px solid rgba(155,127,212,0.7)",
   fontFamily: "inherit",
   fontSize: 11,
   fontWeight: 600,
@@ -91,7 +91,7 @@ export default function FlyerPage({ flyer }: { flyer: Flyer }) {
       <main
         style={{
           minHeight: "100vh",
-          background: "linear-gradient(180deg, #fbf5f0 0%, #f3d7d3 100%)",
+          background: "linear-gradient(180deg, #f8f2fd 0%, #ebdffa 100%)",
           color: LAVENDER_DARK,
           padding: "28px 16px 56px",
           boxSizing: "border-box",
@@ -154,7 +154,7 @@ export default function FlyerPage({ flyer }: { flyer: Flyer }) {
                 height: "auto",
                 borderRadius: 4,
                 border: `1px solid ${GOLD}`,
-                boxShadow: "0 24px 70px rgba(60,40,80,0.25)",
+                boxShadow: "0 24px 70px rgba(112,72,190,0.25)",
                 boxSizing: "border-box",
               }}
             />
@@ -215,9 +215,9 @@ export default function FlyerPage({ flyer }: { flyer: Flyer }) {
                 marginTop: 32,
                 padding: "1rem 1.1rem",
                 borderRadius: 3,
-                background: "linear-gradient(135deg, #a08bc0, #8068a7)",
-                color: "#fffaf7",
-                border: "1px solid #9680b8",
+                background: "linear-gradient(135deg, #b292ec, #7e57c9)",
+                color: "#fdf9ff",
+                border: "1px solid #9b7fd4",
                 fontWeight: 600,
                 letterSpacing: "0.15em",
                 textAlign: "center",

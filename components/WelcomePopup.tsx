@@ -360,7 +360,7 @@ export default function WelcomePopup({
           align-items: center;
           justify-content: center;
           padding: 1.25rem;
-          background: rgba(60, 40, 80, 0.45);
+          background: rgba(46, 22, 82, 0.5);
           backdrop-filter: blur(5px);
           animation: welcomeFade 0.5s ease;
         }
@@ -371,12 +371,12 @@ export default function WelcomePopup({
           max-width: 440px;
           padding: 2.4rem 2rem 1.8rem;
           text-align: center;
-          border: 1px solid rgba(212, 173, 86, 0.65);
+          border: 1px solid rgba(219, 164, 60, 0.65);
           border-radius: 4px;
-          background: linear-gradient(180deg, #fbf5f0 0%, #f3d7d3 100%);
-          box-shadow: 0 24px 70px rgba(60, 40, 80, 0.35);
+          background: linear-gradient(180deg, #f8f2fd 0%, #ebdffa 100%);
+          box-shadow: 0 24px 70px rgba(112, 72, 190, 0.35);
           font-family: "Fraunces", Georgia, serif;
-          color: #715a99;
+          color: #5e3d92;
         }
 
         .welcome-listen audio {
@@ -392,7 +392,7 @@ export default function WelcomePopup({
 
         .welcome-kicker {
           margin: 0 0 0.5rem;
-          color: #e16d99;
+          color: #c45e22;
           font-size: 0.7rem;
           font-weight: 600;
           letter-spacing: 0.24em;
@@ -404,7 +404,7 @@ export default function WelcomePopup({
           right: 14px;
           border: 0;
           background: none;
-          color: #9680b8;
+          color: #9b7fd4;
           font-size: 1.8rem;
           line-height: 1;
           cursor: pointer;
@@ -420,10 +420,10 @@ export default function WelcomePopup({
 
         .lang-btn {
           padding: 2px 8px;
-          border: 1px solid rgba(150, 128, 184, 0.7);
+          border: 1px solid rgba(155, 127, 212, 0.7);
           border-radius: 3px;
           background: transparent;
-          color: #9680b8;
+          color: #9b7fd4;
           font-family: inherit;
           font-size: 0.7rem;
           font-weight: 600;
@@ -432,8 +432,8 @@ export default function WelcomePopup({
         }
 
         .lang-btn.active {
-          background: #9680b8;
-          color: #fffaf7;
+          background: #9b7fd4;
+          color: #fdf9ff;
         }
 
         .welcome-ornament {
@@ -451,20 +451,20 @@ export default function WelcomePopup({
           background: linear-gradient(
             90deg,
             transparent,
-            rgba(150, 128, 184, 0.6)
+            rgba(155, 127, 212, 0.6)
           );
         }
 
         .line:last-child {
           background: linear-gradient(
             90deg,
-            rgba(150, 128, 184, 0.6),
+            rgba(155, 127, 212, 0.6),
             transparent
           );
         }
 
         .star {
-          color: #e16d99;
+          color: #c45e22;
           font-size: 1.3rem;
         }
 
@@ -489,11 +489,11 @@ export default function WelcomePopup({
         input {
           width: 100%;
           padding: 1rem 1.1rem;
-          border: 1px solid rgba(150, 128, 184, 0.72);
+          border: 1px solid rgba(155, 127, 212, 0.72);
           border-radius: 3px;
           outline: none;
           background: rgba(255, 255, 255, 0.4);
-          color: #715a99;
+          color: #5e3d92;
           font-family: inherit;
           font-size: 1.05rem;
           font-style: italic;
@@ -503,11 +503,11 @@ export default function WelcomePopup({
         }
 
         input::placeholder {
-          color: rgba(113, 90, 153, 0.7);
+          color: rgba(94, 61, 146, 0.7);
         }
 
         input:focus {
-          border-color: #e16d99;
+          border-color: #c45e22;
           background: rgba(255, 255, 255, 0.65);
         }
 
@@ -516,10 +516,10 @@ export default function WelcomePopup({
           width: 100%;
           display: block;
           padding: 1rem 1.1rem;
-          border: 1px solid #9680b8;
+          border: 1px solid #9b7fd4;
           border-radius: 3px;
-          background: linear-gradient(135deg, #a08bc0, #8068a7);
-          color: #fffaf7;
+          background: linear-gradient(135deg, #b292ec, #7e57c9);
+          color: #fdf9ff;
           font-family: inherit;
           font-size: 0.95rem;
           font-weight: 600;
@@ -534,7 +534,7 @@ export default function WelcomePopup({
           padding: 0.4rem 0.8rem;
           border: 0;
           background: none;
-          color: #9680b8;
+          color: #9b7fd4;
           font-family: inherit;
           font-size: 0.9rem;
           font-style: italic;
@@ -552,7 +552,7 @@ export default function WelcomePopup({
 
         .welcome-error {
           margin: 0.9rem 0 0;
-          color: #e16d99;
+          color: #c45e22;
           font-style: italic;
         }
 

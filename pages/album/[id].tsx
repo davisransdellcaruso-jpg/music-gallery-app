@@ -279,8 +279,8 @@ function AlbumPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume, duration, currentTrack?.id]);
 
-  if (loading) return <div style={{ color: "#e6e3dc", background: "#7b7fc4", minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Trocchi', serif" }}>Loading album…</div>;
-  if (!album) return <div style={{ color: "#e6e3dc", background: "#7b7fc4", minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Trocchi', serif" }}>Album not found</div>;
+  if (loading) return <div style={{ color: "#efe6f8", background: "#9b7fd4", minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Trocchi', serif" }}>Loading album…</div>;
+  if (!album) return <div style={{ color: "#efe6f8", background: "#9b7fd4", minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Trocchi', serif" }}>Album not found</div>;
 
   if (!unlocked && !publicAlbumIds.includes(album.id)) {
     return (
@@ -309,9 +309,9 @@ function AlbumPage() {
         <style jsx>{`
           .album-page {
             min-height: 100vh;
-            background: #7b7fc4;
+            background: #9b7fd4;
             font-family: "Trocchi", serif;
-            color: #e6e3dc;
+            color: #efe6f8;
             display: grid;
             place-items: center;
             padding: 3rem 2rem;
@@ -326,13 +326,13 @@ function AlbumPage() {
             margin: 0 0 1rem;
           }
           .lock-text {
-            color: #d4d1eb;
+            color: #ddd0f3;
             margin: 0.5rem 0 2rem;
           }
           .outline-button {
-            border: 1px solid #c9a24d;
+            border: 1px solid #dba43c;
             background: transparent;
-            color: #c9a24d;
+            color: #dba43c;
             padding: 0.6rem 1.4rem;
             letter-spacing: 0.1em;
             cursor: pointer;
@@ -342,7 +342,7 @@ function AlbumPage() {
             appearance: none;
           }
           .outline-button:hover {
-            background: rgba(201, 162, 77, 0.1);
+            background: rgba(219, 164, 60, 0.1);
           }
         `}</style>
       </div>
@@ -543,9 +543,9 @@ function AlbumPage() {
         .album-page {
           min-height: 100vh;
           padding: 3rem 2rem 4rem;
-          background: #7b7fc4;
+          background: #9b7fd4;
           font-family: "Trocchi", serif;
-          color: #e6e3dc;
+          color: #efe6f8;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -564,7 +564,7 @@ function AlbumPage() {
         .text-link {
           background: transparent;
           border: none;
-          color: #e6e3dc;
+          color: #efe6f8;
           letter-spacing: 0.08em;
           cursor: pointer;
           padding: 0.25rem 0;
@@ -590,7 +590,7 @@ function AlbumPage() {
         }
 
         .year {
-          color: #d4d1eb;
+          color: #ddd0f3;
           font-weight: 400;
           letter-spacing: 0.08em;
         }
@@ -598,7 +598,7 @@ function AlbumPage() {
         .release-note {
           margin: 0.75rem auto 0;
           max-width: 640px;
-          color: #d4d1eb;
+          color: #ddd0f3;
           font-style: italic;
           font-size: 0.95rem;
           line-height: 1.6;
@@ -608,7 +608,7 @@ function AlbumPage() {
           width: 60px;
           height: 1px;
           margin: 1.5rem auto 0;
-          background: #c9a24d;
+          background: #dba43c;
         }
 
         .vinyl {
@@ -658,11 +658,11 @@ function AlbumPage() {
         .track-row {
           width: 100%;
           background: transparent;
-          border: 1px solid rgba(230, 227, 220, 0.25);
+          border: 1px solid rgba(239, 230, 248, 0.25);
           border-radius: 14px;
           padding: 0.85rem 1rem;
           cursor: pointer;
-          color: #e6e3dc;
+          color: #efe6f8;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -677,8 +677,8 @@ function AlbumPage() {
         }
 
         .track-row:hover {
-          border-color: rgba(201, 162, 77, 0.7);
-          background: rgba(201, 162, 77, 0.06);
+          border-color: rgba(219, 164, 60, 0.7);
+          background: rgba(219, 164, 60, 0.06);
         }
 
         .track-row:disabled {
@@ -687,8 +687,8 @@ function AlbumPage() {
         }
 
         .track-row.current {
-          border-color: rgba(201, 162, 77, 0.9);
-          background: rgba(201, 162, 77, 0.08);
+          border-color: rgba(219, 164, 60, 0.9);
+          background: rgba(219, 164, 60, 0.08);
         }
 
         .track-left {
@@ -699,7 +699,7 @@ function AlbumPage() {
         }
 
         .track-num {
-          color: #d4d1eb;
+          color: #ddd0f3;
           flex: 0 0 auto;
         }
 
@@ -710,7 +710,7 @@ function AlbumPage() {
         }
 
         .track-right {
-          color: #d4d1eb;
+          color: #ddd0f3;
           font-style: italic;
           font-size: 0.9rem;
           flex: 0 0 auto;
@@ -722,16 +722,16 @@ function AlbumPage() {
           display: flex;
           align-items: center;
           gap: 0.9rem;
-          border: 1px solid rgba(230, 227, 220, 0.25);
+          border: 1px solid rgba(239, 230, 248, 0.25);
           border-radius: 16px;
           padding: 0.9rem 1rem;
           background: rgba(0, 0, 0, 0.12);
         }
 
         .icon-btn {
-          border: 1px solid rgba(201, 162, 77, 0.6);
+          border: 1px solid rgba(219, 164, 60, 0.6);
           background: transparent;
-          color: #c9a24d;
+          color: #dba43c;
           width: 44px;
           height: 44px;
           border-radius: 999px;
@@ -747,13 +747,13 @@ function AlbumPage() {
         }
 
         .icon-btn:hover {
-          background: rgba(201, 162, 77, 0.1);
+          background: rgba(219, 164, 60, 0.1);
         }
 
         .icon-btn.main {
           width: 52px;
           height: 52px;
-          border-color: rgba(201, 162, 77, 0.85);
+          border-color: rgba(219, 164, 60, 0.85);
         }
 
         .scrubber-wrap {
@@ -766,19 +766,19 @@ function AlbumPage() {
 
         .scrubber {
           width: 100%;
-          accent-color: #c9a24d;
+          accent-color: #dba43c;
           cursor: pointer;
         }
 
         .time {
           font-size: 0.8rem;
-          color: #d4d1eb;
+          color: #ddd0f3;
           text-align: center;
         }
 
         .volume {
           width: 110px;
-          accent-color: #c9a24d;
+          accent-color: #dba43c;
           cursor: pointer;
           flex: 0 0 auto;
         }
@@ -797,9 +797,9 @@ function AlbumPage() {
         }
 
         .outline-button {
-          border: 1px solid #c9a24d;
+          border: 1px solid #dba43c;
           background: transparent;
-          color: #c9a24d;
+          color: #dba43c;
           padding: 0.55rem 1.2rem;
           letter-spacing: 0.1em;
           cursor: pointer;
@@ -813,15 +813,15 @@ function AlbumPage() {
         }
 
         .outline-button:hover {
-          background: rgba(201, 162, 77, 0.1);
+          background: rgba(219, 164, 60, 0.1);
         }
 
         .outline-button.active {
-          background: rgba(201, 162, 77, 0.14);
+          background: rgba(219, 164, 60, 0.14);
         }
 
         .box {
-          border: 1px solid rgba(230, 227, 220, 0.2);
+          border: 1px solid rgba(239, 230, 248, 0.2);
           border-radius: 16px;
           padding: 1.2rem 1.25rem;
           background: rgba(0, 0, 0, 0.12);
@@ -832,7 +832,7 @@ function AlbumPage() {
         .plain-text {
           margin: 0;
           white-space: pre-wrap;
-          color: #e6e3dc;
+          color: #efe6f8;
           line-height: 1.7;
           font-size: 1rem;
           text-align: center;
@@ -840,7 +840,7 @@ function AlbumPage() {
 
         .lyric {
           margin: 0.35rem 0;
-          color: #d4d1eb;
+          color: #ddd0f3;
           font-size: 1rem;
           line-height: 1.6;
           text-align: center;
@@ -848,7 +848,7 @@ function AlbumPage() {
         }
 
         .active-lyric {
-          color: #e6e3dc;
+          color: #efe6f8;
         }
 
         @media (max-width: 520px) {

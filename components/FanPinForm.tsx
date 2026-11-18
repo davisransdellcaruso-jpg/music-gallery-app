@@ -48,9 +48,9 @@ const field: CSSProperties = {
   boxSizing: "border-box",
   padding: "10px 12px",
   borderRadius: 10,
-  border: "2px solid #3b0a8c",
-  background: "#fffaf3",
-  color: "#3b0a8c",
+  border: "2px solid #53288f",
+  background: "#fdf9ff",
+  color: "#53288f",
   fontSize: 16,
   outline: "none",
   fontFamily: "inherit",
@@ -59,11 +59,11 @@ const field: CSSProperties = {
 const labelStyle: CSSProperties = {
   display: "block",
   fontSize: 13,
-  color: "#3b0a8c",
+  color: "#53288f",
   margin: "14px 0 6px",
 };
 
-const hint: CSSProperties = { fontSize: 12, color: "#5a2bd0", marginTop: 4 };
+const hint: CSSProperties = { fontSize: 12, color: "#7e57c9", marginTop: 4 };
 
 async function geocode(q: string, lang: Lang, signal?: AbortSignal): Promise<Place[]> {
   // 1) Open-Meteo matches on the city NAME only, so "Ann Arbor, MI" finds
@@ -291,7 +291,7 @@ export default function FanPinForm({
         position: "fixed",
         inset: 0,
         zIndex: 3000,
-        background: "rgba(59,10,140,0.55)",
+        background: "rgba(83,40,143,0.55)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -307,10 +307,10 @@ export default function FanPinForm({
           boxSizing: "border-box",
           padding: 22,
           borderRadius: 18,
-          color: "#3b0a8c",
-          background: "#f3eee6",
-          border: "3px solid #3b0a8c",
-          boxShadow: "6px 6px 0 #ff3d7f",
+          color: "#53288f",
+          background: "#f2eafa",
+          border: "3px solid #53288f",
+          boxShadow: "6px 6px 0 #e8762c",
           fontFamily: "inherit",
         }}
       >
@@ -318,11 +318,11 @@ export default function FanPinForm({
           <div style={{ textAlign: "center", padding: "12px 0" }}>
             <div style={{ fontSize: 40 }}>💜</div>
             <h2 style={{ margin: "8px 0", fontSize: 22 }}>{t.thanksTitle}</h2>
-            <p style={{ color: "#5a2bd0", lineHeight: 1.5 }}>{t.thanksBody}</p>
+            <p style={{ color: "#7e57c9", lineHeight: 1.5 }}>{t.thanksBody}</p>
             {emailResult && (
               <p
                 style={{
-                  color: emailResult === "failed" ? "#e8261b" : "#3b0a8c",
+                  color: emailResult === "failed" ? "#c24a1c" : "#53288f",
                   lineHeight: 1.5,
                   fontWeight: 600,
                 }}
@@ -393,8 +393,8 @@ export default function FanPinForm({
                 <div
                   style={{
                     marginTop: 6,
-                    background: "#f3eee6",
-                    border: "2px solid #3b0a8c",
+                    background: "#f2eafa",
+                    border: "2px solid #53288f",
                     borderRadius: 10,
                     overflow: "hidden",
                   }}
@@ -416,8 +416,8 @@ export default function FanPinForm({
                         minHeight: 44,
                         background: "transparent",
                         border: "none",
-                        borderBottom: "1px solid rgba(59,10,140,0.2)",
-                        color: "#3b0a8c",
+                        borderBottom: "1px solid rgba(83,40,143,0.2)",
+                        color: "#53288f",
                         fontSize: 16,
                         cursor: "pointer",
                       }}
@@ -470,8 +470,8 @@ export default function FanPinForm({
                     borderRadius: 12,
                     cursor: "pointer",
                     border:
-                      mood === m ? "3px solid #3b0a8c" : "2px solid rgba(59,10,140,0.25)",
-                    background: mood === m ? "#ffb59a" : "#fffaf3",
+                      mood === m ? "3px solid #53288f" : "2px solid rgba(83,40,143,0.25)",
+                    background: mood === m ? "#f2c27a" : "#fdf9ff",
                     transform: mood === m ? "scale(1.08)" : "none",
                     transition: "transform .12s",
                   }}
@@ -517,7 +517,7 @@ export default function FanPinForm({
             />
 
             {errKey && (
-              <div style={{ color: "#e8261b", fontSize: 14, marginTop: 10 }}>
+              <div style={{ color: "#c24a1c", fontSize: 14, marginTop: 10 }}>
                 {t[errKey]}
               </div>
             )}
@@ -544,15 +544,15 @@ const primaryBtn: CSSProperties = {
   cursor: "pointer",
   fontSize: 15,
   fontWeight: 600,
-  color: "#f3eee6",
-  background: "#ff3d7f",
-  border: "2px solid #3b0a8c",
+  color: "#f2eafa",
+  background: "#e8762c",
+  border: "2px solid #53288f",
   marginTop: 6,
 };
 
 const ghostBtn: CSSProperties = {
   ...primaryBtn,
-  color: "#3b0a8c",
+  color: "#53288f",
   background: "transparent",
-  border: "2px solid #3b0a8c",
+  border: "2px solid #53288f",
 };

@@ -109,7 +109,7 @@ export default function SongPage() {
         body {
           margin: 0;
           padding: 0;
-          background: #f7efe9;
+          background: #efe6f8;
         }
       `}</style>
 
@@ -125,18 +125,18 @@ export default function SongPage() {
           padding: 2.5rem 1rem;
           background: radial-gradient(
               circle at 50% 0%,
-              rgba(255, 247, 244, 0.7),
+              rgba(250, 243, 255, 0.7),
               transparent 50%
             ),
-            linear-gradient(180deg, #f7efe9 0%, #f3d7d3 100%);
+            linear-gradient(180deg, #efe6f8 0%, #ebdffa 100%);
           font-family: "Fraunces", Georgia, serif;
-          color: #715a99;
+          color: #5e3d92;
           text-align: center;
         }
 
         .name {
           margin: 0;
-          color: #e16d99;
+          color: #c45e22;
           font-size: 0.78rem;
           font-weight: 600;
           letter-spacing: 0.3em;
@@ -153,10 +153,10 @@ export default function SongPage() {
           align-items: center;
           gap: 0.7rem;
           padding: 0.6rem 1.2rem;
-          border: 1px solid rgba(150, 128, 184, 0.7);
+          border: 1px solid rgba(155, 127, 212, 0.7);
           border-radius: 999px;
           background: rgba(255, 255, 255, 0.4);
-          color: #715a99;
+          color: #5e3d92;
           font-family: inherit;
           font-size: 0.95rem;
           cursor: pointer;
@@ -176,7 +176,7 @@ export default function SongPage() {
         }
 
         .song-page :global(.gallery-link) {
-          color: #9680b8;
+          color: #9b7fd4;
           font-size: 0.9rem;
           text-underline-offset: 3px;
         }

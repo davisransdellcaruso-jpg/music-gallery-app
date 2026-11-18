@@ -33,9 +33,9 @@ const STORAGE_KEY = "dc_fan_pin";
 const overlayBtn: CSSProperties = {
   padding: "10px 14px",
   borderRadius: 12,
-  border: "2px solid #3b0a8c",
-  background: "#f3eee6",
-  color: "#3b0a8c",
+  border: "2px solid #53288f",
+  background: "#f2eafa",
+  color: "#53288f",
   fontSize: 14,
   fontWeight: 600,
   cursor: "pointer",
@@ -45,10 +45,10 @@ const overlayBtn: CSSProperties = {
 const card: CSSProperties = {
   padding: "12px 14px",
   borderRadius: 14,
-  border: "2px solid #3b0a8c",
-  boxShadow: "4px 4px 0 #3b0a8c",
-  background: "#f3eee6",
-  color: "#3b0a8c",
+  border: "2px solid #53288f",
+  boxShadow: "4px 4px 0 #53288f",
+  background: "#f2eafa",
+  color: "#53288f",
   pointerEvents: "auto",
 };
 
@@ -59,15 +59,15 @@ const primaryBtn: CSSProperties = {
   cursor: "pointer",
   fontSize: 14,
   fontWeight: 600,
-  color: "#f3eee6",
-  background: "#3b0a8c",
+  color: "#f2eafa",
+  background: "#53288f",
 };
 
 const ghostBtn: CSSProperties = {
   ...primaryBtn,
-  color: "#3b0a8c",
+  color: "#53288f",
   background: "transparent",
-  border: "2px solid #3b0a8c",
+  border: "2px solid #53288f",
 };
 
 const roundBtn: CSSProperties = {
@@ -75,13 +75,13 @@ const roundBtn: CSSProperties = {
   height: 44,
   padding: 0,
   borderRadius: "50%",
-  border: "2px solid #3b0a8c",
-  background: "#f3eee6",
-  color: "#3b0a8c",
+  border: "2px solid #53288f",
+  background: "#f2eafa",
+  color: "#53288f",
   fontSize: 14,
   fontWeight: 700,
   cursor: "pointer",
-  boxShadow: "2px 2px 0 #3b0a8c",
+  boxShadow: "2px 2px 0 #53288f",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -98,7 +98,7 @@ const skipBtn: CSSProperties = {
   borderRadius: 8,
   border: "none",
   background: "transparent",
-  color: "#5a2bd0",
+  color: "#7e57c9",
   textDecoration: "underline",
   fontSize: 12,
   cursor: "pointer",
@@ -114,27 +114,27 @@ const faintSwatch: CSSProperties = {
   ...swatchBase,
   width: 14,
   height: 14,
-  background: "rgba(232,38,27,0.78)",
-  border: "2px solid #f3eee6",
+  background: "rgba(194,74,28,0.78)",
+  border: "2px solid #f2eafa",
 };
 const fanSwatch: CSSProperties = {
   ...swatchBase,
   width: 12,
   height: 12,
-  background: "#f3eee6",
-  border: "3px solid #3b0a8c",
+  background: "#f2eafa",
+  border: "3px solid #53288f",
 };
 const mineSwatch: CSSProperties = {
   ...fanSwatch,
-  background: "#ffb59a",
-  border: "3px solid #e8261b",
+  background: "#f2c27a",
+  border: "3px solid #c24a1c",
 };
 const pendingSwatch: CSSProperties = {
   ...swatchBase,
   width: 12,
   height: 12,
   background: "transparent",
-  border: "3px dashed #3b0a8c",
+  border: "3px dashed #53288f",
 };
 
 function LegendRow({ swatch, text }: { swatch: ReactNode; text: string }) {
@@ -275,7 +275,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
         height: isMobile ? "100dvh" : "100vh",
         width: "100%",
         background:
-          "#f3eee6",
+          "#f2eafa",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -305,10 +305,10 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
           top: "1.5rem",
           left: "50%",
           transform: "translateX(-50%)",
-          color: "#3b0a8c",
-          background: "#f3eee6",
-          border: "2px solid #3b0a8c",
-          boxShadow: "3px 3px 0 #3b0a8c",
+          color: "#53288f",
+          background: "#f2eafa",
+          border: "2px solid #53288f",
+          boxShadow: "3px 3px 0 #53288f",
           borderRadius: 12,
           padding: "2px 18px",
           fontFamily: "Trocchi, serif",
@@ -358,9 +358,9 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                 fontSize: 12,
                 background:
                   lang === l
-                    ? "#3b0a8c"
-                    : "#f3eee6",
-                color: lang === l ? "#f3eee6" : "#3b0a8c",
+                    ? "#53288f"
+                    : "#f2eafa",
+                color: lang === l ? "#f2eafa" : "#53288f",
               }}
             >
               {l.toUpperCase()}
@@ -390,8 +390,8 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                 right: 0,
                 top: "100%",
                 marginTop: 4,
-                background: "#f3eee6",
-                border: "2px solid #3b0a8c",
+                background: "#f2eafa",
+                border: "2px solid #53288f",
                 borderRadius: 12,
                 overflow: "hidden",
               }}
@@ -410,7 +410,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                     padding: "9px 12px",
                     background: "transparent",
                     border: "none",
-                    color: "#3b0a8c",
+                    color: "#53288f",
                     fontSize: 14,
                     cursor: "pointer",
                   }}
@@ -461,9 +461,9 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
             pointerEvents: "auto",
             padding: "6px 10px",
             borderRadius: 10,
-            background: "rgba(243,238,230,0.92)",
-            border: "2px solid #3b0a8c",
-            color: "#3b0a8c",
+            background: "rgba(242,234,250,0.92)",
+            border: "2px solid #53288f",
+            color: "#53288f",
             fontSize: 12,
           }}
         >
@@ -494,7 +494,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                 fontSize: 17,
                 lineHeight: 1.45,
                 margin: "8px 0 15px",
-                color: "#5a2bd0",
+                color: "#7e57c9",
               }}
             >
               {mine ? t.flowDoneBody : t.flowBody}
@@ -553,7 +553,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                     cursor: "text",
                     outline: "none",
                     padding: "13px 46px 13px 14px",
-                    boxShadow: "3px 3px 0 #3b0a8c",
+                    boxShadow: "3px 3px 0 #53288f",
                   }}
                 />
                 <button
@@ -571,7 +571,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                     borderRadius: "50%",
                     border: "none",
                     background: "transparent",
-                    color: "#3b0a8c",
+                    color: "#53288f",
                     fontSize: 18,
                     cursor: "pointer",
                   }}
@@ -583,8 +583,8 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                 <div
                   style={{
                     marginTop: 6,
-                    background: "#f3eee6",
-                    border: "2px solid #3b0a8c",
+                    background: "#f2eafa",
+                    border: "2px solid #53288f",
                     borderRadius: 12,
                     overflow: "hidden",
                   }}
@@ -604,7 +604,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                         padding: "13px 14px",
                         background: "transparent",
                         border: "none",
-                        color: "#3b0a8c",
+                        color: "#53288f",
                         fontSize: 16,
                         cursor: "pointer",
                       }}
@@ -626,10 +626,10 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                   right: 68,
                   margin: 0,
                   textAlign: "center",
-                  color: "#3b0a8c",
-                  background: "#f3eee6",
-                  border: "2px solid #3b0a8c",
-                  boxShadow: "3px 3px 0 #3b0a8c",
+                  color: "#53288f",
+                  background: "#f2eafa",
+                  border: "2px solid #53288f",
+                  boxShadow: "3px 3px 0 #53288f",
                   borderRadius: 12,
                   padding: "9px 10px",
                   fontFamily: "Trocchi, serif",
@@ -692,10 +692,10 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                     zIndex: 1000,
                     padding: "8px 12px",
                     borderRadius: 12,
-                    background: "#f3eee6",
-                    border: "2px solid #3b0a8c",
-                    boxShadow: "3px 3px 0 #3b0a8c",
-                    color: "#3b0a8c",
+                    background: "#f2eafa",
+                    border: "2px solid #53288f",
+                    boxShadow: "3px 3px 0 #53288f",
+                    color: "#53288f",
                     fontSize: 14,
                   }}
                 >
@@ -762,7 +762,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                         height: 4,
                         margin: "0 auto",
                         borderRadius: 2,
-                        background: "#3b0a8c",
+                        background: "#53288f",
                         opacity: 0.35,
                       }}
                     />
@@ -775,7 +775,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                       fontSize: 15,
                       lineHeight: 1.4,
                       margin: "6px 0 14px",
-                      color: "#5a2bd0",
+                      color: "#7e57c9",
                     }}
                   >
                     {mine ? t.flowDoneBody : t.flowBody}
@@ -816,20 +816,20 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                         ▴
                       </button>
                       {mine ? (
-                        <button onClick={goNext} style={{ ...bigBtn, boxShadow: "3px 3px 0 #3b0a8c" }}>
+                        <button onClick={goNext} style={{ ...bigBtn, boxShadow: "3px 3px 0 #53288f" }}>
                           {t.flowContinue}
                         </button>
                       ) : (
                         <>
                           <button
                             onClick={() => setShowForm(true)}
-                            style={{ ...bigBtn, boxShadow: "3px 3px 0 #3b0a8c" }}
+                            style={{ ...bigBtn, boxShadow: "3px 3px 0 #53288f" }}
                           >
                             {t.flowAdd}
                           </button>
                           <button
                             onClick={goNext}
-                            style={{ ...skipBtn, background: "#f3eee6", borderRadius: 10, padding: "8px 10px" }}
+                            style={{ ...skipBtn, background: "#f2eafa", borderRadius: 10, padding: "8px 10px" }}
                           >
                             {t.flowSkip}
                           </button>
@@ -840,14 +840,14 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                     <>
                       <button
                         onClick={() => setShowForm(true)}
-                        style={{ ...bigBtn, boxShadow: "3px 3px 0 #3b0a8c" }}
+                        style={{ ...bigBtn, boxShadow: "3px 3px 0 #53288f" }}
                       >
                         {t.addYourself}
                       </button>
                       {mine && (
                         <button
                           onClick={() => flyToPin(mine)}
-                          style={{ ...ghostBtn, padding: "12px 16px", fontSize: 15, background: "#f3eee6" }}
+                          style={{ ...ghostBtn, padding: "12px 16px", fontSize: 15, background: "#f2eafa" }}
                         >
                           {t.findMyPin}
                         </button>
