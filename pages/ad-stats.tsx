@@ -16,6 +16,7 @@ type AdRow = {
   taps: number;
   emails: number;
   confirmed: number;
+  resetAt: string | null;
 };
 
 type Props = {
@@ -32,17 +33,24 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
   res.setHeader("X-Robots-Tag", "noindex");
 
   const days = Math.min(365, Math.max(1, Number(query.days) || 30));
-  const since = new Date(Date.now() - days * 864e5).toISOString();
+  const rangeStart = new Date(Date.now() - days * 864e5).toISOString();
 
+  // select("*") so the page still works before stats_reset_at exists
+  // (see supabase/ad_landings_stats_reset.sql).
   const { data: landings } = await supabaseAdmin
     .from("ad_landings")
-    .select("slug, created_at")
+    .select("*")
     .order("created_at", { ascending: false });
-  const slugs = (landings ?? []).map((l) => l.slug as string);
 
   const ads: AdRow[] = [];
-  for (const slug of slugs) {
+  for (const landing of landings ?? []) {
+    const slug = landing.slug as string;
     const page = `/s/${slug}`;
+    // Count from the later of: the start of the chosen range, or this ad's
+    // last stats reset. Older rows stay in Supabase, they just aren't counted.
+    const resetAt = (landing.stats_reset_at as string | null) ?? null;
+    const since =
+      resetAt && new Date(resetAt).getTime() > new Date(rangeStart).getTime() ? resetAt : rangeStart;
 
     // Landed on the page = the signup card on it was shown (bots are already
     // filtered out). Counted once per person, so reloads don't inflate it.
@@ -83,6 +91,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
       taps: (taps ?? []).length,
       emails,
       confirmed,
+      resetAt,
     };
     ads.push(row);
   }
@@ -150,6 +159,19 @@ export default function AdStats({ statsKey, days, ads }: Props) {
           return (
             <section key={a.slug} className="ad">
               <h2>{a.slug}</h2>
+              {a.resetAt && (
+                <p className="hint reset">
+                  Counting since{" "}
+                  {new Date(a.resetAt).toLocaleString("en-US", {
+                    timeZone: "America/Detroit",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}{" "}
+                  (stats reset)
+                </p>
+              )}
               <p className="verdict">{verdict(a)}</p>
               <div className="funnel">
                 {steps.map((step, i) => (
@@ -355,6 +377,9 @@ export default function AdStats({ statsKey, days, ads }: Props) {
         }
         .ad {
           margin-bottom: 40px;
+        }
+        .reset {
+          margin: -4px 0 12px;
         }
         .extra a {
           color: #715a99;
