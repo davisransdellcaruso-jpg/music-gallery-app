@@ -3,6 +3,7 @@
 // Only import this from pages/api/ or getServerSideProps.
 import { supabaseAdmin } from "./supabaseAdmin";
 import { SONGS } from "./songs";
+import { isAdLang, type AdLang } from "./adLang";
 
 export const AD_CLIP_BUCKET = "ad-clips";
 
@@ -16,6 +17,8 @@ export type AdLanding = {
   spotify_url: string | null;
   apple_url: string | null;
   youtube_url: string | null;
+  // Languages this page offers, e.g. {pt,id}. Empty / not set = English + Spanish.
+  languages: AdLang[];
 };
 
 export const AD_PLATFORMS = ["spotify", "apple", "youtube"] as const;
@@ -49,6 +52,9 @@ export async function getAdLanding(slug: unknown): Promise<AdLanding | null> {
       spotify_url: data.spotify_url ?? null,
       apple_url: data.apple_url ?? null,
       youtube_url: data.youtube_url ?? null,
+      languages: Array.isArray(data.languages)
+        ? Array.from(new Set((data.languages as unknown[]).filter(isAdLang)))
+        : [],
     };
   } catch (err) {
     console.error("ad_landings lookup failed:", err);

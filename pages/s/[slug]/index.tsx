@@ -11,7 +11,12 @@ import Head from "next/head";
 import Link from "next/link";
 import WelcomePopup from "../../../components/WelcomePopup";
 import { useLang, type Lang } from "../../../components/i18n";
-import { detectExtraLang, type AdLang, type ExtraLang } from "../../../lib/adLang";
+import {
+  detectExtraLang,
+  pickFromList,
+  type AdLang,
+  type ExtraLang,
+} from "../../../lib/adLang";
 import { setSourceIfUnknown } from "../../../lib/signupTracking";
 import { AD_CLIP_BUCKET, getAdLanding, type AdPlatform } from "../../../lib/adLandings";
 import { trackRedditCustom } from "../../../lib/redditPixel";
@@ -26,6 +31,10 @@ type Props = {
   epName: string | null;
   // Only the platforms that have a link filled in, in this order
   streams: AdPlatform[];
+  // Fixed language list for this page (empty = English / Spanish as usual)
+  languages: AdLang[];
+  // Visitor's country (from Vercel), to pick pt / id when the phone doesn't say
+  country: string | null;
 };
 
 const PLATFORM_LABEL: Record<AdPlatform, string> = {
@@ -84,7 +93,7 @@ const COPY: Record<
   },
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params, res }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params, req, res }) => {
   const ad = await getAdLanding(params?.slug);
   if (!ad) return { notFound: true };
 
@@ -109,6 +118,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params, re
         es: ad.headline_es ?? ad.headline_en ?? "",
       },
       epName: ad.ep_name,
+      languages: ad.languages,
+      country: (req.headers["x-vercel-ip-country"] as string) || null,
       streams: (["spotify", "apple", "youtube"] as AdPlatform[]).filter((p) =>
         /^https:\/\//.test(ad[`${p}_url`] ?? "")
       ),
@@ -123,16 +134,31 @@ export default function AdLanding({
   headline,
   epName,
   streams,
+  languages,
+  country,
 }: Props) {
   const { lang: siteLang, setLang: setSiteLang } = useLang();
   // Portuguese / Indonesian phones get those languages; EN / ES buttons still work
   const [extra, setExtra] = useState<ExtraLang | null>(null);
   const [useExtra, setUseExtra] = useState(true);
   useEffect(() => setExtra(detectExtraLang()), []);
-  const lang: AdLang = extra && useExtra ? extra : siteLang;
-  const langOptions: AdLang[] = extra ? [extra, "en", "es"] : ["en", "es"];
+  // Pages with their own language list (e.g. Brazil & Indonesia: pt, id)
+  const fixed = languages.length > 0;
+  const [fixedLang, setFixedLang] = useState<AdLang>(fixed ? languages[0] : "en");
+  useEffect(() => {
+    if (fixed) setFixedLang(pickFromList(languages, country));
+  }, [fixed, languages, country]);
+
+  const lang: AdLang = fixed ? fixedLang : extra && useExtra ? extra : siteLang;
+  const langOptions: AdLang[] = fixed
+    ? languages
+    : extra
+      ? [extra, "en", "es"]
+      : ["en", "es"];
   const changeLang = (l: AdLang) => {
-    if (l === extra) {
+    if (fixed) {
+      setFixedLang(l);
+    } else if (l === extra) {
       setUseExtra(true);
     } else if (l === "en" || l === "es") {
       setUseExtra(false);
