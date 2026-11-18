@@ -1,6 +1,7 @@
 // components/WelcomePopup.tsx
 import { useEffect, useState } from "react";
-import { useLang, type Lang } from "./i18n";
+import { useLang } from "./i18n";
+import type { AdLang } from "../lib/adLang";
 import { trackRedditCustom } from "../lib/redditPixel";
 import { getSource, logSignupEvent } from "../lib/signupTracking";
 
@@ -54,7 +55,50 @@ const es: Copy = {
   errServer: "Algo salió mal. Inténtalo de nuevo.",
 };
 
-const COPY: Record<Lang, Copy> = { en, es };
+// Portuguese and Indonesian: only used on ad pages (see lib/adLang.ts)
+const pt: Copy = {
+  kicker: "UMA MÚSICA PARA VOCÊ",
+  title: "Ouça uma música inédita de Periwinkle",
+  titleSong: (song: string) => `Ouça “${song}”, inédita, antes de todo mundo`,
+  listenNow: "Ouça agora enquanto o e-mail chega:",
+  copy: "Me diga para onde enviar. De vez em quando também vou te mandar músicas novas, shows e histórias.",
+  placeholder: "seu e-mail",
+  emailAria: "Seu e-mail",
+  submit: "ME ENVIE A MÚSICA",
+  fine: "Sem spam. Cancele quando quiser.",
+  doneTitle: "Confira seu e-mail",
+  doneBefore: "Sua música está a caminho de ",
+  doneAfter: '. Abra o e-mail e toque em "Quero minha música".',
+  doneFine: "Não chegou em um minuto? Confira a pasta de spam ou promoções.",
+  close: "FECHAR",
+  closeAria: "Fechar",
+  errEmail: "Digite um e-mail válido.",
+  errSend: "Não foi possível enviar o e-mail. Tente novamente.",
+  errServer: "Algo deu errado. Tente novamente.",
+};
+
+const id: Copy = {
+  kicker: "SEBUAH LAGU UNTUKMU",
+  title: "Dengarkan lagu yang belum dirilis dari Periwinkle",
+  titleSong: (song: string) => `Dengarkan “${song}”, belum dirilis, sebelum orang lain`,
+  listenNow: "Dengarkan sekarang sambil menunggu emailnya:",
+  copy: "Beri tahu aku ke mana harus mengirimnya. Sesekali aku juga akan mengirim musik baru, jadwal konser, dan cerita.",
+  placeholder: "email kamu",
+  emailAria: "Email kamu",
+  submit: "KIRIMKAN LAGUNYA",
+  fine: "Tanpa spam. Berhenti berlangganan kapan saja.",
+  doneTitle: "Cek kotak masukmu",
+  doneBefore: "Lagumu sedang dikirim ke ",
+  doneAfter: '. Buka emailnya dan ketuk "Dapatkan laguku".',
+  doneFine: "Belum masuk dalam semenit? Cek folder spam atau promosi.",
+  close: "TUTUP",
+  closeAria: "Tutup",
+  errEmail: "Masukkan email yang valid.",
+  errSend: "Email tidak dapat dikirim. Silakan coba lagi.",
+  errServer: "Terjadi kesalahan. Silakan coba lagi.",
+};
+
+const COPY: Record<AdLang, Copy> = { en, es, pt, id };
 
 // Error codes returned by /api/claim-song -> translated message keys
 const ERROR_CODES: Record<string, ErrKey> = {
@@ -77,6 +121,11 @@ type Props = {
   adSlug?: string;
   // The song being offered, shown in the title when known
   songName?: string;
+  // Ad pages: the page decides the language (it can also be pt or id),
+  // which language buttons to show, and what a tap on one does
+  langOverride?: AdLang;
+  langOptions?: AdLang[];
+  onLangChange?: (l: AdLang) => void;
 };
 
 function visitorId(): string | null {
@@ -94,8 +143,16 @@ export default function WelcomePopup({
   onClose,
   adSlug,
   songName,
+  langOverride,
+  langOptions = ["en", "es"],
+  onLangChange,
 }: Props) {
-  const { lang, setLang } = useLang();
+  const { lang: siteLang, setLang: setSiteLang } = useLang();
+  const lang: AdLang = langOverride ?? siteLang;
+  const setLang = (l: AdLang) => {
+    if (onLangChange) onLangChange(l);
+    else if (l === "en" || l === "es") setSiteLang(l);
+  };
   const c = COPY[lang];
   const inline = variant === "inline";
 
@@ -202,7 +259,7 @@ export default function WelcomePopup({
           onClick={(e) => e.stopPropagation()}
         >
           <div className="welcome-lang">
-            {(["en", "es"] as Lang[]).map((l) => (
+            {langOptions.map((l) => (
               <button
                 key={l}
                 type="button"

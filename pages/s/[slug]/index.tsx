@@ -11,6 +11,7 @@ import Head from "next/head";
 import Link from "next/link";
 import WelcomePopup from "../../../components/WelcomePopup";
 import { useLang, type Lang } from "../../../components/i18n";
+import { detectExtraLang, type AdLang, type ExtraLang } from "../../../lib/adLang";
 import { setSourceIfUnknown } from "../../../lib/signupTracking";
 import { AD_CLIP_BUCKET, getAdLanding, type AdPlatform } from "../../../lib/adLandings";
 import { trackRedditCustom } from "../../../lib/redditPixel";
@@ -34,7 +35,7 @@ const PLATFORM_LABEL: Record<AdPlatform, string> = {
 };
 
 const COPY: Record<
-  Lang,
+  AdLang,
   {
     sound: string;
     soundOn: string;
@@ -62,6 +63,24 @@ const COPY: Record<
     sound: "🔊 Toca para activar el sonido",
     soundOn: "🔇 Silenciar",
     gallery: "Explora la galería →",
+  },
+  pt: {
+    listenEp: (ep) => `Ouça o EP ${ep} completo`,
+    listenAll: "Ouça o EP completo",
+    epNote: "5 músicas · já disponível",
+    more: "E se você quiser mais uma…",
+    sound: "🔊 Toque para ativar o som",
+    soundOn: "🔇 Silenciar",
+    gallery: "Explore a galeria →",
+  },
+  id: {
+    listenEp: (ep) => `Dengarkan EP ${ep} selengkapnya`,
+    listenAll: "Dengarkan EP selengkapnya",
+    epNote: "5 lagu · sudah rilis",
+    more: "Dan kalau mau satu lagi…",
+    sound: "🔊 Ketuk untuk suara",
+    soundOn: "🔇 Bisukan",
+    gallery: "Jelajahi galeri →",
   },
 };
 
@@ -105,8 +124,23 @@ export default function AdLanding({
   epName,
   streams,
 }: Props) {
-  const { lang } = useLang();
+  const { lang: siteLang, setLang: setSiteLang } = useLang();
+  // Portuguese / Indonesian phones get those languages; EN / ES buttons still work
+  const [extra, setExtra] = useState<ExtraLang | null>(null);
+  const [useExtra, setUseExtra] = useState(true);
+  useEffect(() => setExtra(detectExtraLang()), []);
+  const lang: AdLang = extra && useExtra ? extra : siteLang;
+  const langOptions: AdLang[] = extra ? [extra, "en", "es"] : ["en", "es"];
+  const changeLang = (l: AdLang) => {
+    if (l === extra) {
+      setUseExtra(true);
+    } else if (l === "en" || l === "es") {
+      setUseExtra(false);
+      setSiteLang(l);
+    }
+  };
   const c = COPY[lang];
+  const headlineText = lang === "en" || lang === "es" ? headline[lang] : headline.en;
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [location, setLocation] = useState("");
@@ -158,7 +192,7 @@ export default function AdLanding({
 
       <main className="ad-page">
         <p className="name">DAVIS CARUSO</p>
-        {headline[lang] && <p className="headline">{headline[lang]}</p>}
+        {headlineText && <p className="headline">{headlineText}</p>}
 
         <div className="clip">
           <video
@@ -202,6 +236,9 @@ export default function AdLanding({
           location={location}
           adSlug={slug}
           songName={songName}
+          langOverride={lang}
+          langOptions={langOptions}
+          onLangChange={changeLang}
         />
 
         <Link href="/gallery" className="gallery-link">

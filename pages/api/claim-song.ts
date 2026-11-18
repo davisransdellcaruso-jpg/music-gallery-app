@@ -11,7 +11,7 @@ import { recordSignupEvent } from "../../lib/signupEventsServer";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_MS = 60_000;
 
-type Lang = "en" | "es";
+type Lang = "en" | "es" | "pt" | "id"; // pt / id come from ad pages
 
 // Confirmation email wording, per language.
 // The song is the reason people sign up, so the email leads with it: the
@@ -47,6 +47,24 @@ const EMAIL_COPY: Record<
     after: "De vez en cuando te enviaré música nueva, conciertos e historias. — Davis",
     ignore: "Si no lo solicitaste, puedes ignorar este mensaje.",
   },
+  pt: {
+    subject: "Sua música inédita de Periwinkle chegou 🎧",
+    preview: "Um toque e ela é sua.",
+    heading: "Bem-vindo à famiglia",
+    body: "Aqui está a música inédita de Periwinkle que eu te prometi. Toque abaixo para recebê-la",
+    button: "QUERO MINHA MÚSICA",
+    after: "De vez em quando vou te mandar músicas novas, shows e histórias. — Davis",
+    ignore: "Se você não pediu isso, pode ignorar esta mensagem.",
+  },
+  id: {
+    subject: "Lagu Periwinkle yang belum dirilis untukmu sudah tiba 🎧",
+    preview: "Satu ketukan dan lagu ini milikmu.",
+    heading: "Selamat datang di la famiglia",
+    body: "Ini lagu Periwinkle yang belum dirilis yang aku janjikan. Ketuk di bawah untuk mendapatkannya",
+    button: "DAPATKAN LAGUKU",
+    after: "Sesekali aku akan mengirim musik baru, jadwal konser, dan cerita. — Davis",
+    ignore: "Kalau kamu tidak memintanya, abaikan saja pesan ini.",
+  },
 };
 
 export default async function handler(
@@ -60,7 +78,7 @@ export default async function handler(
   const email = String(req.body?.email || "").trim().toLowerCase();
   const location = String(req.body?.location || "").trim() || null;
   // Only ever "es" or "en" (anything else falls back to English)
-  const lang: Lang = req.body?.lang === "es" ? "es" : "en";
+  const lang: Lang = (["es", "pt", "id"] as const).find((l) => l === req.body?.lang) ?? "en";
   // Where they came from (?src=ig, ?src=tt, ...) so /signup-stats can
   // show which links bring people who actually sign up
   const source = cleanSource(req.body?.source) ?? "direct";

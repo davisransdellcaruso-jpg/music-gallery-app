@@ -7,7 +7,7 @@ import { recordSignupEvent } from "../../lib/signupEventsServer";
 const TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 const DOWNLOAD_LINK_SECONDS = 60 * 60; // each download link works for 1 hour
 
-type Lang = "en" | "es";
+type Lang = "en" | "es" | "pt" | "id"; // pt / id come from ad pages
 
 const COPY: Record<
   Lang,
@@ -49,6 +49,32 @@ const COPY: Record<
     confirmed: "Ya estás dentro. Aquí está tu canción inédita de Periwinkle:",
     download: "DESCARGAR MI CANCIÓN",
     next: "Continuar al mapa de oyentes",
+  },
+  pt: {
+    expiredTitle: "Link expirado",
+    expiredH1: "Este link expirou",
+    expiredP: "Volte ao site e peça sua música de novo.",
+    backBtn: "VOLTAR AO SITE",
+    almostH1: "Quase lá",
+    almostP:
+      "Seu e-mail foi confirmado, mas a música não está disponível agora. Volte em breve.",
+    welcomeH1: "Bem-vindo à famiglia",
+    confirmed: "Pronto, você está dentro. Aqui está sua música inédita de Periwinkle:",
+    download: "BAIXAR MINHA MÚSICA",
+    next: "Continuar para o mapa de ouvintes",
+  },
+  id: {
+    expiredTitle: "Tautan kedaluwarsa",
+    expiredH1: "Tautan ini sudah kedaluwarsa",
+    expiredP: "Kembali ke situs dan minta lagumu lagi.",
+    backBtn: "KEMBALI KE SITUS",
+    almostH1: "Hampir selesai",
+    almostP:
+      "Emailmu sudah dikonfirmasi, tapi lagunya belum tersedia sekarang. Coba lagi nanti.",
+    welcomeH1: "Selamat datang di la famiglia",
+    confirmed: "Kamu sudah bergabung. Ini lagu Periwinkle yang belum dirilis untukmu:",
+    download: "UNDUH LAGUKU",
+    next: "Lanjut ke peta pendengar",
   },
 };
 
@@ -93,7 +119,7 @@ export default async function handler(
 ) {
   const token = String(req.query.token || "");
   // Only ever "es" or "en" (safe to put into the page and links below)
-  const lang: Lang = req.query.lang === "es" ? "es" : "en";
+  const lang: Lang = (["es", "pt", "id"] as const).find((l) => l === req.query.lang) ?? "en";
   const c = COPY[lang];
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
