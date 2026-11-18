@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { SONG_BUCKET, SONGS, songTitle } from "../../lib/songs";
 import { recordSignupEvent } from "../../lib/signupEventsServer";
+import { isNoTrackRequest } from "../../lib/noTrack";
 
 const TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 const DOWNLOAD_LINK_SECONDS = 60 * 60; // each download link works for 1 hour
@@ -106,7 +107,7 @@ const REDDIT_PIXEL_ID = "a2_dlt528w43ns9";
 
 function redditConfirmScript(token: string) {
   return `<script>
-try{var s=location.search;if(/notrack=1/.test(s))localStorage.dc_no_track=1;if(/notrack=0/.test(s))delete localStorage.dc_no_track;if(localStorage.dc_no_track)window.rdt=function(){}}catch(e){};!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+try{var s=location.search;if(/notrack=1/.test(s))localStorage.dc_no_track=1;if(/notrack=0/.test(s)){delete localStorage.dc_no_track;document.cookie="dc_no_track=;path=/;max-age=0"}if(localStorage.dc_no_track){document.cookie="dc_no_track=1;path=/;max-age=31536000;samesite=lax;secure";window.rdt=function(){}}}catch(e){};!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
 rdt("init","${REDDIT_PIXEL_ID}");
 rdt("track","PageVisit");
 rdt("track","Custom",{customEventName:"Email Confirmed",conversionId:"confirm-${token}"});
@@ -158,7 +159,7 @@ export default async function handler(
     .eq("verify_token", token);
 
   // Count each address once, the first time it's confirmed
-  if (!row.verified) {
+  if (!row.verified && !isNoTrackRequest(req)) {
     await recordSignupEvent({
       event: "confirmed",
       source: req.query.src,

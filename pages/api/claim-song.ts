@@ -7,6 +7,7 @@ import { SONG_BUCKET, SONGS } from "../../lib/songs";
 import { adSongIndex, getAdLanding } from "../../lib/adLandings";
 import { cleanSource } from "../../lib/signupTracking";
 import { recordSignupEvent } from "../../lib/signupEventsServer";
+import { isNoTrackRequest } from "../../lib/noTrack";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_MS = 60_000;
@@ -184,7 +185,7 @@ export default async function handler(
     });
   }
 
-  await recordSignupEvent({
+  if (!isNoTrackRequest(req)) await recordSignupEvent({
     event: "submitted",
     source,
     visitorId: req.body?.visitorId,

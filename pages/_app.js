@@ -6,6 +6,7 @@ import ListenerPing from "@/components/ListenerPing";
 import { useRedditPageEvents } from "@/lib/useRedditPageEvents";
 import { useEffect } from "react";
 import { captureSource } from "@/lib/signupTracking";
+import { isNoTrack } from "@/lib/noTrack";
 
 export default function App({ Component, pageProps }) {
   useRedditPageEvents();
@@ -19,7 +20,8 @@ export default function App({ Component, pageProps }) {
     <CartProvider>
       <ListenerPing />
       <Component {...pageProps} />
-      <Analytics />
+      {/* Your own devices (?notrack=1) aren't counted */}
+      <Analytics beforeSend={(event) => (isNoTrack() ? null : event)} />
     </CartProvider>
   );
 }

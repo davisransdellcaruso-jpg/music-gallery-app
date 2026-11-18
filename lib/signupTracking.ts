@@ -9,6 +9,8 @@
 //    email confirmed) in the Supabase `signup_events` table, so you can
 //    see where people drop off at /signup-stats.
 
+import { isNoTrack } from "./noTrack";
+
 const SOURCE_KEY = "dc_src";
 const VISITOR_KEY = "dc_visitor_id"; // same id the listener map uses
 
@@ -81,7 +83,7 @@ function visitorId(): string | null {
 
 // Fire-and-forget: never slows the page or shows an error to a visitor
 export function logSignupEvent(event: SignupEvent, page = ""): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || isNoTrack()) return;
   try {
     fetch("/api/signup-event", {
       method: "POST",

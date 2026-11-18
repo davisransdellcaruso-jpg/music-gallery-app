@@ -320,8 +320,8 @@ export default function AdLanding({
 
         .clip {
           position: relative;
-          width: 100%;
-          max-width: 440px;
+          width: fit-content;
+          max-width: 100%;
           border: 1px solid rgba(219, 164, 60, 0.65);
           border-radius: 4px;
           overflow: hidden;
@@ -329,11 +329,15 @@ export default function AdLanding({
           box-shadow: 0 18px 50px rgba(112, 72, 190, 0.25);
         }
 
+        /* Whole clip, never cropped: sized by the video's own shape,
+           up to 440px wide and 62% of the screen tall */
         video {
           display: block;
-          width: 100%;
+          width: auto;
+          height: auto;
+          max-width: min(440px, calc(100vw - 2rem));
           max-height: 62vh;
-          object-fit: cover;
+          object-fit: contain;
           cursor: pointer;
         }
 

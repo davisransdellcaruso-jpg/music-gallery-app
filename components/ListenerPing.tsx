@@ -13,12 +13,14 @@
 
 "use client";
 import { useEffect } from "react";
+import { isNoTrack } from "@/lib/noTrack";
 
 const ID_KEY = "dc_visitor_id";
 const SENT_KEY = "dc_visit_sent";
 
 export default function ListenerPing() {
   useEffect(() => {
+    if (isNoTrack()) return; // your own devices don't get a dot
     try {
       // A random ID for this browser, so one person = one dot
       let id = localStorage.getItem(ID_KEY);

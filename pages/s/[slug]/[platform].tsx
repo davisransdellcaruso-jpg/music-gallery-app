@@ -5,6 +5,7 @@
 import type { GetServerSideProps } from "next";
 import { AD_PLATFORMS, type AdPlatform, getAdLanding } from "../../../lib/adLandings";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { isNoTrackRequest } from "../../../lib/noTrack";
 
 const PREVIEW_BOTS =
   /bot|crawler|spider|preview|facebookexternalhit|slackbot|twitterbot|discordbot|whatsapp|telegrambot|linkedinbot|embedly|skypeuripreview|vercel-screenshot/i;
@@ -26,7 +27,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req, res 
   res.setHeader("Cache-Control", "no-store, max-age=0");
 
   const userAgent = String(req.headers["user-agent"] ?? "");
-  if (!PREVIEW_BOTS.test(userAgent)) {
+  // Skip link-preview bots and your own devices (?notrack=1)
+  if (!PREVIEW_BOTS.test(userAgent) && !isNoTrackRequest(req)) {
     try {
       const tap = {
         platform,
