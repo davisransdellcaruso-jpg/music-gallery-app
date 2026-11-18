@@ -100,6 +100,15 @@ const id: Copy = {
 
 const COPY: Record<AdLang, Copy> = { en, es, pt, id };
 
+// Language button labels. Portuguese and Indonesian show the country,
+// written in its own language, since those ad pages target Brazil and Indonesia.
+const LANG_LABEL: Record<AdLang, string> = {
+  en: "EN",
+  es: "ES",
+  pt: "BRASIL",
+  id: "INDONESIA",
+};
+
 // Error codes returned by /api/claim-song -> translated message keys
 const ERROR_CODES: Record<string, ErrKey> = {
   email: "errEmail",
@@ -267,7 +276,7 @@ export default function WelcomePopup({
                 aria-pressed={lang === l}
                 className={lang === l ? "lang-btn active" : "lang-btn"}
               >
-                {l.toUpperCase()}
+                {LANG_LABEL[l]}
               </button>
             ))}
           </div>
