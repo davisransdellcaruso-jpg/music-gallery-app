@@ -1,8 +1,9 @@
 // /room — the supporters' private listening room (bilingual).
 import Head from "next/head";
 import { useCallback, useEffect, useRef, useState } from "react";
+import SyncedLyrics from "../components/SyncedLyrics";
 
-type Track = { id: string; title: string; url: string };
+type Track = { id: string; title: string; url: string; lyrics?: string | null };
 type Lang = "en" | "es";
 
 const T = {
@@ -257,6 +258,11 @@ export default function Room() {
           {status === "ready" && (
             <>
               <p style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: C.dim, margin: "0 0 12px" }}>{t.lossless}</p>
+              {now?.lyrics && (
+                <div style={{ marginBottom: 28, ["--lyric-glow-color" as string]: C.gold, ["--lyric-warm-color" as string]: "#c98fe0" } as React.CSSProperties}>
+                  <SyncedLyrics key={now.id} audioRef={audioRef} lyrics={now.lyrics} lang={lang} />
+                </div>
+              )}
               {tracks.length === 0 && <p style={{ color: C.dim }}>{t.empty}</p>}
               <ol style={{ listStyle: "none", padding: 0, margin: 0, borderTop: `1px solid ${C.line}` }}>
                 {tracks.map((tr, i) => {

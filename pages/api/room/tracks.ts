@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { data: tracks, error } = await roomDb
     .from("room_tracks")
-    .select("id, title, file_path, sort_order")
+    .select("id, title, file_path, sort_order, lyrics")
     .eq("is_live", true)
     .order("sort_order", { ascending: true })
     .order("file_path", { ascending: true });
@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   return res.json({
     studio: isStudio(email),
     tracks: tracks
-      .map((t) => ({ id: t.id, title: t.title, url: urlFor.get(t.file_path) || null }))
+      .map((t) => ({ id: t.id, title: t.title, lyrics: t.lyrics || null, url: urlFor.get(t.file_path) || null }))
       .filter((t) => t.url),
   });
 }
