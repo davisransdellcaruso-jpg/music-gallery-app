@@ -81,11 +81,19 @@ const css = `
   }
   .dc-map { position: absolute; inset: 0; z-index: 1; }
 
-  /* Listener dots: flat red discs */
-  .dc-listener {
-    border-radius: 50%; background: rgba(194,74,28,0.78);
-    border: 2px solid #f2eafa;
+  /* Listeners: tiny caterpillars that slowly inch along */
+  .dc-listener { line-height: 1; cursor: default; user-select: none; }
+  .dc-listener span {
+    display: inline-block; transform-origin: 50% 100%;
+    filter: drop-shadow(0 1px 1px rgba(83,40,143,0.25));
+    animation: dc-inch 2.8s ease-in-out infinite;
   }
+  @keyframes dc-inch {
+    0%, 70%, 100% { transform: scale(1, 1); }
+    80% { transform: scale(0.86, 1.12) translateY(-1px); }
+    90% { transform: scale(1.06, 0.94); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dc-listener span { animation: none; } }
 
   /* Fan pins: cream dot, indigo outline, pink pulse */
     .fan-pin { width: 26px; height: 26px; cursor: pointer; }
@@ -254,12 +262,18 @@ export default function MapView({
     markersRef.current = [];
     pinMarkerRef.current.clear();
 
-    // Faint dots: anonymous listeners, grouped by area
+    // Caterpillars: anonymous listeners, grouped by area
     for (const c of clusters) {
       const r = Math.min(14, 4 + Math.sqrt(c.listeners) * 1.6);
       const el = document.createElement("div");
       el.className = "dc-listener";
-      el.style.width = el.style.height = `${r * 2}px`;
+      // Bigger caterpillar for more listeners (about 12px → 24px)
+      el.style.fontSize = `${Math.round(8 + r)}px`;
+      const bug = document.createElement("span");
+      bug.textContent = "🐛";
+      // Each one inches on its own rhythm
+      bug.style.animationDelay = `${(Math.random() * 2.8).toFixed(2)}s`;
+      el.appendChild(bug);
       const place = [c.city, c.region].filter(Boolean).join(", ") || t.somewhere;
       el.title = `${place} · ${t.listenCount(c.listeners)}`;
       markersRef.current.push(

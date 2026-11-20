@@ -110,13 +110,6 @@ const swatchBase: CSSProperties = {
   borderRadius: "50%",
   boxSizing: "border-box",
 };
-const faintSwatch: CSSProperties = {
-  ...swatchBase,
-  width: 14,
-  height: 14,
-  background: "rgba(194,74,28,0.78)",
-  border: "2px solid #f2eafa",
-};
 const fanSwatch: CSSProperties = {
   ...swatchBase,
   width: 12,
@@ -467,7 +460,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
             fontSize: 12,
           }}
         >
-          <LegendRow swatch={<span style={faintSwatch} />} text={t.legendListeners} />
+          <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🐛</span>} text={t.legendListeners} />
           <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
           {mine && (
             <LegendRow
@@ -699,7 +692,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                     fontSize: 14,
                   }}
                 >
-                  <LegendRow swatch={<span style={faintSwatch} />} text={t.legendListeners} />
+                  <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🐛</span>} text={t.legendListeners} />
                   <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
                   {mine && (
                     <LegendRow
