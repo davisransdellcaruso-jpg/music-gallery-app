@@ -25,7 +25,8 @@ export type ButterflyCluster = {
   country: string | null;
   latitude: number;
   longitude: number;
-  butterflies: number;
+  butterflies: number; // joined, no fan pin: drawn as small butterflies
+  joined?: number; // everyone who joined here (fan pins too)
 };
 
 const areaKey = (a: { city: string | null; region: string | null; country: string | null }) =>
@@ -39,7 +40,7 @@ export type FanPin = {
   country: string | null;
   latitude: number;
   longitude: number;
-  story: string; // the lyrics they shared
+  story?: string | null; // lyrics from early pins (no longer shown)
   mood?: string | null; // emoji for their mood
   edit_token?: string; // only ever kept on the fan's own device
 };
@@ -107,10 +108,9 @@ const css = `
     90% { transform: scale(1.06, 0.94); }
   }
   /* Butterflies: listeners who joined La Famiglia, gently fluttering */
-  .dc-butterfly { line-height: 1; cursor: default; user-select: none; z-index: 1; }
+  .dc-butterfly { line-height: 1; cursor: default; user-select: none; z-index: 1; opacity: 0.6; }
   .dc-butterfly span {
     display: inline-block;
-    filter: drop-shadow(0 0 4px rgba(242,194,122,0.7));
     animation: dc-flutter 3.6s ease-in-out infinite;
   }
   @keyframes dc-flutter {
@@ -121,32 +121,26 @@ const css = `
     60% { transform: translateY(-2px) scaleX(1) rotate(-3deg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .dc-listener span, .dc-butterfly span { animation: none; }
+    .dc-listener span, .dc-butterfly span, .fan-pin .fly { animation: none; }
   }
 
-  /* Fan pins: cream dot, indigo outline, pink pulse */
-    .fan-pin { width: 26px; height: 26px; cursor: pointer; }
-  .fan-pin .dot {
-    position: absolute; top: 50%; left: 50%;
-    width: 24px; height: 24px; margin: -12px 0 0 -12px;
-    border-radius: 50%; box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; line-height: 1;
-    background: #f2eafa; border: 3px solid #53288f;
+  /* Fan pins: full butterflies with a little mood badge (tap to say hi) */
+  .fan-pin { position: relative; width: 30px; height: 30px; cursor: pointer; z-index: 2; }
+  .fan-pin .fly {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 25px; line-height: 1;
+    filter: drop-shadow(0 1px 1.5px rgba(83,40,143,0.4));
+    animation: dc-flutter 3.6s ease-in-out infinite;
   }
-  .fan-pin .ring {
-    position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-    border: 3px solid #e8762c;
-    animation: fan-pulse 3.2s ease-out infinite;
+  .fan-pin .mood {
+    position: absolute; right: -7px; bottom: -5px; width: 18px; height: 18px;
+    border-radius: 50%; box-sizing: border-box; background: #f2eafa; border: 1.5px solid #53288f;
+    display: flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1;
   }
-  .fan-pin.mine .dot { background: #f2c27a; border-color: #c24a1c; }
-  .fan-pin.mine .ring { border-color: #c24a1c; }
-  .fan-pin.pending .dot { background: transparent; border: 3px dashed #53288f; }
-  .fan-pin.pending .ring { animation: none; opacity: 0; }
-  @keyframes fan-pulse {
-    0%   { transform: scale(0.5); opacity: 0.95; }
-    100% { transform: scale(2.8); opacity: 0; }
-  }
+  .fan-pin.mine .fly { filter: drop-shadow(0 0 6px rgba(242,194,122,0.95)) drop-shadow(0 0 2px #e8762c); }
+  .fan-pin.mine .mood { background: #f2c27a; border-color: #c24a1c; }
+  .fan-pin.pending { opacity: 0.5; }
+  .fan-pin.pending .mood { border-style: dashed; }
 
   /* Popups + controls: cream paper cards with an indigo outline */
   .dc-map .maplibregl-popup-content {
@@ -187,10 +181,6 @@ function buildPopup(pin: FanPin, note?: string): HTMLElement {
     .join(", ");
   root.appendChild(where);
 
-  const story = document.createElement("div");
-  story.style.cssText = "margin-top:8px;line-height:1.45;font-style:italic";
-  story.textContent = `\u201C${pin.story}\u201D`;
-  root.appendChild(story);
   return root;
 }
 
@@ -295,13 +285,15 @@ export default function MapView({
     // Caterpillars: anonymous listeners, grouped by area
     // Listeners who joined La Famiglia show as butterflies instead of caterpillars
     const joined = new Map<string, number>();
-    for (const b of butterflies) joined.set(areaKey(b), (joined.get(areaKey(b)) ?? 0) + b.butterflies);
+    for (const b of butterflies)
+      joined.set(areaKey(b), (joined.get(areaKey(b)) ?? 0) + (b.joined ?? b.butterflies));
 
     for (const b of butterflies) {
+      if (b.butterflies <= 0) continue; // only fans with their own pin here
       const r = Math.min(14, 4 + Math.sqrt(b.butterflies) * 1.6);
       const el = document.createElement("div");
       el.className = "dc-butterfly";
-      el.style.fontSize = `${Math.round(9 + r)}px`;
+      el.style.fontSize = `${Math.round(8 + r * 0.6)}px`;
       const fly = document.createElement("span");
       fly.textContent = "🦋";
       fly.style.animationDelay = `${(Math.random() * 3.6).toFixed(2)}s`;
@@ -340,10 +332,16 @@ export default function MapView({
     const addPin = (pin: FanPin, kind: "" | "mine" | "pending", note?: string) => {
       const el = document.createElement("div");
       el.className = "fan-pin" + (kind ? ` ${kind}` : "");
-      el.innerHTML = '<span class="ring"></span><span class="dot"></span>';
+      const fly = document.createElement("span");
+      fly.className = "fly";
+      fly.textContent = "🦋";
+      fly.style.animationDelay = `${(Math.random() * 3.6).toFixed(2)}s`;
+      el.appendChild(fly);
       if (pin.mood) {
-        const dot = el.querySelector(".dot");
-        if (dot) dot.textContent = pin.mood; // emoji inside the pin
+        const badge = document.createElement("span");
+        badge.className = "mood";
+        badge.textContent = pin.mood; // their mood, on the butterfly's wing
+        el.appendChild(badge);
       }
       el.title = `${note ? note + " " : ""}${pin.mood ? pin.mood + " " : ""}${pin.display_name} · ${pin.city}`;
 

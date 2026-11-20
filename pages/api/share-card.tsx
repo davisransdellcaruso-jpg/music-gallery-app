@@ -11,16 +11,16 @@ export const config = { runtime: "edge" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const COPY = {
-  en: { onMap: "I'm on the map", join: "Add yourself 🦋" },
-  es: { onMap: "Estoy en el mapa", join: "Agrégate 🦋" },
+  en: { onMap: "I'm on the map", join: "Add yourself 🦋", since: "Joined La Famiglia" },
+  es: { onMap: "Estoy en el mapa", join: "Agrégate 🦋", since: "En La Famiglia desde" },
 };
 
 type Pin = {
   display_name: string;
   city: string;
   country: string | null;
-  story: string;
   mood: string | null;
+  created_at: string;
   approved: boolean;
   edit_token_hash: string | null;
 };
@@ -65,7 +65,7 @@ export default async function handler(req: NextRequest) {
   if (!base || !key) return new Response("Not configured", { status: 500 });
 
   const r = await fetch(
-    `${base}/rest/v1/fan_pins?id=eq.${id}&select=display_name,city,country,story,mood,approved,edit_token_hash`,
+    `${base}/rest/v1/fan_pins?id=eq.${id}&select=display_name,city,country,mood,created_at,approved,edit_token_hash`,
     { headers: { apikey: key, Authorization: `Bearer ${key}` } }
   );
   const pin = ((await r.json().catch(() => [])) as Pin[])[0];
@@ -78,15 +78,21 @@ export default async function handler(req: NextRequest) {
 
   const c = COPY[lang];
   const place = [pin.city, pin.country].filter(Boolean).join(", ");
-  const lyricSize = pin.story.length > 120 ? 44 : pin.story.length > 60 ? 52 : 62;
+  // Short names get bigger so the card doesn't feel empty
+  const n = pin.display_name.length;
+  const nameSize = n <= 6 ? 120 : n <= 12 ? 96 : n <= 20 ? 76 : 62;
+  const month = new Date(pin.created_at || Date.now()).toLocaleDateString(lang === "es" ? "es" : "en-US", {
+    month: "long",
+    year: "numeric",
+  });
   const fonts = await loadFonts();
   const serif = fonts ? "Fraunces" : "serif";
 
   // Little caterpillars and butterflies scattered around the edges
   const critters: [string, number, number, number][] = [
-    ["🦋", 90, 330, 64], ["🐛", 900, 380, 44], ["🐛", 140, 1500, 40],
-    ["🦋", 880, 1440, 72], ["🐛", 300, 560, 34], ["🦋", 60, 980, 48],
-    ["🐛", 960, 1050, 38], ["🦋", 470, 1580, 44],
+    ["🦋", 90, 330, 64], ["🐛", 900, 380, 44], ["🐛", 290, 500, 34],
+    ["🦋", 760, 500, 42], ["🐛", 140, 1560, 40], ["🦋", 860, 1540, 72],
+    ["🦋", 480, 1600, 40],
   ];
 
   return new ImageResponse(
@@ -125,27 +131,33 @@ export default async function handler(req: NextRequest) {
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
-            padding: "64px 60px",
+            padding: "80px 60px 70px",
             background: "#f2eafa",
             border: "6px solid #53288f",
             borderRadius: 40,
             boxShadow: "18px 18px 0 #e8762c",
           }}
         >
-          <div style={{ fontSize: 130, lineHeight: 1, display: "flex" }}>{pin.mood || "💜"}</div>
-          <div style={{ fontSize: 76, marginTop: 30, display: "flex" }}>{pin.display_name}</div>
-          <div style={{ fontSize: 38, marginTop: 8, color: "#7e57c9", display: "flex" }}>📍 {place}</div>
           <div
             style={{
-              fontSize: lyricSize,
-              fontStyle: "italic",
-              lineHeight: 1.35,
-              marginTop: 44,
+              width: 280,
+              height: 280,
+              borderRadius: 140,
+              background: "#e6d6f7",
+              border: "5px solid #53288f",
               display: "flex",
+              alignItems: "center",
               justifyContent: "center",
+              position: "relative",
             }}
           >
-            {`“${pin.story}”`}
+            <div style={{ fontSize: 170, lineHeight: 1, display: "flex" }}>{pin.mood || "💜"}</div>
+            <div style={{ position: "absolute", right: -40, top: -30, fontSize: 96, display: "flex" }}>🦋</div>
+          </div>
+          <div style={{ fontSize: nameSize, marginTop: 44, lineHeight: 1.05, display: "flex" }}>{pin.display_name}</div>
+          <div style={{ fontSize: 42, marginTop: 18, color: "#7e57c9", display: "flex" }}>📍 {place}</div>
+          <div style={{ fontSize: 32, marginTop: 34, color: "#7e57c9", fontStyle: "italic", display: "flex" }}>
+            {`🦋 ${c.since} · ${month}`}
           </div>
         </div>
 

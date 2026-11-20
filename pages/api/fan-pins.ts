@@ -45,7 +45,6 @@ export default async function handler(
   const city = clean(body.city, 80);
   const region = clean(body.region, 80) || null;
   const country = clean(body.country, 80) || null;
-  const story = clean(body.story, 200); // the lyrics they typed
   const mood = typeof body.mood === "string" ? body.mood : "";
   const lat = Number(body.latitude);
   const lng = Number(body.longitude);
@@ -60,13 +59,10 @@ export default async function handler(
   ) {
     return fail(400, "city", "Please pick your city from the suggestions.");
   }
-  if (story.length < 2) {
-    return fail(400, "story", "Please share a few words of lyrics.");
-  }
   if (!MOODS.includes(mood)) {
     return fail(400, "mood", "Please pick an emoji.");
   }
-  if (/(https?:\/\/|www\.|\S+@\S+\.\S+)/i.test(`${display_name} ${story}`)) {
+  if (/(https?:\/\/|www\.|\S+@\S+\.\S+)/i.test(display_name)) {
     return fail(400, "links", "Please leave links and email addresses out.");
   }
 
@@ -106,7 +102,7 @@ export default async function handler(
       // ~1 km precision: city-level only, never a street address
       latitude: round2(lat),
       longitude: round2(lng),
-      story,
+      story: null, // pins no longer ask for lyrics
       mood,
       approved: false,
       ip_hash,

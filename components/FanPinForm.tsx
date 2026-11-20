@@ -1,6 +1,7 @@
 "use client";
 
-import { shareMyPin, type SharablePin } from "@/lib/shareCard";
+import type { SharablePin } from "@/lib/shareCard";
+import ShareCardModal from "./ShareCardModal";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import type { FanPin } from "./MapView";
 import { MOODS } from "./moods";
@@ -146,20 +147,13 @@ export default function FanPinForm({
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<Place | null>(null);
   const [results, setResults] = useState<Place[]>([]);
-  const [story, setStory] = useState(""); // the lyrics
   const [mood, setMood] = useState("");
   const [website, setWebsite] = useState(""); // honeypot: humans never see it
   const [sending, setSending] = useState(false);
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
   const [done, setDone] = useState(false);
   const [sharePin, setSharePin] = useState<SharablePin | null>(null);
-  const [shareState, setShareState] = useState<"idle" | "making" | "failed">("idle");
-  async function share() {
-    if (!sharePin) return;
-    setShareState("making");
-    const ok = await shareMyPin(sharePin, lang, t.shareText).catch(() => false);
-    setShareState(ok ? "idle" : "failed");
-  }
+  const [showShare, setShowShare] = useState(false);
   const [email, setEmail] = useState("");
   const [emailResult, setEmailResult] = useState<EmailResult>(null);
   // Hide the email field for people this device already signed up
@@ -223,7 +217,6 @@ export default function FanPinForm({
     e.preventDefault();
     setErrKey(null);
     if (!name.trim()) return setErrKey("errName");
-    if (picked && story.trim().length < 2) return setErrKey("errStory");
     if (picked && !mood) return setErrKey("errMood");
     const addr = askEmail ? normalizeEmail(email) : "";
     if (addr && !looksLikeEmail(addr)) return setErrKey("errEmail");
@@ -250,10 +243,6 @@ export default function FanPinForm({
         setQuery(placeLabel(place));
         setResults([]);
       }
-      if (story.trim().length < 2) {
-        setErrKey("errStory");
-        return;
-      }
       if (!mood) {
         setErrKey("errMood");
         return;
@@ -268,7 +257,6 @@ export default function FanPinForm({
           country: place.country,
           latitude: place.latitude,
           longitude: place.longitude,
-          story,
           mood,
           website,
           visitorId: storedVisitorId(),
@@ -289,7 +277,7 @@ export default function FanPinForm({
           country: place.country,
           latitude: round2(place.latitude),
           longitude: round2(place.longitude),
-          story: story.trim(),
+          story: "",
           mood,
           edit_token: j.token, // lets this device change the mood later
         });
@@ -357,16 +345,15 @@ export default function FanPinForm({
             {sharePin && (
               <div style={{ margin: "4px 0 16px" }}>
                 <button
-                  onClick={share}
-                  disabled={shareState === "making"}
+                  onClick={() => setShowShare(true)}
                   style={{ ...primaryBtn, background: "#e8762c", width: "100%" }}
                 >
-                  {shareState === "making" ? t.shareMaking : t.shareButton}
+                  {t.shareButton}
                 </button>
-                <p style={{ color: shareState === "failed" ? "#c24a1c" : "#7e57c9", fontSize: 12, margin: "6px 0 0" }}>
-                  {shareState === "failed" ? t.shareFailed : t.shareHint}
-                </p>
               </div>
+            )}
+            {sharePin && showShare && (
+              <ShareCardModal pin={sharePin} lang={lang} t={t} onClose={() => setShowShare(false)} />
             )}
             {onContinue ? (
               <div
@@ -467,19 +454,6 @@ export default function FanPinForm({
               )}
             </div>
             {picked && <div style={hint}>✓ {placeLabel(picked)}</div>}
-
-            <label style={labelStyle} htmlFor="fan-story">
-              {t.storyLabel}
-            </label>
-            <textarea
-              id="fan-story"
-              style={{ ...field, minHeight: 80, resize: "vertical" }}
-              value={story}
-              maxLength={200}
-              onChange={(e) => setStory(e.target.value)}
-              placeholder={t.storyPlaceholder}
-            />
-            <div style={{ ...hint, textAlign: "right" }}>{story.length}/200</div>
 
             <div style={labelStyle}>{t.moodLabel}</div>
             <div

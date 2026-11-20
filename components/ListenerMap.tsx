@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase";
 import FanPinForm from "./FanPinForm";
 import { useLang, type Lang } from "./i18n";
 import type { ButterflyCluster, Cluster, FanPin, Focus } from "./MapView";
-import { shareMyPin } from "@/lib/shareCard";
+import ShareCardModal from "./ShareCardModal";
 
 // Leaflet touches `window`, so the map itself is client-only.
 const MapView = dynamic(() => import("./MapView"), {
@@ -105,31 +105,14 @@ const skipBtn: CSSProperties = {
   cursor: "pointer",
 };
 
-// Little swatches that match the dots on the map
-const swatchBase: CSSProperties = {
-  display: "inline-block",
-  borderRadius: "50%",
-  boxSizing: "border-box",
-};
-const fanSwatch: CSSProperties = {
-  ...swatchBase,
-  width: 12,
-  height: 12,
-  background: "#f2eafa",
-  border: "3px solid #53288f",
-};
+// Map key butterflies, matching the markers on the map
+const fanSwatch: CSSProperties = { fontSize: 16, lineHeight: 1 };
 const mineSwatch: CSSProperties = {
   ...fanSwatch,
-  background: "#f2c27a",
-  border: "3px solid #c24a1c",
+  filter: "drop-shadow(0 0 4px rgba(242,194,122,0.95)) drop-shadow(0 0 1px #e8762c)",
 };
-const pendingSwatch: CSSProperties = {
-  ...swatchBase,
-  width: 12,
-  height: 12,
-  background: "transparent",
-  border: "3px dashed #53288f",
-};
+const pendingSwatch: CSSProperties = { ...fanSwatch, opacity: 0.45 };
+const joinedSwatch: CSSProperties = { fontSize: 11, lineHeight: 1, opacity: 0.6 };
 
 function LegendRow({ swatch, text }: { swatch: ReactNode; text: string }) {
   return (
@@ -257,13 +240,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
       pinId: p.id,
     });
 
-  async function shareMine() {
-    if (!mine) return;
-    setSharing(true);
-    const ok = await shareMyPin(mine, lang, t.shareText).catch(() => false);
-    setSharing(false);
-    if (!ok) alert(t.shareFailed);
-  }
+  const shareMine = () => setSharing(true);
 
   function handleSubmitted(pin: FanPin) {
     try {
@@ -330,6 +307,10 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
       >
         {t.title}
       </h1>
+      )}
+
+      {sharing && mine && (
+        <ShareCardModal pin={mine} lang={lang} t={t} onClose={() => setSharing(false)} />
       )}
 
       <MapView
@@ -444,8 +425,8 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
         )}
 
         {mine && (
-          <button onClick={shareMine} disabled={sharing} style={overlayBtn}>
-            {sharing ? t.shareMaking : t.shareMyPin}
+          <button onClick={shareMine} style={overlayBtn}>
+            {t.shareMyPin}
           </button>
         )}
       </div>
@@ -484,11 +465,11 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
           }}
         >
           <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🐛</span>} text={t.legendListeners} />
-          <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🦋</span>} text={t.legendButterflies} />
-          <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
+          <LegendRow swatch={<span style={joinedSwatch}>🦋</span>} text={t.legendButterflies} />
+          <LegendRow swatch={<span style={fanSwatch}>🦋</span>} text={t.legendFans} />
           {mine && (
             <LegendRow
-              swatch={<span style={approvedMine ? mineSwatch : pendingSwatch} />}
+              swatch={<span style={approvedMine ? mineSwatch : pendingSwatch}>🦋</span>}
               text={approvedMine ? t.legendMe : t.legendPending}
             />
           )}
@@ -717,11 +698,11 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                   }}
                 >
                   <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🐛</span>} text={t.legendListeners} />
-          <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🦋</span>} text={t.legendButterflies} />
-                  <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
+          <LegendRow swatch={<span style={joinedSwatch}>🦋</span>} text={t.legendButterflies} />
+                  <LegendRow swatch={<span style={fanSwatch}>🦋</span>} text={t.legendFans} />
                   {mine && (
                     <LegendRow
-                      swatch={<span style={approvedMine ? mineSwatch : pendingSwatch} />}
+                      swatch={<span style={approvedMine ? mineSwatch : pendingSwatch}>🦋</span>}
                       text={approvedMine ? t.legendMe : t.legendPending}
                     />
                   )}
@@ -873,10 +854,9 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                       {mine && (
                         <button
                           onClick={shareMine}
-                          disabled={sharing}
                           style={{ ...ghostBtn, padding: "12px 16px", fontSize: 15, background: "#f2eafa" }}
                         >
-                          {sharing ? t.shareMaking : t.shareMyPin}
+                          {t.shareMyPin}
                         </button>
                       )}
                     </>

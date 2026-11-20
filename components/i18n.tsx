@@ -11,7 +11,7 @@ const en = {
   title: "🌎 Map of La Famiglia",
   searchPlaceholder: "Find a fan or city…",
   addYourself: "📍 Add yourself",
-  findMyPin: "✨ Find my pin",
+  findMyPin: "✨ Find my butterfly",
 
   // Map key (legend)
   legendTitle: "Map key",
@@ -20,16 +20,20 @@ const en = {
   butterflyCount: (n: number) =>
     `${n.toLocaleString("en-US")} ${n === 1 ? "butterfly" : "butterflies"} · joined La Famiglia`,
   shareButton: "📸 Share to your story",
-  shareMyPin: "📸 Share my pin",
+  shareMyPin: "📸 Share my butterfly",
   shareMaking: "Making your card…",
   shareFailed: "Couldn't make your card. Please try again.",
-  shareText: "I'm on the Map of La Famiglia 🦋",
-  shareHint: "Post it to your story and tag @daviscaruso_ 💜",
-  legendFans: "Fans · tap to read",
+    shareHint: "Post it to your story and tag @daviscaruso_ 💜",
+  shareTitle: "Your La Famiglia card 🦋",
+  shareSave: "📲 Save or share",
+  shareDownload: "⬇️ Download image",
+  shareHoldTip: "Or press and hold the picture to save it to your photos.",
+  shareClose: "Close",
+  legendFans: "Fans · tap to say hi",
   legendMe: "That's you",
-  legendPending: "Your pin, waiting for approval",
+  legendPending: "You, waiting for approval",
   stats: (stories: number, listens: number) =>
-    `${stories} fan ${stories === 1 ? "story" : "stories"} · ${listens.toLocaleString(
+    `${stories} ${stories === 1 ? "fan" : "fans"} · ${listens.toLocaleString(
       "en-US"
     )} listens worldwide`,
 
@@ -38,12 +42,12 @@ const en = {
     `${n.toLocaleString("en-US")} ${n === 1 ? "listen" : "listens"}`,
   somewhere: "Somewhere",
   thatsYou: "✨ That's you!",
-  pendingNote: "⏳ Your pin, pending approval",
+  pendingNote: "⏳ Your butterfly, pending approval",
 
   // Signup flow (welcome banner)
   flowTitle: "You're part of this 🌎",
   flowBody:
-    "Listeners from all over the world are on this map. Add yourself, tell me the first lyrics that pop into your head, and pick an emoji for your mood, or skip it and head straight to the updates. Totally up to you.",
+    "Listeners from all over the world are on this map. Add yourself as a butterfly 🦋 and pick an emoji for your mood, or skip it and head straight to the updates. Totally up to you.",
   flowAdd: "📍 Add myself",
   flowSkip: "Skip for now 😢",
   flowDoneTitle: "You're on the map! 💜",
@@ -67,10 +71,10 @@ const en = {
   sending: "Sending…",
   cancel: "Cancel",
   publicNote:
-    "Your name, lyrics and emoji will be public once approved (your email never is). Please keep links and email addresses out of your lyrics.",
+    "Your name, city and mood emoji will be public once approved (your email never is).",
   thanksTitle: "Thank you!",
   thanksBody:
-    "I read every pin before it goes live. In the meantime you'll see a dashed pin of your own on the map (just on this device).",
+    "I see every butterfly before it goes live. In the meantime you'll see a faded butterfly of your own on the map (just on this device). Make your share card now 👇",
   backToMap: "Back to the map",
   stayOnMap: "Stay on the map",
   emailSent: "📬 Check your inbox to confirm your email and get your song.",
@@ -106,7 +110,7 @@ const es: Strings = {
   title: "🌎 Mapa de La Famiglia",
   searchPlaceholder: "Busca a un fan o una ciudad…",
   addYourself: "📍 Agrégate",
-  findMyPin: "✨ Encuentra mi pin",
+  findMyPin: "✨ Encuentra mi mariposa",
 
   legendTitle: "Leyenda del mapa",
   legendListeners: "Oyentes",
@@ -114,28 +118,32 @@ const es: Strings = {
   butterflyCount: (n) =>
     `${n.toLocaleString("es")} ${n === 1 ? "mariposa" : "mariposas"} · se unieron a La Famiglia`,
   shareButton: "📸 Compartir en tu historia",
-  shareMyPin: "📸 Compartir mi pin",
+  shareMyPin: "📸 Compartir mi mariposa",
   shareMaking: "Creando tu tarjeta…",
   shareFailed: "No se pudo crear tu tarjeta. Inténtalo de nuevo.",
-  shareText: "Estoy en el Mapa de La Famiglia 🦋",
-  shareHint: "Publícala en tu historia y etiqueta a @daviscaruso_ 💜",
-  legendFans: "Fans · toca para leer",
+    shareHint: "Publícala en tu historia y etiqueta a @daviscaruso_ 💜",
+  shareTitle: "Tu tarjeta de La Famiglia 🦋",
+  shareSave: "📲 Guardar o compartir",
+  shareDownload: "⬇️ Descargar imagen",
+  shareHoldTip: "O mantén presionada la imagen para guardarla en tus fotos.",
+  shareClose: "Cerrar",
+  legendFans: "Fans · toca para saludar",
   legendMe: "Eres tú",
-  legendPending: "Tu pin, en espera de aprobación",
+  legendPending: "Tú, en espera de aprobación",
   stats: (stories, listens) =>
     `${stories} ${
-      stories === 1 ? "historia de fan" : "historias de fans"
+      stories === 1 ? "fan" : "fans"
     } · ${listens.toLocaleString("es")} reproducciones en el mundo`,
 
   listenCount: (n) =>
     `${n.toLocaleString("es")} ${n === 1 ? "reproducción" : "reproducciones"}`,
   somewhere: "En algún lugar",
   thatsYou: "✨ ¡Eres tú!",
-  pendingNote: "⏳ Tu pin, pendiente de aprobación",
+  pendingNote: "⏳ Tu mariposa, pendiente de aprobación",
 
   flowTitle: "Eres parte de esto 🌎",
   flowBody:
-    "Hay oyentes de todo el mundo en este mapa. Agrégate, dime la primera letra que te venga a la cabeza y elige un emoji para tu estado de ánimo, o sáltalo y pasa directo a las novedades. Tú decides.",
+    "Hay oyentes de todo el mundo en este mapa. Agrégate como mariposa 🦋 y elige un emoji para tu estado de ánimo, o sáltalo y pasa directo a las novedades. Tú decides.",
   flowAdd: "📍 Agregarme",
   flowSkip: "Saltar por ahora 😢",
   flowDoneTitle: "¡Ya estás en el mapa! 💜",
@@ -158,10 +166,10 @@ const es: Strings = {
   sending: "Enviando…",
   cancel: "Cancelar",
   publicNote:
-    "Tu nombre, la letra y tu emoji serán públicos una vez aprobados (tu correo nunca). Por favor, no incluyas enlaces ni correos en la letra.",
+    "Tu nombre, tu ciudad y tu emoji serán públicos una vez aprobados (tu correo nunca).",
   thanksTitle: "¡Gracias!",
   thanksBody:
-    "Reviso cada pin antes de publicarlo. Mientras tanto, verás tu propio pin con línea punteada en el mapa (solo en este dispositivo).",
+    "Veo cada mariposa antes de publicarla. Mientras tanto, verás tu propia mariposa, más tenue, en el mapa (solo en este dispositivo). Crea tu tarjeta ahora 👇",
   backToMap: "Volver al mapa",
   stayOnMap: "Quedarme en el mapa",
   emailSent: "📬 Revisa tu correo para confirmarlo y recibir tu canción.",
