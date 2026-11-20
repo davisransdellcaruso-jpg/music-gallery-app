@@ -52,6 +52,7 @@ export default function Amore({ streams, tracks }: Props) {
         <meta name="description" content="Amore — the new EP from Davis Caruso. Listen on Spotify, Apple Music and YouTube." />
         <meta property="og:title" content="Amore · Davis Caruso" />
         <meta property="og:description" content="The new EP. 5 songs, out now." />
+        <meta property="og:image" content="https://daviscaruso.com/images/amore.jpg" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
           href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,600&display=swap"
@@ -67,6 +68,8 @@ export default function Amore({ streams, tracks }: Props) {
             </button>
           ))}
         </div>
+
+        <img className="cover" src="/images/amore.jpg" alt="Amore EP cover" width={320} height={320} />
 
         <p className="name">DAVIS CARUSO</p>
         <h1>Amore</h1>
@@ -143,6 +146,14 @@ export default function Amore({ streams, tracks }: Props) {
         .langs button.on {
           background: #5e3d92;
           color: #fdf9ff;
+        }
+        .cover {
+          width: min(280px, 78vw);
+          height: auto;
+          aspect-ratio: 1;
+          border: 1px solid rgba(219, 164, 60, 0.65);
+          border-radius: 4px;
+          box-shadow: 0 18px 50px rgba(112, 72, 190, 0.25);
         }
         .name {
           margin: 0;
