@@ -1,6 +1,7 @@
 // pages/api/claim-song.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { randomUUID } from "crypto";
+import { noteButterfly } from "../../lib/butterflies";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { sendEmail } from "../../lib/sendEmail";
 import { SONG_BUCKET, SONGS } from "../../lib/songs";
@@ -152,6 +153,9 @@ export default async function handler(
       .status(500)
       .json({ error: "Something went wrong. Please try again.", code: "server" });
   }
+
+  // Becomes a 🦋 on the map once the email is confirmed
+  await noteButterfly(req, req.body?.visitorId, { email });
 
   const siteUrl = (process.env.SITE_URL || "https://daviscaruso.com").replace(
     /\/$/,

@@ -1,5 +1,6 @@
 "use client";
 
+import { shareMyPin, type SharablePin } from "@/lib/shareCard";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import type { FanPin } from "./MapView";
 import { MOODS } from "./moods";
@@ -119,6 +120,14 @@ async function geocode(q: string, lang: Lang, signal?: AbortSignal): Promise<Pla
   }
 }
 
+function storedVisitorId(): string | null {
+  try {
+    return localStorage.getItem("dc_visitor_id");
+  } catch {
+    return null;
+  }
+}
+
 export default function FanPinForm({
   lang,
   t,
@@ -143,6 +152,14 @@ export default function FanPinForm({
   const [sending, setSending] = useState(false);
   const [errKey, setErrKey] = useState<ErrKey | null>(null);
   const [done, setDone] = useState(false);
+  const [sharePin, setSharePin] = useState<SharablePin | null>(null);
+  const [shareState, setShareState] = useState<"idle" | "making" | "failed">("idle");
+  async function share() {
+    if (!sharePin) return;
+    setShareState("making");
+    const ok = await shareMyPin(sharePin, lang, t.shareText).catch(() => false);
+    setShareState(ok ? "idle" : "failed");
+  }
   const [email, setEmail] = useState("");
   const [emailResult, setEmailResult] = useState<EmailResult>(null);
   // Hide the email field for people this device already signed up
@@ -161,7 +178,12 @@ export default function FanPinForm({
       const r = await fetch(SIGNUP_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: addr, lang, location: where }),
+        body: JSON.stringify({
+          email: addr,
+          lang,
+          location: where,
+          visitorId: storedVisitorId(),
+        }),
       });
       if (!r.ok) return "failed";
       try {
@@ -249,6 +271,7 @@ export default function FanPinForm({
           story,
           mood,
           website,
+          visitorId: storedVisitorId(),
         }),
       });
       const j = await res.json().catch(() => ({}));
@@ -257,6 +280,7 @@ export default function FanPinForm({
         return;
       }
       if (j.id) {
+        setSharePin({ id: j.id, edit_token: j.token });
         onSubmitted({
           id: j.id,
           display_name: name.trim(),
@@ -329,6 +353,20 @@ export default function FanPinForm({
               >
                 {emailResult === "sent" ? t.emailSent : t.emailFailed}
               </p>
+            )}
+            {sharePin && (
+              <div style={{ margin: "4px 0 16px" }}>
+                <button
+                  onClick={share}
+                  disabled={shareState === "making"}
+                  style={{ ...primaryBtn, background: "#e8762c", width: "100%" }}
+                >
+                  {shareState === "making" ? t.shareMaking : t.shareButton}
+                </button>
+                <p style={{ color: shareState === "failed" ? "#c24a1c" : "#7e57c9", fontSize: 12, margin: "6px 0 0" }}>
+                  {shareState === "failed" ? t.shareFailed : t.shareHint}
+                </p>
+              </div>
             )}
             {onContinue ? (
               <div

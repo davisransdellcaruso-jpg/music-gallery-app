@@ -12,7 +12,8 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import FanPinForm from "./FanPinForm";
 import { useLang, type Lang } from "./i18n";
-import type { Cluster, FanPin, Focus } from "./MapView";
+import type { ButterflyCluster, Cluster, FanPin, Focus } from "./MapView";
+import { shareMyPin } from "@/lib/shareCard";
 
 // Leaflet touches `window`, so the map itself is client-only.
 const MapView = dynamic(() => import("./MapView"), {
@@ -169,6 +170,10 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
   const { lang, setLang, t } = useLang();
 
   const [clusters, setClusters] = useState<Cluster[]>([]);
+
+  const [butterflies, setButterflies] = useState<ButterflyCluster[]>([]);
+
+  const [sharing, setSharing] = useState(false);
   const [pins, setPins] = useState<FanPin[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -197,12 +202,15 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const [c, p] = await Promise.all([
+      const [c, p, b] = await Promise.all([
         supabase.rpc("listener_clusters"),
         supabase.rpc("fan_pins_public"),
+        // Until supabase/butterflies.sql has run this errors, and the map is all caterpillars
+        supabase.rpc("butterfly_clusters"),
       ]);
       if (cancelled) return;
       if (!c.error && c.data) setClusters(c.data as Cluster[]);
+      if (!b.error && b.data) setButterflies(b.data as ButterflyCluster[]);
       if (!p.error && p.data) setPins(p.data as FanPin[]);
       setLoading(false);
     }
@@ -248,6 +256,14 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
       key: Date.now(),
       pinId: p.id,
     });
+
+  async function shareMine() {
+    if (!mine) return;
+    setSharing(true);
+    const ok = await shareMyPin(mine, lang, t.shareText).catch(() => false);
+    setSharing(false);
+    if (!ok) alert(t.shareFailed);
+  }
 
   function handleSubmitted(pin: FanPin) {
     try {
@@ -318,6 +334,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
 
       <MapView
         clusters={clusters}
+        butterflies={butterflies}
         pins={pins}
         mineId={mineId}
         pendingPin={pendingPin}
@@ -425,6 +442,12 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
             {t.findMyPin}
           </button>
         )}
+
+        {mine && (
+          <button onClick={shareMine} disabled={sharing} style={overlayBtn}>
+            {sharing ? t.shareMaking : t.shareMyPin}
+          </button>
+        )}
       </div>
       )}
 
@@ -461,6 +484,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
           }}
         >
           <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🐛</span>} text={t.legendListeners} />
+          <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🦋</span>} text={t.legendButterflies} />
           <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
           {mine && (
             <LegendRow
@@ -693,6 +717,7 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                   }}
                 >
                   <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🐛</span>} text={t.legendListeners} />
+          <LegendRow swatch={<span style={{ fontSize: 14, lineHeight: 1 }}>🦋</span>} text={t.legendButterflies} />
                   <LegendRow swatch={<span style={fanSwatch} />} text={t.legendFans} />
                   {mine && (
                     <LegendRow
@@ -843,6 +868,15 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
                           style={{ ...ghostBtn, padding: "12px 16px", fontSize: 15, background: "#f2eafa" }}
                         >
                           {t.findMyPin}
+                        </button>
+                      )}
+                      {mine && (
+                        <button
+                          onClick={shareMine}
+                          disabled={sharing}
+                          style={{ ...ghostBtn, padding: "12px 16px", fontSize: 15, background: "#f2eafa" }}
+                        >
+                          {sharing ? t.shareMaking : t.shareMyPin}
                         </button>
                       )}
                     </>

@@ -9,6 +9,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createHash, randomBytes } from "crypto";
 import { MOODS } from "../../components/moods";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
+import { noteButterfly } from "../../lib/butterflies";
 
 const MAX_PINS_PER_HOUR_PER_IP = 3;
 
@@ -118,6 +119,9 @@ export default async function handler(
     console.error("fan-pins insert failed:", error);
     return fail(500, "server", "Couldn't save your pin.");
   }
+
+  // Becomes a 🦋 on the map once the pin is approved
+  await noteButterfly(req, body.visitorId, { pinId: data.id });
 
   return res.status(200).json({ ok: true, id: data.id, token });
 }

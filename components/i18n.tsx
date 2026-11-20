@@ -16,6 +16,15 @@ const en = {
   // Map key (legend)
   legendTitle: "Map key",
   legendListeners: "Listeners",
+  legendButterflies: "Joined La Famiglia",
+  butterflyCount: (n: number) =>
+    `${n.toLocaleString("en-US")} ${n === 1 ? "butterfly" : "butterflies"} · joined La Famiglia`,
+  shareButton: "📸 Share to your story",
+  shareMyPin: "📸 Share my pin",
+  shareMaking: "Making your card…",
+  shareFailed: "Couldn't make your card. Please try again.",
+  shareText: "I'm on the Map of La Famiglia 🦋",
+  shareHint: "Post it to your story and tag @daviscaruso_ 💜",
   legendFans: "Fans · tap to read",
   legendMe: "That's you",
   legendPending: "Your pin, waiting for approval",
@@ -101,6 +110,15 @@ const es: Strings = {
 
   legendTitle: "Leyenda del mapa",
   legendListeners: "Oyentes",
+  legendButterflies: "Se unieron a La Famiglia",
+  butterflyCount: (n) =>
+    `${n.toLocaleString("es")} ${n === 1 ? "mariposa" : "mariposas"} · se unieron a La Famiglia`,
+  shareButton: "📸 Compartir en tu historia",
+  shareMyPin: "📸 Compartir mi pin",
+  shareMaking: "Creando tu tarjeta…",
+  shareFailed: "No se pudo crear tu tarjeta. Inténtalo de nuevo.",
+  shareText: "Estoy en el Mapa de La Famiglia 🦋",
+  shareHint: "Publícala en tu historia y etiqueta a @daviscaruso_ 💜",
   legendFans: "Fans · toca para leer",
   legendMe: "Eres tú",
   legendPending: "Tu pin, en espera de aprobación",

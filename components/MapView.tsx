@@ -19,6 +19,18 @@ export type Cluster = {
   listeners: number;
 };
 
+export type ButterflyCluster = {
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  latitude: number;
+  longitude: number;
+  butterflies: number;
+};
+
+const areaKey = (a: { city: string | null; region: string | null; country: string | null }) =>
+  `${a.city ?? ""}|${a.region ?? ""}|${a.country ?? ""}`;
+
 export type FanPin = {
   id: string;
   display_name: string;
@@ -41,6 +53,7 @@ export type Focus = {
 
 type Props = {
   clusters: Cluster[];
+  butterflies?: ButterflyCluster[];
   pins: FanPin[];
   mineId: string | null; // an approved pin that belongs to this visitor
   pendingPin: FanPin | null; // this visitor's pin, still awaiting approval
@@ -93,7 +106,23 @@ const css = `
     80% { transform: scale(0.86, 1.12) translateY(-1px); }
     90% { transform: scale(1.06, 0.94); }
   }
-  @media (prefers-reduced-motion: reduce) { .dc-listener span { animation: none; } }
+  /* Butterflies: listeners who joined La Famiglia, gently fluttering */
+  .dc-butterfly { line-height: 1; cursor: default; user-select: none; z-index: 1; }
+  .dc-butterfly span {
+    display: inline-block;
+    filter: drop-shadow(0 0 4px rgba(242,194,122,0.7));
+    animation: dc-flutter 3.6s ease-in-out infinite;
+  }
+  @keyframes dc-flutter {
+    0%, 100% { transform: translateY(0) scaleX(1) rotate(-4deg); }
+    20% { transform: translateY(-3px) scaleX(0.55) rotate(2deg); }
+    30% { transform: translateY(-4px) scaleX(1) rotate(4deg); }
+    50% { transform: translateY(-1px) scaleX(0.6) rotate(0deg); }
+    60% { transform: translateY(-2px) scaleX(1) rotate(-3deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dc-listener span, .dc-butterfly span { animation: none; }
+  }
 
   /* Fan pins: cream dot, indigo outline, pink pulse */
     .fan-pin { width: 26px; height: 26px; cursor: pointer; }
@@ -167,6 +196,7 @@ function buildPopup(pin: FanPin, note?: string): HTMLElement {
 
 export default function MapView({
   clusters,
+  butterflies = [],
   pins,
   mineId,
   pendingPin,
@@ -263,7 +293,30 @@ export default function MapView({
     pinMarkerRef.current.clear();
 
     // Caterpillars: anonymous listeners, grouped by area
-    for (const c of clusters) {
+    // Listeners who joined La Famiglia show as butterflies instead of caterpillars
+    const joined = new Map<string, number>();
+    for (const b of butterflies) joined.set(areaKey(b), (joined.get(areaKey(b)) ?? 0) + b.butterflies);
+
+    for (const b of butterflies) {
+      const r = Math.min(14, 4 + Math.sqrt(b.butterflies) * 1.6);
+      const el = document.createElement("div");
+      el.className = "dc-butterfly";
+      el.style.fontSize = `${Math.round(9 + r)}px`;
+      const fly = document.createElement("span");
+      fly.textContent = "🦋";
+      fly.style.animationDelay = `${(Math.random() * 3.6).toFixed(2)}s`;
+      el.appendChild(fly);
+      const place = [b.city, b.region].filter(Boolean).join(", ") || t.somewhere;
+      el.title = `${place} · ${t.butterflyCount(b.butterflies)}`;
+      markersRef.current.push(
+        new maplibregl.Marker({ element: el }).setLngLat([b.longitude, b.latitude]).addTo(map)
+      );
+    }
+
+    for (const raw of clusters) {
+      const left = raw.listeners - (joined.get(areaKey(raw)) ?? 0);
+      if (left <= 0) continue; // everyone here has become a butterfly
+      const c = { ...raw, listeners: left };
       const r = Math.min(14, 4 + Math.sqrt(c.listeners) * 1.6);
       const el = document.createElement("div");
       el.className = "dc-listener";
@@ -313,7 +366,7 @@ export default function MapView({
       addPin(pin, isMine ? "mine" : "", isMine ? t.thatsYou : undefined);
     }
     if (pendingPin) addPin(pendingPin, "pending", t.pendingNote);
-  }, [clusters, pins, mineId, pendingPin, t]);
+  }, [clusters, butterflies, pins, mineId, pendingPin, t]);
 
   // ── Search / "find my pin": fly there, tilt, open the story ───────────
   useEffect(() => {
