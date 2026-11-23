@@ -37,14 +37,28 @@ function guessSong(slug: string): string {
 
 // ---- Months, in Ann Arbor time ---------------------------------------------
 
-// Midnight on the 1st of a month in Detroit, as a real instant.
-// month is 1-12 and may overflow (13 = January of the next year).
-function monthStart(year: number, month: number): Date {
-  const guess = new Date(Date.UTC(year, month - 1, 1, 5)); // midnight if on EST
+// Midnight on a given day in Detroit, as a real instant.
+// month is 1-12; month and day may overflow (13 = January of the next year).
+function dayStart(year: number, month: number, day: number): Date {
+  const guess = new Date(Date.UTC(year, month - 1, day, 5)); // midnight if on EST
   const hour = Number(
     new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", hourCycle: "h23" }).format(guess)
   );
   return new Date(guess.getTime() - hour * 3600e3); // on EDT that read 1:00, so step back
+}
+
+function monthStart(year: number, month: number): Date {
+  return dayStart(year, month, 1);
+}
+
+// "2026-11-23" → midnight that day in Detroit
+function dateStart(isoDate: string): Date {
+  const [y, m, d] = isoDate.slice(0, 10).split("-").map(Number);
+  return dayStart(y, m, d);
+}
+
+function shortDate(d: Date): string {
+  return d.toLocaleString("en-US", { timeZone: TZ, month: "short", day: "numeric" });
 }
 
 function monthKeyOf(d: Date): string {
@@ -84,7 +98,13 @@ type AdRow = {
   confirmed: number;
   resetAt: string | null;
   resetInMonth: boolean;
+  // Whose fans this ad set targets in the chosen week (ad_audiences), if set
+  audience: string | null;
 };
+
+// Meta ads are grouped into weekly folders (ad_weeks). Each week runs from its
+// start date until the next week starts.
+type WeekInfo = { week: number; label: string; startsOn: string; range: string };
 
 type Props = {
   statsKey: string;
@@ -92,7 +112,9 @@ type Props = {
   months: string[];
   platform: PlatformId;
   platformCounts: Record<string, number>;
-  ads: AdRow[]; // every ad this month, all platforms
+  ads: AdRow[]; // every ad in the chosen month (or week), all platforms
+  weeks: WeekInfo[]; // Meta's weekly folders; empty = Meta uses months too
+  week: number | null; // the chosen week, when weeks are in use
 };
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res }) => {
@@ -107,12 +129,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
     .from("ad_landings")
     .select("*")
     .order("created_at", { ascending: false });
+  // Ad sets hidden from this page (ad_landings.hidden), e.g. a retired ad
+  const visible = (landings ?? []).filter((l) => l.hidden !== true);
 
   // Months to offer: from the first ad activity (oldest ad page or oldest
   // streaming tap, whichever is earlier) up to this month.
   const nowKey = monthKeyOf(new Date());
   let firstKey = nowKey;
-  for (const l of landings ?? []) {
+  for (const l of visible) {
     if (l.created_at) {
       const k = monthKeyOf(new Date(l.created_at));
       if (k < firstKey) firstKey = k;
@@ -146,17 +170,59 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
   const asked = String(query.month ?? "");
   const month = months.includes(asked) ? asked : nowKey;
   const [y, m] = parseMonthKey(month);
-  const start = monthStart(y, m);
-  const end = monthStart(y, m + 1);
+  let start = monthStart(y, m);
+  let end = monthStart(y, m + 1);
 
   const askedPlatform = String(query.p ?? "").toLowerCase();
   const platform: PlatformId = PLATFORMS.some((p) => p.id === askedPlatform)
     ? (askedPlatform as PlatformId)
     : "reddit";
 
+  // Meta: weekly folders instead of months (see supabase/ad_weeks.sql).
+  // If the tables aren't there yet, Meta just keeps using months.
+  let weeks: WeekInfo[] = [];
+  let week: number | null = null;
+  const audienceBySlug: Record<string, string> = {};
+  if (platform === "meta") {
+    const { data: weekRows } = await supabaseAdmin
+      .from("ad_weeks")
+      .select("week, label, starts_on")
+      .eq("platform", "meta")
+      .order("starts_on", { ascending: true });
+    const rows = (weekRows ?? []).filter((w) => w.starts_on);
+    weeks = rows.map((w, i) => {
+      const from = dateStart(String(w.starts_on));
+      const next = rows[i + 1] ? dateStart(String(rows[i + 1].starts_on)) : null;
+      const lastDay = next ? new Date(next.getTime() - 12 * 3600e3) : null;
+      return {
+        week: Number(w.week),
+        label: String(w.label || `Week ${w.week}`),
+        startsOn: String(w.starts_on),
+        range: lastDay ? `${shortDate(from)} – ${shortDate(lastDay)}` : `${shortDate(from)} – now`,
+      };
+    });
+    if (weeks.length > 0) {
+      const askedWeek = Number(query.week);
+      const chosen = weeks.find((w) => w.week === askedWeek) ?? weeks[weeks.length - 1];
+      const i = weeks.indexOf(chosen);
+      week = chosen.week;
+      start = dateStart(chosen.startsOn);
+      end = weeks[i + 1] ? dateStart(weeks[i + 1].startsOn) : new Date(Date.now() + 3600e3);
+
+      const { data: audiences } = await supabaseAdmin
+        .from("ad_audiences")
+        .select("slug, audience")
+        .eq("week", chosen.week);
+      for (const a of audiences ?? []) audienceBySlug[String(a.slug)] = String(a.audience);
+    }
+  }
+
   const ads: AdRow[] = [];
-  for (const landing of landings ?? []) {
+  for (const landing of visible) {
     const slug = landing.slug as string;
+    const adPlatform = String(landing.platform || guessPlatform(slug)).toLowerCase();
+    // Only build the platform being looked at (plus unsorted pages)
+    if (adPlatform !== platform && PLATFORMS.some((p) => p.id === adPlatform)) continue;
     // Skip ad pages that didn't exist yet in the chosen month
     if (landing.created_at && new Date(landing.created_at) >= end) continue;
 
@@ -209,7 +275,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
     const count = (p: string) => tapRows.filter((t) => t.platform === p).length;
     ads.push({
       slug,
-      platform: String(landing.platform || guessPlatform(slug)).toLowerCase(),
+      platform: adPlatform,
       song: String(landing.song || guessSong(slug)),
       live: landing.active !== false,
       visitors,
@@ -221,13 +287,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
       confirmed,
       resetAt,
       resetInMonth: resetTime >= start.getTime() && resetTime < end.getTime(),
+      audience: audienceBySlug[slug] ?? null,
     });
   }
 
+  // Ad sets per platform, for the toggle (ads that existed by the end of the month)
+  const monthEnd = monthStart(y, m + 1);
   const platformCounts: Record<string, number> = {};
-  for (const a of ads) platformCounts[a.platform] = (platformCounts[a.platform] ?? 0) + 1;
+  for (const l of visible) {
+    if (l.created_at && new Date(l.created_at) >= monthEnd) continue;
+    const p = String(l.platform || guessPlatform(l.slug)).toLowerCase();
+    platformCounts[p] = (platformCounts[p] ?? 0) + 1;
+  }
 
-  return { props: { statsKey: String(query.key), month, months, platform, platformCounts, ads } };
+  return {
+    props: { statsKey: String(query.key), month, months, platform, platformCounts, ads, weeks, week },
+  };
 };
 
 // ---- Display ----------------------------------------------------------------
@@ -238,7 +313,7 @@ function pct(n: number, d: number) {
 }
 
 function verdict(a: { visitors: number; taps: number }): string {
-  if (a.visitors === 0) return "No one has landed on this page yet this month.";
+  if (a.visitors === 0) return "No one has landed on this page yet in this period.";
   if (a.taps === 0)
     return "People are landing here but nobody has tapped a streaming button yet. Check the clip and buttons on a phone, and compare with the click count in Ads Manager.";
   return `${pct(a.taps, a.visitors)} of visitors tapped through to listen.`;
@@ -309,6 +384,11 @@ function AdCard({ a }: { a: AdRow }) {
         {a.slug}
         {!a.live && <span className="off">switched off</span>}
       </h3>
+      {a.audience && (
+        <p className="audience">
+          Targeting <strong>{a.audience}</strong> fans
+        </p>
+      )}
       {a.resetAt && a.resetInMonth && <p className="hint reset">Counting since {formatReset(a.resetAt)} (stats reset)</p>}
       <p className="verdict">{verdict(a)}</p>
       <div className="funnel">
@@ -408,7 +488,7 @@ function PlatformView({ name, manager, ads, monthName }: { name: string; manager
                 rows={[...shown]
                   .sort((a, b) => (b.visitors ? b.taps / b.visitors : 0) - (a.visitors ? a.taps / a.visitors : 0))
                   .map((a) => ({
-                    label: a.slug,
+                    label: a.audience ? `${a.slug} (${a.audience})` : a.slug,
                     value: a.visitors ? a.taps / a.visitors : 0,
                     text: pct(a.taps, a.visitors),
                     note: `${a.taps} of ${a.visitors}`,
@@ -432,12 +512,15 @@ function PlatformView({ name, manager, ads, monthName }: { name: string; manager
   );
 }
 
-export default function AdStats({ statsKey, month, months, platform, platformCounts, ads }: Props) {
-  const href = (next: { month?: string; p?: string }) =>
-    `?key=${encodeURIComponent(statsKey)}&month=${next.month ?? month}&p=${next.p ?? platform}`;
+export default function AdStats({ statsKey, month, months, platform, platformCounts, ads, weeks, week }: Props) {
+  const href = (next: { month?: string; p?: string; week?: number }) =>
+    `?key=${encodeURIComponent(statsKey)}&month=${next.month ?? month}&p=${next.p ?? platform}` +
+    (next.week ? `&week=${next.week}` : "");
   const current = PLATFORMS.find((p) => p.id === platform) ?? PLATFORMS[0];
   const others = ads.filter((a) => !PLATFORMS.some((p) => p.id === a.platform));
-  const monthName = monthLabel(month, true);
+  const useWeeks = platform === "meta" && weeks.length > 0;
+  const chosenWeek = weeks.find((w) => w.week === week);
+  const monthName = useWeeks && chosenWeek ? `${chosenWeek.label} (${chosenWeek.range})` : monthLabel(month, true);
 
   return (
     <>
@@ -448,13 +531,23 @@ export default function AdStats({ statsKey, month, months, platform, platformCou
       <main className="adstats">
         <header>
           <h1>Ad pages</h1>
-          <nav className="months" aria-label="Month">
-            {months.map((k) => (
-              <a key={k} href={href({ month: k })} className={k === month ? "on" : ""}>
-                {monthLabel(k)}
-              </a>
-            ))}
-          </nav>
+          {useWeeks ? (
+            <nav className="months" aria-label="Week">
+              {weeks.map((w) => (
+                <a key={w.week} href={href({ week: w.week })} className={w.week === week ? "on" : ""} title={w.range}>
+                  📁 {w.label}
+                </a>
+              ))}
+            </nav>
+          ) : (
+            <nav className="months" aria-label="Month">
+              {months.map((k) => (
+                <a key={k} href={href({ month: k })} className={k === month ? "on" : ""}>
+                  {monthLabel(k)}
+                </a>
+              ))}
+            </nav>
+          )}
         </header>
 
         <nav className="toggle" aria-label="Platform">
@@ -467,7 +560,7 @@ export default function AdStats({ statsKey, month, months, platform, platformCou
         </nav>
 
         <PlatformView
-          key={`${platform}-${month}`}
+          key={`${platform}-${month}-${week ?? ""}`}
           name={current.name}
           manager={current.manager}
           monthName={monthName}
@@ -799,6 +892,11 @@ export default function AdStats({ statsKey, month, months, platform, platformCou
         }
         .adstats .hint strong {
           color: #3d2f55;
+        }
+        .adstats .audience {
+          margin: 2px 0 6px;
+          color: #715a99;
+          font-size: 0.95rem;
         }
         .adstats .reset {
           margin: -4px 0 10px;
