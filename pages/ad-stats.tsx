@@ -100,6 +100,8 @@ type AdRow = {
   resetInMonth: boolean;
   // Whose fans this ad set targets in the chosen week (ad_audiences), if set
   audience: string | null;
+  // Ad skips the page and goes straight to this platform (ad_landings.direct_to)
+  direct: string | null;
 };
 
 // Meta ads are grouped into weekly folders (ad_weeks). Each week runs from its
@@ -278,7 +280,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
       platform: adPlatform,
       song: String(landing.song || guessSong(slug)),
       live: landing.active !== false,
-      visitors,
+      // Straight-to-streaming ads never show the page, so every arrival is a tap
+      visitors: landing.direct_to ? Math.max(visitors, tapRows.length) : visitors,
       spotify: count("spotify"),
       apple: count("apple"),
       youtube: count("youtube"),
@@ -288,6 +291,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
       resetAt,
       resetInMonth: resetTime >= start.getTime() && resetTime < end.getTime(),
       audience: audienceBySlug[slug] ?? null,
+      direct: landing.direct_to ? String(landing.direct_to) : null,
     });
   }
 
@@ -312,7 +316,11 @@ function pct(n: number, d: number) {
   return `${Math.round((n / d) * 100)}%`;
 }
 
-function verdict(a: { visitors: number; taps: number }): string {
+const PLATFORM_NAMES: Record<string, string> = { spotify: "Spotify", apple: "Apple Music", youtube: "YouTube" };
+
+function verdict(a: { visitors: number; taps: number; direct: string | null }): string {
+  if (a.direct)
+    return `Sent straight to ${PLATFORM_NAMES[a.direct] ?? a.direct}: ${a.taps} people went through. Compare with the click count in Ads Manager.`;
   if (a.visitors === 0) return "No one has landed on this page yet in this period.";
   if (a.taps === 0)
     return "People are landing here but nobody has tapped a streaming button yet. Check the clip and buttons on a phone, and compare with the click count in Ads Manager.";

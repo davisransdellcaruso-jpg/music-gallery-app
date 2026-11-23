@@ -97,6 +97,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params, re
   const ad = await getAdLanding(params?.slug);
   if (!ad) return { notFound: true };
 
+  // Straight-to-streaming ads: hand off to /s/<slug>/<platform>, which logs the
+  // tap in ad_taps and redirects to Spotify (or Apple / YouTube).
+  if (ad.direct_to && /^https:\/\//.test(ad[`${ad.direct_to}_url`] ?? "")) {
+    res.setHeader("Cache-Control", "no-store");
+    return { redirect: { destination: `/s/${ad.slug}/${ad.direct_to}`, permanent: false } };
+  }
+
   // Temporary link, so this works whether or not the bucket is public
   const { data } = await supabaseAdmin.storage
     .from(AD_CLIP_BUCKET)

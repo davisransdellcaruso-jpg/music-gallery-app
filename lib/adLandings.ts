@@ -17,6 +17,9 @@ export type AdLanding = {
   spotify_url: string | null;
   apple_url: string | null;
   youtube_url: string | null;
+  // Set to 'spotify' / 'apple' / 'youtube' to skip the page: /s/<slug> logs the
+  // visit as a tap and sends people straight to that platform.
+  direct_to: AdPlatform | null;
   // Languages this page offers, e.g. {pt,id}. Empty / not set = English + Spanish.
   languages: AdLang[];
 };
@@ -52,6 +55,7 @@ export async function getAdLanding(slug: unknown): Promise<AdLanding | null> {
       spotify_url: data.spotify_url ?? null,
       apple_url: data.apple_url ?? null,
       youtube_url: data.youtube_url ?? null,
+      direct_to: AD_PLATFORMS.includes(data.direct_to) ? (data.direct_to as AdPlatform) : null,
       languages: Array.isArray(data.languages)
         ? Array.from(new Set((data.languages as unknown[]).filter(isAdLang)))
         : [],
