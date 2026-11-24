@@ -192,9 +192,13 @@ export default function ListenerMap({ flow = false, nextHref = "/story" }: Props
         supabase.rpc("butterfly_clusters"),
       ]);
       if (cancelled) return;
-      if (!c.error && c.data) setClusters(c.data as Cluster[]);
-      if (!b.error && b.data) setButterflies(b.data as ButterflyCluster[]);
-      if (!p.error && p.data) setPins(p.data as FanPin[]);
+      // Only hand the map new data when something changed, so it doesn't rebuild
+      // every marker on each one-minute refresh
+      const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+      if (!c.error && c.data) setClusters((old) => (same(old, c.data) ? old : (c.data as Cluster[])));
+      if (!b.error && b.data)
+        setButterflies((old) => (same(old, b.data) ? old : (b.data as ButterflyCluster[])));
+      if (!p.error && p.data) setPins((old) => (same(old, p.data) ? old : (p.data as FanPin[])));
       setLoading(false);
     }
     load();

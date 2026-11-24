@@ -99,7 +99,7 @@ const css = `
   .dc-listener { line-height: 1; cursor: default; user-select: none; }
   .dc-listener span {
     display: inline-block; transform-origin: 50% 100%;
-    filter: drop-shadow(0 1px 1px rgba(83,40,143,0.25));
+    will-change: transform;
     animation: dc-inch 2.8s ease-in-out infinite;
   }
   @keyframes dc-inch {
@@ -110,7 +110,7 @@ const css = `
   /* Butterflies: listeners who joined La Famiglia, gently fluttering */
   .dc-butterfly { line-height: 1; cursor: default; user-select: none; z-index: 1; opacity: 0.6; }
   .dc-butterfly span {
-    display: inline-block;
+    display: inline-block; will-change: transform;
     animation: dc-flutter 3.6s ease-in-out infinite;
   }
   @keyframes dc-flutter {
@@ -120,6 +120,10 @@ const css = `
     50% { transform: translateY(-1px) scaleX(0.6) rotate(0deg); }
     60% { transform: translateY(-2px) scaleX(1) rotate(-3deg); }
   }
+  /* While the map is being dragged/zoomed, hold every critter still */
+  .dc-moving .dc-listener span, .dc-moving .dc-butterfly span, .dc-moving .fan-pin .fly {
+    animation-play-state: paused;
+  }
   @media (prefers-reduced-motion: reduce) {
     .dc-listener span, .dc-butterfly span, .fan-pin .fly { animation: none; }
   }
@@ -128,8 +132,7 @@ const css = `
   .fan-pin { position: relative; width: 30px; height: 30px; cursor: pointer; z-index: 2; }
   .fan-pin .fly {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    font-size: 25px; line-height: 1;
-    filter: drop-shadow(0 1px 1.5px rgba(83,40,143,0.4));
+    font-size: 25px; line-height: 1; will-change: transform;
     animation: dc-flutter 3.6s ease-in-out infinite;
   }
   .fan-pin .mood {
@@ -229,6 +232,11 @@ export default function MapView({
     });
     mapRef.current = map;
 
+    // Pause the critters' animations while the map moves (much smoother panning)
+    const box = boxRef.current;
+    map.on("movestart", () => box.classList.add("dc-moving"));
+    map.on("moveend", () => box.classList.remove("dc-moving"));
+
     const phone = window.matchMedia("(max-width: 640px)").matches;
     if (!phone) {
       map.addControl(
@@ -258,10 +266,23 @@ export default function MapView({
           tileSize: 256,
           maxzoom: 14,
         });
-        map.setTerrain({ source: "dem", exaggeration: 1.3 });
       } catch {
         /* terrain is a nice-to-have */
       }
+      // 3D relief is costly to render, so it's only switched on while the map is tilted
+      let terrainOn = false;
+      const syncTerrain = () => {
+        const want = map.getPitch() > 5;
+        if (want === terrainOn || !map.getSource("dem")) return;
+        terrainOn = want;
+        try {
+          map.setTerrain(want ? { source: "dem", exaggeration: 1.3 } : null);
+        } catch {
+          /* ignore */
+        }
+      };
+      map.on("pitchend", syncTerrain);
+      syncTerrain();
     });
 
     return () => {
