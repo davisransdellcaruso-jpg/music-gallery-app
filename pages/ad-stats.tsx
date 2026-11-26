@@ -119,6 +119,22 @@ type Props = {
   week: number | null; // the chosen week, when weeks are in use
 };
 
+// Supabase returns at most 1,000 rows per request (a .limit() above that is
+// ignored), so read in pages until a short page comes back.
+const PAGE_SIZE = 1000;
+async function fetchAll<T>(
+  query: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await query(from, from + PAGE_SIZE - 1);
+    if (error) throw error;
+    rows.push(...(data ?? []));
+    if (!data || data.length < PAGE_SIZE) break;
+  }
+  return rows;
+}
+
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res }) => {
   const expected = process.env.STATS_KEY;
   if (!expected || query.key !== expected) return { notFound: true };
@@ -244,13 +260,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
     if (resetTime < end.getTime()) {
       // Landed on the page = the signup card on it was shown (bots are already
       // filtered out). Counted once per person, so reloads don't inflate it.
-      const { data: events } = await supabaseAdmin
-        .from("signup_events")
-        .select("event, visitor_id, source, page")
-        .gte("created_at", since)
-        .lt("created_at", until)
-        .or(`page.eq.${page},source.eq.${slug}`)
-        .limit(50000);
+      const events = await fetchAll<{ event: string; visitor_id: string | null; source: string | null; page: string | null }>(
+        (from, to) =>
+          supabaseAdmin
+            .from("signup_events")
+            .select("event, visitor_id, source, page")
+            .gte("created_at", since)
+            .lt("created_at", until)
+            .or(`page.eq.${page},source.eq.${slug}`)
+            .order("created_at", { ascending: true })
+            .range(from, to)
+      );
 
       const people = new Set<string>();
       let anonymousViews = 0;
@@ -264,14 +284,16 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, res
       }
       visitors = people.size + anonymousViews;
 
-      const { data: taps } = await supabaseAdmin
-        .from("ad_taps")
-        .select("platform")
-        .eq("ad_slug", slug)
-        .gte("tapped_at", since)
-        .lt("tapped_at", until)
-        .limit(50000);
-      tapRows = taps ?? [];
+      tapRows = await fetchAll<{ platform: string }>((from, to) =>
+        supabaseAdmin
+          .from("ad_taps")
+          .select("platform")
+          .eq("ad_slug", slug)
+          .gte("tapped_at", since)
+          .lt("tapped_at", until)
+          .order("tapped_at", { ascending: true })
+          .range(from, to)
+      );
     }
 
     const count = (p: string) => tapRows.filter((t) => t.platform === p).length;
