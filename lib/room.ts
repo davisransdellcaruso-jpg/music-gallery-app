@@ -90,17 +90,27 @@ export async function touchSupporter(res: NextApiResponse, email: string) {
   if (error) console.error("touchSupporter: couldn't record visit (run supabase/room_link_activity.sql?)", error.message);
 }
 
-// Case-insensitive lookup only: returns the email exactly as stored, or null. Never adds anyone.
-export async function lookupSupporter(email: string): Promise<string | null> {
+// Case-insensitive lookup of the stored row (select "*" so this still works
+// before the `blocked` column exists).
+async function supporterRow(email: string): Promise<{ email: string; blocked?: boolean } | null> {
   const clean = (email || "").trim().replace(/[\\%_]/g, (c) => `\\${c}`);
   if (!clean) return null;
   const { data } = await roomDb
     .from("supporters")
-    .select("email")
+    .select("*")
     .ilike("email", clean)
     .limit(1)
     .maybeSingle();
-  return data?.email ?? null;
+  return data ?? null;
+}
+
+// Case-insensitive lookup only: returns the email exactly as stored, or null. Never adds anyone.
+// Blocked supporters (supporters.blocked = true) count as not found, so they're locked out
+// right away and can't sign back in.
+export async function lookupSupporter(email: string): Promise<string | null> {
+  const row = await supporterRow(email);
+  if (!row || row.blocked === true) return null;
+  return row.email ?? null;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -111,8 +121,9 @@ export async function ensureSupporter(email: string): Promise<string | null> {
   const clean = (email || "").trim().toLowerCase();
   if (!EMAIL_RE.test(clean) || clean.length > 254) return null;
 
-  const existing = await lookupSupporter(clean);
-  if (existing) return existing;
+  const row = await supporterRow(clean);
+  if (row?.blocked === true) return null; // blocked: never re-added, never sent a link
+  if (row?.email) return row.email;
 
   const { error } = await roomDb.from("supporters").insert({ email: clean });
   // 23505 = already exists (two signups at once), which is fine
